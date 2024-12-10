@@ -39,5 +39,9 @@
       "last 1 firefox version",
       "last 1 safari version"
     ]
+  },
+  "devDependencies": {
+    "@types/terminal-kit": "^2.5.6",
+    "terminal-kit": "^3.1.1"
   }
 }
