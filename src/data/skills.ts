@@ -1,4 +1,4 @@
-export const SkillsData = [
+export const SkillData = [
   {
     id: "s.preliminalmeter",
     Label: "Preliminal Meter",

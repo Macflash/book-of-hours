@@ -1,4 +1,4 @@
-import { SkillsData } from "../data/skills";
+import { SkillData } from "../data/skills";
 import { PrincipleMap, Principles } from "./principles";
 
 export interface Skill extends PrincipleMap {
@@ -9,7 +9,7 @@ export interface Skill extends PrincipleMap {
 
 function GenerateSkills(): Skill[] {
   const skills: Skill[] = [];
-  for (const data of SkillsData) {
+  for (const data of SkillData) {
     const skill: Skill = {
       id: data.id,
       label: data.Label,
