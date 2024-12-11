@@ -48,7 +48,7 @@ function App() {
         />
         {/* Souls */}
         <div>
-          <div>Souls</div>
+          <div>Souls ({save.souls.length})</div>
           <div>
             {save.souls.map((soul, i) => (
               <div key={i} style={{ color: soul.color }}>
@@ -59,9 +59,10 @@ function App() {
         </div>
         {/* Skills */}
         <div>
-          <div>Skills</div>
+          <div>Skills ({save.skills.size})</div>
           <div>
-            {save.skills.values().map((skill, i) => (
+            {/* IDK why the iterator doesn't work, but this did so... moving on. */}
+            {[...save.skills.values()].map((skill, i) => (
               <div key={i} style={{}}>
                 {skill.label} ({skill.level}) {PrincipleList(skill)}
               </div>
