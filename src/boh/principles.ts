@@ -44,7 +44,7 @@ export type PrincipleMap = Partial<{
 
 export function FindBestByPrinciple<T extends PrincipleMap>(
   principle: Principle,
-  things: T[]
+  things: readonly T[]
 ): T {
   let bestThing = things[0];
   let bestValue = 0;

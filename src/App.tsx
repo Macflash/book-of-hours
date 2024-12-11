@@ -15,9 +15,15 @@ import {
   Trist,
   Wist,
 } from "./boh/souls";
-import { PrincipleColor, PrincipleMap, Principles } from "./boh/principles";
+import {
+  FindBestByPrinciple,
+  Principle,
+  PrincipleColor,
+  PrincipleMap,
+  Principles,
+} from "./boh/principles";
 import { ParseSave, Save } from "./boh/save";
-import { Assistants } from "./boh/assistance";
+import { Assistant, Assistants } from "./boh/assistance";
 
 type View = "load" | "assistance" | "read";
 
@@ -56,6 +62,62 @@ function App() {
               reader.readAsText(file);
             }}
           />
+        </header>
+      </div>
+    );
+  }
+
+  if (view == "assistance") {
+    type Help = Readonly<{
+      principle: Principle;
+      assistant: Assistant;
+      soul: Soul;
+      value: number;
+    }>;
+
+    const bestAssistanceMap = new Map<Principle, Help>();
+    for (const principle of Principles) {
+      const bestAssistant = FindBestByPrinciple(principle, Assistants);
+      const bestSoul = FindBestByPrinciple(principle, save.souls);
+      bestAssistanceMap.set(principle, {
+        principle,
+        assistant: bestAssistant,
+        soul: bestSoul,
+        value: (bestSoul[principle] || 0) + (bestAssistant[principle] || 0),
+      });
+    }
+
+    return (
+      <div className="App">
+        <header className="App-header">
+          <div>Assistance</div>
+          <div>
+            {[...bestAssistanceMap.values()].map(
+              ({ principle, assistant, soul, value }) => (
+                <div>
+                  <span key={principle}>
+                    <span
+                      style={{
+                        color: PrincipleColor(principle),
+                      }}
+                    >
+                      {principle}: {value}{" "}
+                    </span>
+                    <span
+                      style={{
+                        fontSize: "1rem",
+                      }}
+                    >
+                      {assistant.label}({assistant[principle]}) &
+                      <span style={{ color: soul.color }}>
+                        {soul.label}({soul[principle]})
+                      </span>
+                    </span>
+                  </span>
+                </div>
+              )
+            )}
+          </div>
         </header>
       </div>
     );
