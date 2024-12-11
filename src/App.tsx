@@ -16,63 +16,52 @@ import {
   Wist,
 } from "./boh/souls";
 import { PrincipleColor, PrincipleMap, Principles } from "./boh/principles";
-import { GetSkillById, Skill, Skills } from "./boh/skills";
+import { ParseSave, Save } from "./boh/save";
 
 function App() {
-  const souls: Soul[] = [
-    // TODO: Add souls here.
-    EvolveSoul(Chor),
-    EvolveSoul(Ereb),
-
-    EvolveSoul(Fet),
-    Fet,
-
-    EvolveSoul(Health),
-    Health,
-    Health,
-
-    EvolveSoul(Mettle),
-    EvolveSoul(Mettle),
-    Mettle,
-
-    EvolveSoul(Phost),
-    Phost,
-    Phost,
-
-    EvolveSoul(Shapt),
-
-    EvolveSoul(Trist),
-    Trist,
-
-    EvolveSoul(Wist),
-    Wist,
-  ];
-
-  const skills: Skill[] = [
-    GetSkillById("s.edictsmartial", 6),
-    GetSkillById("s.inks.revelation", 6),
-  ];
+  const [save, setSave] = React.useState<Save>({
+    souls: [],
+    skills: new Map(),
+  });
 
   return (
     <div className="App">
       <header className="App-header">
+        Load C:\Users\alexb\AppData\LocalLow\Weather Factory\Book of
+        Hours\AUTOSAVE.json
+        <input
+          type="file"
+          accept=".json"
+          placeholder="C:\Users\alexb\AppData\LocalLow\Weather Factory\Book of Hours\AUTOSAVE.json"
+          onChange={async (ev) => {
+            const file = ev.target.files![0];
+            console.log(file);
+            const reader = new FileReader();
+            reader.onload = (ev) => {
+              const text = ev.target?.result;
+              const newSave = ParseSave(JSON.parse(text?.toString() ?? ""));
+              console.log("Loaded", newSave);
+              setSave(newSave);
+            };
+            reader.readAsText(file);
+          }}
+        />
         {/* Souls */}
         <div>
           <div>Souls</div>
           <div>
-            {souls.map((soul, i) => (
+            {save.souls.map((soul, i) => (
               <div key={i} style={{ color: soul.color }}>
                 {SoulName(soul)} {PrincipleList(soul)}
               </div>
             ))}
           </div>
         </div>
-
         {/* Skills */}
         <div>
           <div>Skills</div>
           <div>
-            {skills.map((skill, i) => (
+            {save.skills.values().map((skill, i) => (
               <div key={i} style={{}}>
                 {skill.label} ({skill.level}) {PrincipleList(skill)}
               </div>
