@@ -42,6 +42,10 @@ export type PrincipleMap = Partial<{
   [key in Principle]: number;
 }>;
 
+export function Or0(n: number | undefined) {
+  return n ?? 0;
+}
+
 export function FindBestByPrinciple<T extends PrincipleMap>(
   principle: Principle,
   things: readonly T[]
@@ -49,8 +53,8 @@ export function FindBestByPrinciple<T extends PrincipleMap>(
   let bestThing = things[0];
   let bestValue = 0;
   for (const thing of things) {
-    if (thing[principle] || 0 > bestValue) {
-      bestValue = thing[principle] || 0;
+    if (Or0(thing[principle]) > bestValue) {
+      bestValue = Or0(thing[principle]);
       bestThing = thing;
     }
   }
@@ -61,8 +65,17 @@ export function FindBestByPrinciple<T extends PrincipleMap>(
 export function AddPrinciples(a: PrincipleMap, b: PrincipleMap): PrincipleMap {
   const result: PrincipleMap = {};
   for (const principle of Principles) {
-    result[principle] = (a[principle] || 0) + (b[principle] || 0);
+    result[principle] = Or0(a[principle]) + Or0(b[principle]);
   }
 
   return result;
+}
+
+export function MapPrinciples(principleMap: PrincipleMap) {
+  const map = new Map<Principle, number>();
+  for (const principle of Principles) {
+    if (!principleMap[principle]) continue;
+    map.set(principle, principleMap[principle]);
+  }
+  return [...map.entries()];
 }

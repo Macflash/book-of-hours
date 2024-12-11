@@ -1,9 +1,13 @@
 import { PrincipleMap } from "./principles";
+import { Season } from "./seasons";
 
 export interface Assistant extends PrincipleMap {
   id: string;
   label: string;
   fee: number;
+
+  season?: Season;
+  unusual?: boolean;
 
   candles?: boolean;
   wood?: boolean;
@@ -22,6 +26,7 @@ export const Assistants: ReadonlyArray<Readonly<Assistant>> = [
     fee: 12,
     moon: 2,
     sky: 1,
+    season: "winter",
   },
   {
     id: "assistance.orchardkeeper",
@@ -29,6 +34,7 @@ export const Assistants: ReadonlyArray<Readonly<Assistant>> = [
     fee: 12,
     nectar: 2,
     heart: 1,
+    season: "autumn",
   },
   {
     id: "assistance.barber",
@@ -36,6 +42,7 @@ export const Assistants: ReadonlyArray<Readonly<Assistant>> = [
     fee: 12,
     moth: 2,
     rose: 1,
+    season: "summer",
   },
   {
     id: "assistance.miner",
@@ -44,6 +51,7 @@ export const Assistants: ReadonlyArray<Readonly<Assistant>> = [
     scale: 2,
     forge: 1,
     moon: 1,
+    season: "spring",
   },
   {
     id: "assistance.rector",
@@ -92,6 +100,7 @@ export const Assistants: ReadonlyArray<Readonly<Assistant>> = [
     lantern: 4,
     fee: 24,
     fuel: true,
+    unusual: true,
   },
   {
     id: "assistance.fugitive",
@@ -100,6 +109,7 @@ export const Assistants: ReadonlyArray<Readonly<Assistant>> = [
     edge: 4,
     heart: 4,
     fee: 24,
+    unusual: true,
   },
   {
     id: "assistance.musician",
@@ -108,6 +118,7 @@ export const Assistants: ReadonlyArray<Readonly<Assistant>> = [
     rose: 4,
     nectar: 4,
     fee: 24,
+    unusual: true,
   },
   {
     id: "assistance.nun",
@@ -117,6 +128,7 @@ export const Assistants: ReadonlyArray<Readonly<Assistant>> = [
     grail: 4,
     fee: 24,
     omen: true,
+    unusual: true,
   },
   {
     id: "assistance.painter",
@@ -126,6 +138,7 @@ export const Assistants: ReadonlyArray<Readonly<Assistant>> = [
     rose: 4,
     fee: 24,
     pigment: true,
+    unusual: true,
   },
   {
     id: "assistance.poet",
@@ -135,5 +148,17 @@ export const Assistants: ReadonlyArray<Readonly<Assistant>> = [
     sky: 4,
     fee: 24,
     flower: true,
+    unusual: true,
   },
 ];
+
+export function GetAssistants(
+  season?: Season,
+  includeUnusual = true
+): Assistant[] {
+  return Assistants.filter((a) => {
+    if (a.season && a.season !== season) return false;
+    if (!includeUnusual && a.fee >= 24) return false;
+    return true;
+  });
+}

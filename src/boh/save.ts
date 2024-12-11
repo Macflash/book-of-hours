@@ -1,5 +1,5 @@
-import { Autosave } from "../data/save";
-import { PrincipleMap } from "./principles";
+import { PrincipleMap, Principles } from "./principles";
+import { GetRoomById, Room } from "./rooms";
 import { EvolveSkill, GetSkillById, Skill } from "./skills";
 import {
   Soul,
@@ -15,6 +15,7 @@ import * as Souls from "./souls";
 export interface Save {
   souls: Soul[];
   skills: Map<string, Skill>;
+  rooms: Room[];
 }
 
 interface Mutations extends PrincipleMap {
@@ -28,10 +29,15 @@ interface SaveJson {
 }
 
 interface Payload {
-  EntityId: string;
+  $type: string;
+  Id: string;
+  EntityId?: string;
   Quantity: number;
   Mutations: Mutations;
   Dominions?: Dominion[];
+  IsSealed?: boolean;
+  IsShrouded?: boolean;
+  HasPreviouslyUnshrouded?: boolean;
 }
 
 interface Dominion {
@@ -51,6 +57,7 @@ export function ParseSave(saveData: SaveJson) {
   const save: Save = {
     souls: [],
     skills: new Map(),
+    rooms: [],
   };
 
   function parseSphere(sphere: Sphere) {
@@ -79,6 +86,9 @@ export function ParseSave(saveData: SaveJson) {
         save.skills.set(skill.id, skill);
       }
     }
+
+    const room = ParseRoom(payload);
+    if (room) save.rooms.push(room);
 
     if (payload.Dominions) parseDominions(payload.Dominions);
   }
@@ -277,4 +287,33 @@ function ParseSoul({ EntityId, Quantity }: Payload): ReadonlySoul[] {
   }
 
   return souls;
+}
+
+function ParseRoom({
+  $type,
+  Id,
+  IsSealed, // not visible
+  IsShrouded, // able to be unlocked
+  HasPreviouslyUnshrouded,
+}: Payload): Room | null {
+  if ($type !== "PopulateTerrainFeatureCommand") return null;
+  // NOTE: this includes I think the open skill aspect slots!!
+  // TODO: all start with "wt.", e.g. "wt.hor.4", horoma slot 4 is open.
+  if (Id.indexOf("wt.") == 0) return null;
+
+  const roomData = GetRoomById(Id);
+  const room: Room = {
+    id: Id,
+    label: roomData.label,
+    sealed: IsSealed,
+    shrouded: IsShrouded,
+    hasPreviouslyUnshrouded: HasPreviouslyUnshrouded,
+  };
+  for (const principle of Principles) {
+    const required = roomData.preslots[0].required as PrincipleMap;
+    if (required[principle]) {
+      room[principle] = required[principle];
+    }
+  }
+  return room;
 }

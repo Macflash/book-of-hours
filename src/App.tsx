@@ -1,20 +1,6 @@
 import React from "react";
-import logo from "./logo.svg";
 import "./App.css";
-import {
-  Chor,
-  Ereb,
-  EvolveSoul,
-  Fet,
-  Health,
-  Mettle,
-  Phost,
-  Shapt,
-  Soul,
-  SoulName,
-  Trist,
-  Wist,
-} from "./boh/souls";
+import { Soul, SoulName } from "./boh/souls";
 import {
   FindBestByPrinciple,
   Principle,
@@ -22,8 +8,10 @@ import {
   PrincipleMap,
   Principles,
 } from "./boh/principles";
-import { ParseSave, Save } from "./boh/save";
+import { Save } from "./boh/save";
 import { Assistant, Assistants } from "./boh/assistance";
+import { LoadView } from "./views/load";
+import { AssistanceView } from "./views/assistance";
 
 type View = "load" | "assistance" | "read";
 
@@ -32,95 +20,22 @@ function App() {
   const [save, setSave] = React.useState<Save>({
     souls: [],
     skills: new Map(),
+    rooms: [],
   });
 
   if (view == "load") {
     return (
-      <div className="App">
-        <header className="App-header">
-          <input
-            style={{ width: 400 }}
-            type="text"
-            readOnly
-            value="C:\Users\alexb\AppData\LocalLow\Weather Factory\Book of Hours\AUTOSAVE.json"
-          />
-          <input
-            type="file"
-            accept=".json"
-            placeholder="C:\Users\alexb\AppData\LocalLow\Weather Factory\Book of Hours\AUTOSAVE.json"
-            onChange={async (ev) => {
-              const file = ev.target.files![0];
-              console.log(file);
-              const reader = new FileReader();
-              reader.onload = (ev) => {
-                const text = ev.target?.result;
-                const newSave = ParseSave(JSON.parse(text?.toString() ?? ""));
-                console.log("Loaded", newSave);
-                setSave(newSave);
-                setView("assistance");
-              };
-              reader.readAsText(file);
-            }}
-          />
-        </header>
-      </div>
+      <LoadView
+        setSave={(newSave: Save) => {
+          setSave(newSave);
+          setView("assistance");
+        }}
+      />
     );
   }
 
   if (view == "assistance") {
-    type Help = Readonly<{
-      principle: Principle;
-      assistant: Assistant;
-      soul: Soul;
-      value: number;
-    }>;
-
-    const bestAssistanceMap = new Map<Principle, Help>();
-    for (const principle of Principles) {
-      const bestAssistant = FindBestByPrinciple(principle, Assistants);
-      const bestSoul = FindBestByPrinciple(principle, save.souls);
-      bestAssistanceMap.set(principle, {
-        principle,
-        assistant: bestAssistant,
-        soul: bestSoul,
-        value: (bestSoul[principle] || 0) + (bestAssistant[principle] || 0),
-      });
-    }
-
-    return (
-      <div className="App">
-        <header className="App-header">
-          <div>Assistance</div>
-          <div>
-            {[...bestAssistanceMap.values()].map(
-              ({ principle, assistant, soul, value }) => (
-                <div>
-                  <span key={principle}>
-                    <span
-                      style={{
-                        color: PrincipleColor(principle),
-                      }}
-                    >
-                      {principle}: {value}{" "}
-                    </span>
-                    <span
-                      style={{
-                        fontSize: "1rem",
-                      }}
-                    >
-                      {assistant.label}({assistant[principle]}) &
-                      <span style={{ color: soul.color }}>
-                        {soul.label}({soul[principle]})
-                      </span>
-                    </span>
-                  </span>
-                </div>
-              )
-            )}
-          </div>
-        </header>
-      </div>
-    );
+    return <AssistanceView save={save} />;
   }
 
   return (
