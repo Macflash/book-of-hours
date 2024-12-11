@@ -1,4 +1,4 @@
-import { TerrainData } from "../data/terrain";
+import { TerrainData } from "../data/terrain_data";
 import { PrincipleMap } from "./principles";
 
 export interface Room extends PrincipleMap {

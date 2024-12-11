@@ -1,4 +1,4 @@
-export const Workstations = [
+export const WorkstationData = [
   // workstations_library_world
   {
     id: "library.altar.ascite",

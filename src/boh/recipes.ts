@@ -1,4 +1,4 @@
-import { RecipeData } from "../data/recipes";
+import { RecipeData } from "../data/recipe_data";
 import { PrincipleMap, Principles } from "./principles";
 
 export interface Recipe extends PrincipleMap {

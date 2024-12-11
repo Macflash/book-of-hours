@@ -1,4 +1,4 @@
-import { SkillData } from "../data/skills";
+import { SkillData } from "../data/skill_data";
 import { PrincipleMap, Principles } from "./principles";
 
 export interface Skill extends PrincipleMap {
