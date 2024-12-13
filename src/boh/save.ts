@@ -1,3 +1,5 @@
+import { WorkstationData } from "../data/workstation_data";
+import { Workstation } from "./crafting";
 import { PrincipleMap, Principles } from "./principles";
 import { GetRoomById, Room } from "./rooms";
 import { EvolveSkill, GetSkillById, Skill } from "./skills";
@@ -16,6 +18,7 @@ export interface Save {
   souls: Soul[];
   skills: Map<string, Skill>;
   rooms: Room[];
+  workstations: Workstation[];
 }
 
 interface Mutations extends PrincipleMap {
@@ -31,7 +34,11 @@ interface SaveJson {
 interface Payload {
   $type: string;
   Id: string;
+  /** Things or items seem to use this */
   EntityId?: string;
+
+  /** Workstations or "verbs" use this */
+  VerbId?: string;
   Quantity: number;
   Mutations: Mutations;
   Dominions?: Dominion[];
@@ -58,6 +65,7 @@ export function ParseSave(saveData: SaveJson) {
     souls: [],
     skills: new Map(),
     rooms: [],
+    workstations: [],
   };
 
   function parseSphere(sphere: Sphere) {
@@ -87,10 +95,17 @@ export function ParseSave(saveData: SaveJson) {
       }
     }
 
+    const workstation = ParseWorkstation(payload);
+    if (workstation) save.workstations.push(workstation);
+
     const room = ParseRoom(payload);
     if (room) save.rooms.push(room);
 
-    if (payload.Dominions) parseDominions(payload.Dominions);
+    if (payload.Dominions) {
+      if (payload.IsSealed) {
+        console.log("skipping sealed dominion", payload.Id);
+      } else parseDominions(payload.Dominions);
+    }
   }
 
   for (const sphere of spheres) {
@@ -101,6 +116,12 @@ export function ParseSave(saveData: SaveJson) {
 }
 
 const PATH_SOUL = "~/hand.abilities";
+
+function ParseWorkstation({ VerbId }: Payload): Workstation | null {
+  if (!VerbId) return null;
+  // "VerbId": "library.desk.reading.consider",
+  return WorkstationData.find((w) => w.id === VerbId) as Workstation;
+}
 
 function ParseSkill({ EntityId, Mutations }: Payload): Readonly<Skill> | null {
   if (!EntityId) return null;
@@ -309,6 +330,10 @@ function ParseRoom({
     shrouded: IsShrouded,
     hasPreviouslyUnshrouded: HasPreviouslyUnshrouded,
   };
+
+  // Filter out totally hidden rooms as you can't use them or their stuff.
+  if (room.sealed) return null;
+
   for (const principle of Principles) {
     const required = roomData.preslots[0].required as PrincipleMap;
     if (required[principle]) {

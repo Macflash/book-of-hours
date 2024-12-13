@@ -1,19 +1,12 @@
 import React from "react";
 import "./App.css";
-import { Soul, SoulName } from "./boh/souls";
-import {
-  FindBestByPrinciple,
-  Principle,
-  PrincipleColor,
-  PrincipleMap,
-  Principles,
-} from "./boh/principles";
 import { Save } from "./boh/save";
-import { Assistant, Assistants } from "./boh/assistance";
 import { LoadView } from "./views/load";
 import { AssistanceView } from "./views/assistance";
+import { CraftingView } from "./views/crafting";
+import { ReadingView } from "./views/reading";
 
-type View = "load" | "assistance" | "read";
+type View = "load" | "assistance" | "read" | "crafting";
 
 function App() {
   const [view, setView] = React.useState<View>("load");
@@ -21,77 +14,52 @@ function App() {
     souls: [],
     skills: new Map(),
     rooms: [],
+    workstations: [],
   });
 
+  let body = <div>Unknown view</div>;
+
   if (view == "load") {
-    return (
+    body = (
       <LoadView
         setSave={(newSave: Save) => {
           setSave(newSave);
-          setView("assistance");
+          setView("read");
         }}
       />
     );
   }
 
   if (view == "assistance") {
-    return <AssistanceView save={save} />;
+    body = <AssistanceView save={save} />;
+  }
+
+  if (view == "crafting") {
+    body = <CraftingView save={save} />;
+  }
+
+  if (view == "read") {
+    body = <ReadingView save={save} />;
   }
 
   return (
     <div className="App">
-      <header className="App-header">
-        {/* Souls */}
-        <div>
-          <div>Souls ({save.souls.length})</div>
-          <div>
-            {save.souls.map((soul, i) => (
-              <div key={i} style={{ color: soul.color }}>
-                {SoulName(soul)} {PrincipleList(soul)}
-              </div>
-            ))}
-          </div>
+      {view !== "load" ? (
+        <div style={{ position: "sticky", top: 0, backgroundColor: "#282c34" }}>
+          <select
+            value={view}
+            onChange={(ev) => {
+              setView(ev.target.value as View);
+            }}
+          >
+            <option value="assistance">Assistance</option>
+            <option value="crafting">Crafting</option>
+            <option value="read">Read</option>
+          </select>
         </div>
-        {/* Skills */}
-        <div>
-          <div>Skills ({save.skills.size})</div>
-          <div>
-            {/* IDK why the iterator doesn't work, but this did so... moving on. */}
-            {[...save.skills.values()].map((skill, i) => (
-              <div key={i} style={{}}>
-                {skill.label} ({skill.level}) {PrincipleList(skill)}
-              </div>
-            ))}
-          </div>
-        </div>
-        {/* Assistants */}
-        <div>
-          <div>Assistants ({Assistants.length})</div>
-          <div>
-            {/* IDK why the iterator doesn't work, but this did so... moving on. */}
-            {Assistants.map((assistant, i) => (
-              <div key={i} style={{}}>
-                {assistant.label} ({assistant.fee}¢) {PrincipleList(assistant)}
-              </div>
-            ))}
-          </div>
-        </div>
-      </header>
+      ) : null}
+      <header className="App-header">{body}</header>
     </div>
-  );
-}
-
-function PrincipleList(map: PrincipleMap) {
-  return (
-    <>
-      {Principles.filter((p) => map[p])
-        .sort((a, b) => (map[b] || 0) - (map[a] || 0))
-        .map((p) => (
-          <span key={p} style={{ fontSize: "1rem", color: PrincipleColor(p) }}>
-            {p}: {map[p]},{" "}
-          </span>
-        ))}
-    </>
   );
 }
 

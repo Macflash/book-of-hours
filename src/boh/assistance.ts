@@ -157,7 +157,7 @@ export function GetAssistants(
   includeUnusual = true
 ): Assistant[] {
   return Assistants.filter((a) => {
-    if (a.season && a.season !== season) return false;
+    if (season && a.season && a.season !== season) return false;
     if (!includeUnusual && a.fee >= 24) return false;
     return true;
   });
