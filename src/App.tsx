@@ -6,7 +6,7 @@ import { AssistanceView } from "./views/assistance";
 import { CraftingView } from "./views/crafting";
 import { ReadingView } from "./views/reading";
 
-type View = "load" | "assistance" | "read" | "crafting";
+type View = "load" | "assistance" | "read" | "crafting" | "lesson";
 
 function App() {
   const [view, setView] = React.useState<View>("load");
@@ -41,6 +41,9 @@ function App() {
   if (view == "read") {
     body = <ReadingView save={save} />;
   }
+
+  // TODO: Add a view for LESSONS, which can find a bunch of matching memories
+  // for a specific skill!
 
   return (
     <div className="App">
