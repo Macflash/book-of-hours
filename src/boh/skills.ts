@@ -28,6 +28,7 @@ function GenerateSkills(): Skill[] {
 }
 
 export const Skills = GenerateSkills();
+console.log("Skills", Skills);
 
 export function GetSkillById(id: string, level = 1): Skill {
   const skill = Skills.find((s) => s.id === id);
@@ -46,5 +47,3 @@ export function EvolveSkill(skill: Skill, level = 1): Skill {
 
   return EvolveSkill(skill, level - 1);
 }
-
-console.log("Skills", Skills);

@@ -82,8 +82,15 @@ function GenerateItems() {
       const proto = GetPrototype(data.inherits);
       AddAspectsInplace(item, proto);
     }
+    const spawns = data.xtriggers?.scrutiny?.[0];
+    if (spawns) item.consider_spawn_id = spawns.id;
+
     return item;
   });
+}
+
+export function GetItemsByConsiderSpawnId(id: string): Item[] {
+  return Items.filter((i) => i.consider_spawn_id == id);
 }
 
 export function GetMatchingItems(required: AspectMap, essential?: AspectMap) {
@@ -97,22 +104,15 @@ export function GetMatchingItems(required: AspectMap, essential?: AspectMap) {
 export interface Item extends AspectMap {
   id: string;
   label: string;
+
+  /** Anything that spawns when you consider it */
+  consider_spawn_id?: string;
 }
 
 export interface Memory extends Item {
   persistent?: boolean;
   numen?: boolean;
 }
-
-// has requirements, and produces an item, and has a time
-interface Recipe extends Item {
-  warmup: number;
-  produces: Item;
-}
-
-// TODO: DO THIS
-// need a map from SKILL --> recipes
-// need a map from ITEM --> Recipes that create it
 
 export interface WorkstationSlot {
   id: string;

@@ -1,32 +1,65 @@
 import { RecipeData } from "../data/recipe_data";
-import { PrincipleMap, Principles } from "./principles";
+import { AspectMap } from "./aspects";
+import { Principles } from "./principles";
+import { GetSkillById } from "./skills";
 
-export interface Recipe extends PrincipleMap {
+export interface Recipe extends AspectMap {
   id: string;
   label: string;
+  duration: number;
+
+  /** Skill required to make the recipe */
+  skill_id: string;
+
+  /** Ids of the result of the recipe */
+  result_ids: string[];
 }
 
 function GenerateRecipes(): Recipe[] {
   const recipes: Recipe[] = [];
   for (const data of RecipeData) {
-    const recipe: Recipe = {
-      id: data.id,
-      label: data.Label,
-    };
-    for (const principle of Principles) {
-      if (data.reqs[principle]) {
-        recipe[principle] = data.reqs[principle];
+    let skill_id = "";
+    for (const key of Object.keys(data.reqs)) {
+      if (key.startsWith("s.")) {
+        skill_id = key;
       }
     }
+
+    const recipe: Recipe = {
+      ...data.reqs,
+      id: data.id,
+      label: data.Label,
+      skill_id,
+      duration: data.warmup,
+      result_ids: Object.keys(data.effects),
+    };
+
     recipes.push(recipe);
   }
   return recipes;
 }
 
 export const Recipes = GenerateRecipes();
+console.log("Recipes", Recipes);
 
-export function GetRecipesById(id: string): Recipe {
+export function GetRecipeById(id: string): Recipe {
   const recipe = Recipes.find((r) => r.id === id);
   if (!recipe) throw new Error(`Couldn't find recipe id: ${id}`);
   return recipe;
+}
+
+export function GetRecipesBySkill(skill_id: string): Recipe[] {
+  return Recipes.filter((r) => r.skill_id === skill_id);
+}
+
+export function GetRecipesByResult(result_id: string): Recipe[] {
+  return Recipes.filter((r) => r.result_ids.includes(result_id));
+}
+
+export function ToRecipeString(recipe: Recipe): string {
+  return `${GetSkillById(recipe.skill_id).label}: ${Principles.filter(
+    (p) => recipe[p]
+  )
+    .map((p) => `${p} ${recipe[p]}`)
+    .join(", ")}`;
 }

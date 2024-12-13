@@ -6,8 +6,11 @@ import { AssistanceView } from "./views/assistance";
 import { CraftingView } from "./views/crafting";
 import { ReadingView } from "./views/reading";
 import { LessonView } from "./views/lesson";
+import { GetRecipesBySkill } from "./boh/recipes";
 
 type View = "load" | "assistance" | "read" | "crafting" | "lesson";
+
+GetRecipesBySkill("s.inks.revelation");
 
 function App() {
   const [view, setView] = React.useState<View>("load");
@@ -18,7 +21,7 @@ function App() {
     workstations: [],
   });
 
-  let body = <div>Unknown view</div>;
+  let body = <div>Unknown view: {view}</div>;
 
   if (view == "load") {
     body = (
