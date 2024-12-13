@@ -5,6 +5,7 @@ import { LoadView } from "./views/load";
 import { AssistanceView } from "./views/assistance";
 import { CraftingView } from "./views/crafting";
 import { ReadingView } from "./views/reading";
+import { LessonView } from "./views/lesson";
 
 type View = "load" | "assistance" | "read" | "crafting" | "lesson";
 
@@ -35,6 +36,7 @@ function App() {
   }
 
   if (view == "crafting") {
+    // This view is SUPER slow.
     body = <CraftingView save={save} />;
   }
 
@@ -42,13 +44,21 @@ function App() {
     body = <ReadingView save={save} />;
   }
 
-  // TODO: Add a view for LESSONS, which can find a bunch of matching memories
-  // for a specific skill!
+  if (view == "lesson") {
+    body = <LessonView save={save} />;
+  }
 
   return (
     <div className="App">
       {view !== "load" ? (
-        <div style={{ position: "sticky", top: 0, backgroundColor: "#282c34" }}>
+        <div
+          style={{
+            textAlign: "left",
+            position: "sticky",
+            top: 0,
+            backgroundColor: "#282c34",
+          }}
+        >
           <select
             value={view}
             onChange={(ev) => {
@@ -58,6 +68,7 @@ function App() {
             <option value="assistance">Assistance</option>
             <option value="crafting">Crafting</option>
             <option value="read">Read</option>
+            <option value="lesson">Lessons</option>
           </select>
         </div>
       ) : null}

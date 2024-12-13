@@ -21,6 +21,8 @@ function CheckAllRecipes(save: Save) {
   console.log("starting recipes...");
   const start = Date.now();
   for (const data of RecipeData) {
+    // This is so slow. We maybe just want to stick to a specific RECIPE, or ASPECT.
+    break;
     // These are the reqs that ALL must be met.
     const recipeReqs: AspectMap = data.reqs;
     // console.log(data.Label, recipeReqs);

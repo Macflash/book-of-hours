@@ -1,4 +1,4 @@
-import { Item, GetItemById } from "../boh/crafting";
+import { FavMemories, IsFavMemory, Memories, Memory } from "../boh/crafting";
 import {
   Principle,
   Principles,
@@ -15,22 +15,8 @@ interface Help {
   soul: Soul;
   skill: Skill;
   value: number;
-  memory: item;
+  memory: Memory;
 }
-
-const favMemories: Item[] = [
-  "didumos",
-  "windinwaiting",
-  "ascendant.harmony",
-  "wormwood.dream",
-  "old.wound",
-  "forbidden.epic",
-  "invincible.audacity",
-  "enduring.reflection",
-  "earthsign",
-  "numen.desc",
-].map((id) => GetItemById(id)! as Item);
-console.log("fav memories", favMemories);
 
 export function ReadingView({ save }: { save: Save }) {
   // Get best skill and soul per principle
@@ -38,22 +24,31 @@ export function ReadingView({ save }: { save: Save }) {
   for (const principle of Principles) {
     const skill = FindBestByPrinciple(principle, [...save.skills.values()]);
     const soul = FindBestByPrinciple(principle, save.souls);
-    const memory = FindBestByPrinciple(principle, favMemories);
+    const favMemory = FindBestByPrinciple(principle, FavMemories);
+    const memory = FindBestByPrinciple(
+      principle,
+      Memories.filter((m) => !m.numen)
+    );
+    const bestMemory =
+      Or0(favMemory[principle]) >= Or0(memory[principle]) ? favMemory : memory;
     bestMap.set(principle, {
       principle,
       skill,
-      memory,
+      memory: bestMemory,
       soul,
       value:
-        Or0(soul[principle]) + Or0(skill[principle]) + Or0(memory[principle]),
+        Or0(soul[principle]) +
+        Or0(skill[principle]) +
+        Or0(bestMemory[principle]),
     });
   }
 
   return (
     <div>
-      {[...bestMap.values()].map(
-        ({ memory, principle, skill, soul, value }) => (
-          <div>
+      {[...bestMap.values()]
+        .sort((a, b) => b.value - a.value)
+        .map(({ memory, principle, skill, soul, value }) => (
+          <div key={principle}>
             <span key={principle}>
               <span
                 style={{
@@ -71,12 +66,17 @@ export function ReadingView({ save }: { save: Save }) {
                 <span style={{ color: soul.color }}>
                   {soul.label}({soul[principle]})
                 </span>{" "}
-                & {memory.label}({memory[principle]})
+                &{" "}
+                <span
+                  style={{ color: IsFavMemory(memory.id) ? "gold" : undefined }}
+                >
+                  {memory.label}
+                </span>
+                ({memory[principle]})
               </span>
             </span>
           </div>
-        )
-      )}
+        ))}
     </div>
   );
 }

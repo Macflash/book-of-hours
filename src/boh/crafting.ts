@@ -46,8 +46,29 @@ function GetPrototype(id: string) {
   return proto;
 }
 
-const Items = GenerateItems();
+export const Items = GenerateItems();
 console.log("Items", Items);
+
+export const Memories = Items.filter((i) => i.memory) as Memory[];
+
+export const FavMemories: Memory[] = [
+  "mem.fear",
+  "mem.scent",
+  "didumos",
+  "windinwaiting",
+  "ascendant.harmony",
+  "wormwood.dream",
+  "old.wound",
+  "forbidden.epic",
+  "invincible.audacity",
+  "enduring.reflection",
+  "earthsign",
+  "numen.desc",
+].map((id) => GetItemById(id)! as Memory);
+
+export function IsFavMemory(id: string) {
+  return FavMemories.some((m) => m.id == id);
+}
 
 export function GetItemById(id: string) {
   return Items.find((item) => item.id == id);
@@ -77,6 +98,21 @@ export interface Item extends AspectMap {
   id: string;
   label: string;
 }
+
+export interface Memory extends Item {
+  persistent?: boolean;
+  numen?: boolean;
+}
+
+// has requirements, and produces an item, and has a time
+interface Recipe extends Item {
+  warmup: number;
+  produces: Item;
+}
+
+// TODO: DO THIS
+// need a map from SKILL --> recipes
+// need a map from ITEM --> Recipes that create it
 
 export interface WorkstationSlot {
   id: string;

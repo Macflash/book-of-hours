@@ -12,7 +12,8 @@ import {
 import { Soul } from "../boh/souls";
 import { Save } from "../boh/save";
 import { Season } from "../boh/seasons";
-import { GetItemById, Item } from "../boh/crafting";
+import { FavMemories, Item } from "../boh/crafting";
+import { PrincipleSpan } from "../components/principleList";
 
 interface Help {
   principle: Principle;
@@ -22,23 +23,8 @@ interface Help {
   value: number;
 }
 
-const favMemories: Item[] = [
-  "didumos",
-  "windinwaiting",
-  "ascendant.harmony",
-  "wormwood.dream",
-  "old.wound",
-  "forbidden.epic",
-  "invincible.audacity",
-  "enduring.reflection",
-  "earthsign",
-  "numen.desc",
-].map((id) => GetItemById(id)! as Item);
-console.log("fav memories", favMemories);
-
 export function AssistanceView({ save }: { save: Save }) {
   const [season, setSeason] = React.useState<Season | undefined>(undefined);
-  const [allowUnusual, setAllowUnusual] = React.useState<boolean>(true);
 
   // list rooms that need to be unlocked
   const roomsToOpen = save.rooms.filter((r) => r.shrouded && !r.sealed);
@@ -52,7 +38,7 @@ export function AssistanceView({ save }: { save: Save }) {
   const bestAssistanceMap = new Map<Principle, Help>();
   for (const principle of Principles) {
     const soul = FindBestByPrinciple(principle, save.souls);
-    const memory = FindBestByPrinciple(principle, favMemories);
+    const memory = FindBestByPrinciple(principle, FavMemories);
     const easyA = FindBestByPrinciple(principle, easyAssistants);
     const specialA = FindBestByPrinciple(principle, specialAssistants);
     easyAssistanceMap.set(principle, {
@@ -176,15 +162,17 @@ export function AssistanceView({ save }: { save: Save }) {
       )}
 
       {/* Assistance you can get */}
-      <div>Assistance</div>
-      <div>
-        {[...bestAssistanceMap.values()].map(
-          ({ principle, assistant, memory, soul, value }) => (
+      <div style={{ flexWrap: "wrap", display: "flex", flexDirection: "row" }}>
+        {[...bestAssistanceMap.values()]
+          .sort((a, b) => b.value - a.value)
+          .map(({ principle, assistant, memory, soul, value }) => (
             <div
               key={principle}
               style={{
+                flex: 1,
+                padding: 5,
                 border: `1px solid ${PrincipleColor(principle)}`,
-                margin: 3,
+                margin: 5,
               }}
             >
               <span key={principle}>
@@ -200,11 +188,18 @@ export function AssistanceView({ save }: { save: Save }) {
                     fontSize: "1rem",
                   }}
                 >
-                  {assistant.label}({assistant[principle]})
+                  {assistant.label
+                    .replace("Elegiac", "")
+                    .replace("Surrealist", "")
+                    .replace("Consulting", "")
+                    .replace("Travelling", "")
+                    .replace("'s Assistance", "")
+                    .trim()}{" "}
+                  ({assistant[principle]})
                   <div>
                     {Or0(memory[principle]) > 0 ? (
                       <>
-                        {memory.label}({memory[principle]})
+                        {memory.label} ({memory[principle]})
                       </>
                     ) : null}
                     <span style={{ color: soul.color }}>
@@ -215,38 +210,8 @@ export function AssistanceView({ save }: { save: Save }) {
                 </span>
               </span>
             </div>
-          )
-        )}
+          ))}
       </div>
     </div>
-  );
-}
-
-// TODO: Make this componetized!
-function PrincipleList(map: PrincipleMap) {
-  return (
-    <>
-      {Principles.filter((p) => map[p])
-        .sort((a, b) => (map[b] || 0) - (map[a] || 0))
-        .map((p) => PrincipleSpan({ principle: p, value: map[p] }))}
-    </>
-  );
-}
-
-function PrincipleSpan({
-  principle,
-  value,
-}: {
-  principle: Principle;
-  value?: number;
-}) {
-  if (!value) return null;
-  return (
-    <span
-      key={principle}
-      style={{ fontSize: "1rem", color: PrincipleColor(principle) }}
-    >
-      {principle}: {value},{" "}
-    </span>
   );
 }
