@@ -8,11 +8,12 @@ import {
   PrincipleMap,
   MapPrinciples,
   Or0,
+  SumPrinciples,
 } from "../boh/principles";
 import { Soul } from "../boh/souls";
 import { Save } from "../boh/save";
 import { Season } from "../boh/seasons";
-import { FavMemories, Item } from "../boh/crafting";
+import { FavMemories, Item, Items } from "../boh/crafting";
 import { PrincipleSpan } from "../components/principleList";
 
 interface Help {
@@ -21,6 +22,8 @@ interface Help {
   soul: Soul;
   memory: Item;
   value: number;
+  tool: Item;
+  beverage: Item;
 }
 
 export function AssistanceView({ save }: { save: Save }) {
@@ -39,6 +42,19 @@ export function AssistanceView({ save }: { save: Save }) {
   for (const principle of Principles) {
     const soul = FindBestByPrinciple(principle, save.souls);
     const memory = FindBestByPrinciple(principle, FavMemories);
+    const beverage = FindBestByPrinciple(
+      principle,
+      Items.filter(({ beverage }) => beverage)
+    );
+    const tool = FindBestByPrinciple(
+      principle,
+      Items.filter(({ tool, device }) => tool && !device)
+    );
+    const device = FindBestByPrinciple(
+      principle,
+      Items.filter(({ tool, device }) => device)
+    );
+    const sum = SumPrinciples(principle, soul, memory, beverage, tool);
     const easyA = FindBestByPrinciple(principle, easyAssistants);
     const specialA = FindBestByPrinciple(principle, specialAssistants);
     easyAssistanceMap.set(principle, {
@@ -46,8 +62,9 @@ export function AssistanceView({ save }: { save: Save }) {
       principle,
       memory,
       soul,
-      value:
-        Or0(soul[principle]) + Or0(memory[principle]) + Or0(easyA[principle]),
+      beverage,
+      tool,
+      value: sum + Or0(easyA[principle]),
     });
 
     bestAssistanceMap.set(principle, {
@@ -55,10 +72,9 @@ export function AssistanceView({ save }: { save: Save }) {
       principle,
       soul,
       memory,
-      value:
-        Or0(soul[principle]) +
-        Or0(memory[principle]) +
-        Or0(specialA[principle]),
+      beverage,
+      tool,
+      value: sum + Or0(specialA[principle]),
     });
   }
 
@@ -165,52 +181,70 @@ export function AssistanceView({ save }: { save: Save }) {
       <div style={{ flexWrap: "wrap", display: "flex", flexDirection: "row" }}>
         {[...bestAssistanceMap.values()]
           .sort((a, b) => b.value - a.value)
-          .map(({ principle, assistant, memory, soul, value }) => (
-            <div
-              key={principle}
-              style={{
-                flex: 1,
-                padding: 5,
-                border: `1px solid ${PrincipleColor(principle)}`,
-                margin: 5,
-              }}
-            >
-              <span key={principle}>
-                <span
-                  style={{
-                    color: PrincipleColor(principle),
-                  }}
-                >
-                  {principle}: {value}{" "}
-                </span>
-                <span
-                  style={{
-                    fontSize: "1rem",
-                  }}
-                >
-                  {assistant.label
-                    .replace("Elegiac", "")
-                    .replace("Surrealist", "")
-                    .replace("Consulting", "")
-                    .replace("Travelling", "")
-                    .replace("'s Assistance", "")
-                    .trim()}{" "}
-                  ({assistant[principle]})
-                  <div>
-                    {Or0(memory[principle]) > 0 ? (
-                      <>
-                        {memory.label} ({memory[principle]})
-                      </>
-                    ) : null}
-                    <span style={{ color: soul.color }}>
-                      {" "}
-                      {soul.label}({soul[principle]})
+          .map(
+            ({ principle, tool, beverage, assistant, memory, soul, value }) => (
+              <div
+                key={principle}
+                style={{
+                  flex: 1,
+                  padding: 5,
+                  border: `1px solid ${PrincipleColor(principle)}`,
+                  margin: 5,
+                }}
+              >
+                <span key={principle}>
+                  <span
+                    style={{
+                      color: PrincipleColor(principle),
+                    }}
+                  >
+                    {principle}: {value}{" "}
+                  </span>
+                  <span
+                    style={{
+                      fontSize: "1rem",
+                    }}
+                  >
+                    <span>
+                      {assistant.label
+                        .replace("Elegiac", "")
+                        .replace("Surrealist", "")
+                        .replace("Consulting", "")
+                        .replace("Travelling", "")
+                        .replace("'s Assistance", "")
+                        .trim()}{" "}
+                      ({assistant[principle]})
                     </span>
-                  </div>
+                    <div>
+                      {memory[principle] ? (
+                        <span>
+                          {memory.label}:{memory[principle]}
+                        </span>
+                      ) : null}
+                      {soul[principle] ? (
+                        <span style={{ color: soul.color }}>
+                          {" "}
+                          {soul.label}:{soul[principle]}
+                        </span>
+                      ) : null}
+                      {tool[principle] ? (
+                        <span>
+                          {" "}
+                          {tool.label}:{tool[principle]}
+                        </span>
+                      ) : null}
+                      {beverage[principle] ? (
+                        <span>
+                          {" "}
+                          {beverage.label}:{beverage[principle]}
+                        </span>
+                      ) : null}
+                    </div>
+                  </span>
                 </span>
-              </span>
-            </div>
-          ))}
+              </div>
+            )
+          )}
       </div>
     </div>
   );

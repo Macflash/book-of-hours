@@ -42,6 +42,19 @@ export type PrincipleMap = Partial<{
   [key in Principle]: number;
 }>;
 
+export function SumPrinciples(
+  principle: Principle,
+  ...principledThings: PrincipleMap[]
+) {
+  return AddOr0(...principledThings.map((p) => p[principle]));
+}
+
+export function AddOr0(...ns: (number | undefined)[]): number {
+  let sum = 0;
+  for (const n of ns) sum += Or0(n);
+  return sum;
+}
+
 export function Or0(n: number | undefined) {
   return n ?? 0;
 }

@@ -14,6 +14,16 @@ import { GetSkillById } from "../boh/skills";
 
 export function LessonView({ save }: { save: Save }) {
   const [principles, setPrinciples] = React.useState<Set<Principle>>(new Set());
+  const [selectedMemories, setSelectedMems] = React.useState<Set<string>>(
+    new Set()
+  );
+
+  const toggleMem = (id: string) => {
+    if (selectedMemories.has(id)) selectedMemories.delete(id);
+    else selectedMemories.add(id);
+    setSelectedMems(new Set(selectedMemories));
+  };
+
   // search skills by name, to get their principles
 
   const matchingMemories = Memories.filter((memory) => {
@@ -42,13 +52,17 @@ export function LessonView({ save }: { save: Save }) {
 
   return (
     <div>
-      <div>Lessons: {[...principles].join(", ")}</div>
+      <div>
+        Lessons: {[...principles].join(", ")}
+        {selectedMemories.size ? ` (${selectedMemories.size} selected)` : null}
+      </div>
       {/* Search */}
       <div>
         <select
           multiple
           value={[...principles]}
           onChange={(ev) => {
+            setSelectedMems(new Set());
             setPrinciples(
               new Set(
                 [...ev.target.selectedOptions].map((s) => s.value as Principle)
@@ -71,6 +85,7 @@ export function LessonView({ save }: { save: Save }) {
           recipeMap={recipeMap}
           considerMap={considerMap}
           madeBefore={save.madeBefore}
+          toggle={toggleMem}
         />
         <MemoryList
           title="Persistent"
@@ -78,6 +93,7 @@ export function LessonView({ save }: { save: Save }) {
           recipeMap={recipeMap}
           considerMap={considerMap}
           madeBefore={save.madeBefore}
+          toggle={toggleMem}
         />
         <MemoryList
           title="Numen"
@@ -85,6 +101,7 @@ export function LessonView({ save }: { save: Save }) {
           recipeMap={recipeMap}
           considerMap={considerMap}
           madeBefore={save.madeBefore}
+          toggle={toggleMem}
         />
       </div>
     </div>
@@ -97,12 +114,16 @@ function MemoryList({
   recipeMap,
   considerMap,
   madeBefore,
+  toggle,
+  selectedMemories,
 }: {
   memories: Memory[];
   title?: string;
   recipeMap?: Map<string, Recipe[]>;
   considerMap?: Map<string, Item[]>;
   madeBefore?: Set<string>;
+  selectedMemories?: Set<string>;
+  toggle?: (id: string) => void;
 }) {
   if (!memories.length) return null;
   return (
@@ -129,17 +150,24 @@ function MemoryList({
             title={`${recipeString ? "Craft:\n" : ""}${recipeString}\n
             ${considerString ? "Consider:\n" : ""}${considerString}`}
           >
-            <span
-              style={{
-                color: FavMemories.some((f) => f.id == m.id)
-                  ? "gold"
-                  : madeBefore?.has(m.id)
-                  ? "green"
-                  : undefined,
-              }}
-            >
-              {m.label}
-            </span>{" "}
+            <label>
+              <input
+                type="checkbox"
+                checked={selectedMemories?.has(m.id)}
+                onClick={() => toggle?.(m.id)}
+              />
+              <span
+                style={{
+                  color: FavMemories.some((f) => f.id == m.id)
+                    ? "gold"
+                    : madeBefore?.has(m.id)
+                    ? "green"
+                    : undefined,
+                }}
+              >
+                {m.label}
+              </span>
+            </label>{" "}
             <PrincipleList {...m} />
           </div>
         );

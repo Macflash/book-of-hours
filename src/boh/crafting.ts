@@ -64,6 +64,8 @@ export const FavMemories: Memory[] = [
   "enduring.reflection",
   "earthsign",
   "numen.desc",
+  "numen.loop",
+  "numen.thre",
 ].map((id) => GetItemById(id)! as Memory);
 
 export function IsFavMemory(id: string) {

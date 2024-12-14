@@ -18,8 +18,10 @@ export type Aspect =
   | "sound"
   | "ink"
   | "liquid"
+  | "beverage"
   | "ability" // souls
   | "skill"
+  | "device"
   | "memory"
   | "tool"
   | "record.phonograph"
