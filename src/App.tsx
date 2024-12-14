@@ -19,6 +19,7 @@ function App() {
     skills: new Map(),
     rooms: [],
     workstations: [],
+    madeBefore: new Set<string>(),
   });
 
   let body = <div>Unknown view: {view}</div>;

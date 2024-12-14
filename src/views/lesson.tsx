@@ -42,7 +42,7 @@ export function LessonView({ save }: { save: Save }) {
 
   return (
     <div>
-      <div>Lessons</div>
+      <div>Lessons: {[...principles].join(", ")}</div>
       {/* Search */}
       <div>
         <select
@@ -70,18 +70,21 @@ export function LessonView({ save }: { save: Save }) {
           memories={regular}
           recipeMap={recipeMap}
           considerMap={considerMap}
+          madeBefore={save.madeBefore}
         />
         <MemoryList
           title="Persistent"
           memories={persistent}
           recipeMap={recipeMap}
           considerMap={considerMap}
+          madeBefore={save.madeBefore}
         />
         <MemoryList
           title="Numen"
           memories={numen}
           recipeMap={recipeMap}
           considerMap={considerMap}
+          madeBefore={save.madeBefore}
         />
       </div>
     </div>
@@ -93,11 +96,13 @@ function MemoryList({
   title,
   recipeMap,
   considerMap,
+  madeBefore,
 }: {
   memories: Memory[];
   title?: string;
   recipeMap?: Map<string, Recipe[]>;
   considerMap?: Map<string, Item[]>;
+  madeBefore?: Set<string>;
 }) {
   if (!memories.length) return null;
   return (
@@ -121,13 +126,15 @@ function MemoryList({
         return (
           <div
             key={m.id}
-            title={`${recipeString ? "Craft:\n" : ""}${recipeString}
+            title={`${recipeString ? "Craft:\n" : ""}${recipeString}\n
             ${considerString ? "Consider:\n" : ""}${considerString}`}
           >
             <span
               style={{
                 color: FavMemories.some((f) => f.id == m.id)
                   ? "gold"
+                  : madeBefore?.has(m.id)
+                  ? "green"
                   : undefined,
               }}
             >

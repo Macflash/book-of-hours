@@ -19,6 +19,7 @@ export interface Save {
   skills: Map<string, Skill>;
   rooms: Room[];
   workstations: Workstation[];
+  madeBefore: Set<string>; // unique elements, or recipes ambitt'd
 }
 
 interface Mutations extends PrincipleMap {
@@ -26,6 +27,13 @@ interface Mutations extends PrincipleMap {
 }
 
 interface SaveJson {
+  CharacterCreationCommands: {
+    UniqueElementsManifested: string[];
+    AmbittableRecipesUnlocked: string[];
+  }[];
+
+  // This is all your stuff, like souls, skills, committed skills
+  // Every item in the house or your hand, etc.
   RootPopulationCommand: {
     Spheres: Sphere[];
   };
@@ -60,13 +68,22 @@ interface Sphere {
 }
 
 export function ParseSave(saveData: SaveJson) {
-  const spheres = saveData.RootPopulationCommand.Spheres;
+  const ccc = saveData?.CharacterCreationCommands?.[0];
+  const madeBefore = new Set<string>([
+    ...(ccc?.AmbittableRecipesUnlocked || []),
+    ...(ccc?.UniqueElementsManifested || []),
+  ]);
+  console.log("Made before", madeBefore, saveData.CharacterCreationCommands);
+
   const save: Save = {
     souls: [],
     skills: new Map(),
     rooms: [],
     workstations: [],
+    madeBefore,
   };
+
+  const spheres = saveData.RootPopulationCommand.Spheres;
 
   function parseSphere(sphere: Sphere) {
     for (const token of sphere.Tokens) {

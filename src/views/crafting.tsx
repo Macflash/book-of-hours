@@ -7,14 +7,39 @@ import {
 } from "../boh/crafting";
 import { RecipeData } from "../data/recipe_data";
 import { AspectMap } from "../boh/aspects";
+import { Recipes, ToRecipeString } from "../boh/recipes";
 
 const Workstations = GetAllWorkstations();
 console.log("workstations", Workstations);
 
 export function CraftingView({ save }: { save: Save }) {
+  const [search, setSearch] = React.useState("");
   const craftableRecipes = CheckAllRecipes(save);
   console.log(craftableRecipes);
-  return <div></div>;
+  return (
+    <div>
+      {/* Search */}
+      <div>
+        <input
+          type="search"
+          value={search}
+          onChange={(ev) => {
+            setSearch(ev.target.value);
+          }}
+        />
+      </div>
+      {/* recipes */}
+      <div>
+        {Recipes.filter(
+          (r) => r.id.includes(search) || r.label.includes(search)
+        )
+          .map((r) => r.label + ": " + ToRecipeString(r))
+          .map((s) => (
+            <div>{s}</div>
+          ))}
+      </div>
+    </div>
+  );
 }
 
 function CheckAllRecipes(save: Save) {
