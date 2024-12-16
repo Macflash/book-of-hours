@@ -66,6 +66,9 @@ export const FavMemories: Memory[] = [
   "numen.desc",
   "numen.loop",
   "numen.thre",
+  "numen.worl",
+  "numen.bala",
+  "numen.oldl",
 ].map((id) => GetItemById(id)! as Memory);
 
 export function IsFavMemory(id: string) {
@@ -111,10 +114,7 @@ export interface Item extends AspectMap {
   consider_spawn_id?: string;
 }
 
-export interface Memory extends Item {
-  persistent?: boolean;
-  numen?: boolean;
-}
+export interface Memory extends Item {}
 
 export interface WorkstationSlot {
   id: string;

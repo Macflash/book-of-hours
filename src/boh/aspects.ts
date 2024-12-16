@@ -34,7 +34,9 @@ export type Aspect =
   | "remains"
   | "woven"
   | "cooperative"
+  | "persistent"
   | "mark"
+  | "numen"
   | "omen";
 
 export type AspectMap = Partial<{

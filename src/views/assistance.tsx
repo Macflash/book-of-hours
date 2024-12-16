@@ -5,7 +5,6 @@ import {
   Principles,
   FindBestByPrinciple,
   PrincipleColor,
-  PrincipleMap,
   MapPrinciples,
   Or0,
   SumPrinciples,
@@ -15,6 +14,7 @@ import { Save } from "../boh/save";
 import { Season } from "../boh/seasons";
 import { FavMemories, Item, Items } from "../boh/crafting";
 import { PrincipleSpan } from "../components/principleList";
+import { FindBooksThatSpawnId } from "../boh/book";
 
 interface Help {
   principle: Principle;
@@ -245,6 +245,27 @@ export function AssistanceView({ save }: { save: Save }) {
               </div>
             )
           )}
+      </div>
+
+      <div>
+        <div>Numen</div>
+        {Items.filter(({ numen }) => numen).map((i) => (
+          <div
+            key={i.id}
+            title={FindBooksThatSpawnId(i.id)
+              .map(({ label }) => label)
+              .join(", ")}
+          >
+            {i.label}:{" "}
+            {MapPrinciples(i).map(([principle, value]) => (
+              <PrincipleSpan
+                key={principle}
+                principle={principle}
+                value={value}
+              />
+            ))}
+          </div>
+        ))}
       </div>
     </div>
   );

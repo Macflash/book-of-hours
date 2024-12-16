@@ -1,3 +1,4 @@
+import { FindBooksThatSpawnId } from "../boh/book";
 import { FavMemories, IsFavMemory, Memories, Memory } from "../boh/crafting";
 import {
   Principle,
@@ -24,22 +25,15 @@ export function ReadingView({ save }: { save: Save }) {
   for (const principle of Principles) {
     const skill = FindBestByPrinciple(principle, [...save.skills.values()]);
     const soul = FindBestByPrinciple(principle, save.souls);
-    const favMemory = FindBestByPrinciple(principle, FavMemories);
-    const memory = FindBestByPrinciple(
-      principle,
-      Memories.filter((m) => !m.numen)
-    );
-    const bestMemory =
-      Or0(favMemory[principle]) >= Or0(memory[principle]) ? favMemory : memory;
+
+    const memory = FindBestByPrinciple(principle, FavMemories);
     bestMap.set(principle, {
       principle,
       skill,
-      memory: bestMemory,
+      memory,
       soul,
       value:
-        Or0(soul[principle]) +
-        Or0(skill[principle]) +
-        Or0(bestMemory[principle]),
+        Or0(soul[principle]) + Or0(skill[principle]) + Or0(memory[principle]),
     });
   }
 
@@ -68,11 +62,13 @@ export function ReadingView({ save }: { save: Save }) {
                 </span>{" "}
                 &{" "}
                 <span
+                  title={FindBooksThatSpawnId(memory.id)
+                    .map(({ label }) => label)
+                    .join(", ")}
                   style={{ color: IsFavMemory(memory.id) ? "gold" : undefined }}
                 >
-                  {memory.label}
+                  {memory.label} ({memory[principle]})
                 </span>
-                ({memory[principle]})
               </span>
             </span>
           </div>
