@@ -7,8 +7,15 @@ import { CraftingView } from "./views/crafting";
 import { ReadingView } from "./views/reading";
 import { LessonView } from "./views/lesson";
 import { GetRecipesBySkill } from "./boh/recipes";
+import { ContaminationView } from "./views/contamination";
 
-type View = "load" | "assistance" | "read" | "crafting" | "lesson";
+type View =
+  | "load"
+  | "assistance"
+  | "read"
+  | "crafting"
+  | "lesson"
+  | "contamination";
 
 GetRecipesBySkill("s.inks.revelation");
 
@@ -52,6 +59,10 @@ function App() {
     body = <LessonView save={save} />;
   }
 
+  if (view == "contamination") {
+    body = <ContaminationView save={save} />;
+  }
+
   return (
     <div className="App">
       {view !== "load" ? (
@@ -73,6 +84,7 @@ function App() {
             <option value="crafting">Crafting</option>
             <option value="read">Read</option>
             <option value="lesson">Lessons</option>
+            <option value="contamination">Contamination</option>
           </select>
         </div>
       ) : null}

@@ -11,6 +11,7 @@ import { Save } from "../boh/save";
 import { PrincipleList } from "../components/principleList";
 import { GetRecipesByResult, Recipe, ToRecipeString } from "../boh/recipes";
 import { GetSkillById } from "../boh/skills";
+import { FindBooksThatSpawnId } from "../boh/book";
 
 export function LessonView({ save }: { save: Save }) {
   const [principles, setPrinciples] = React.useState<Set<Principle>>(new Set());
@@ -144,11 +145,16 @@ function MemoryList({
           ?.map((i) => i.label)
           .join("\n");
 
+        const readingString = FindBooksThatSpawnId(m.id)
+          ?.map((i) => i.label)
+          .join("\n");
+
         return (
           <div
             key={m.id}
-            title={`${recipeString ? "Craft:\n" : ""}${recipeString}\n
-            ${considerString ? "Consider:\n" : ""}${considerString}`}
+            title={`${recipeString ? `Craft:\n${recipeString}\n` : ""}${
+              considerString ? `Consider:\n${considerString}\n` : ""
+            }${readingString ? `Read:\n${readingString}\n` : ""}`}
           >
             <label>
               <input

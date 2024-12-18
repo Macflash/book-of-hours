@@ -1,5 +1,7 @@
 import { RecipeData } from "../data/recipe_data";
 import { AspectMap } from "./aspects";
+import { FindBooksThatSpawnId } from "./book";
+import { GetItemsByConsiderSpawnId, Item } from "./crafting";
 import { Principles } from "./principles";
 import { GetSkillById } from "./skills";
 
@@ -62,4 +64,24 @@ export function ToRecipeString(recipe: Recipe): string {
   )
     .map((p) => `${p} ${recipe[p]}`)
     .join(", ")}`;
+}
+
+export function GetCraftingHintString(id: string): string {
+  const recipeString = GetRecipesByResult(id)
+    .map((r) => ToRecipeString(r))
+    .join("\n");
+
+  const considerString = GetItemsByConsiderSpawnId(id)
+    .map(({ label }) => label)
+    .join("\n");
+
+  const readingString = FindBooksThatSpawnId(id)
+    .map(({ label }) => label)
+    .join("\n");
+
+  let result = "";
+  if (recipeString) result += `Craft:\n${recipeString}\n`;
+  if (considerString) result += `Consider:\n${considerString}\n`;
+  if (readingString) result += `Read:\n${readingString}\n`;
+  return result;
 }

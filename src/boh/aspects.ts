@@ -64,3 +64,13 @@ export function AddAspectsInplace(a: AspectMap, b: AspectMap) {
     a[aspect] = Or0(a[aspect]) + Or0(b[aspect]);
   }
 }
+
+export function GetAspectStartingWith(
+  a: AspectMap,
+  prefix: string
+): number | undefined {
+  for (const key in a) {
+    if (key.startsWith(prefix)) return (a as any)[key];
+  }
+  return undefined;
+}

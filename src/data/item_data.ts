@@ -2489,31 +2489,31 @@ export const ItemData = [
         "Floral, musky. Traditionally drunk from the Chalice Murmurous, but you'll generally regret over-indulging even if you drink it from a tin mug in a pub. Especially in a pub. [There are Keeper-level recipes that can brew this from certain ruddy liquors, in the presence of sufficient Grail.]",
     },
   },
-  {
-    ID: "sacrament.chalicite",
-    Label: "Sacrament Calicite [Collector's Edition]",
-    Desc: "Back in the Dawn Period, the Sisterhood of the Triple Knot used this in the rites of the Red Grail. [And unlike the patched version, it has Heart rather than Grail.]",
-    inherits: "_beverage",
-    audio: "SmallLiquid",
-    aspects: {
-      intoxicating: 1,
-      ingredient: 1,
-      grail: 6,
-      "boost.grail": 6,
-      heart: 6,
-      "boost.heart": 6,
-    },
-    xtriggers: {
-      scrutiny: [
-        { id: "mem.sight", morpheffect: "spawn", level: 1 },
-        { id: "sacrament.chalicite", morpheffect: "transform" },
-      ],
-    },
-    xexts: {
-      scrutiny:
-        "Floral, musky. Traditionally drunk from the Chalice Murmurous, but you'll generally regret over-indulging even if you drink it from a tin mug in a pub. Especially in a pub.",
-    },
-  },
+  // {
+  //   ID: "sacrament.chalicite",
+  //   Label: "Sacrament Calicite [Collector's Edition]",
+  //   Desc: "Back in the Dawn Period, the Sisterhood of the Triple Knot used this in the rites of the Red Grail. [And unlike the patched version, it has Heart rather than Grail.]",
+  //   inherits: "_beverage",
+  //   audio: "SmallLiquid",
+  //   aspects: {
+  //     intoxicating: 1,
+  //     ingredient: 1,
+  //     grail: 6,
+  //     "boost.grail": 6,
+  //     heart: 6,
+  //     "boost.heart": 6,
+  //   },
+  //   xtriggers: {
+  //     scrutiny: [
+  //       { id: "mem.sight", morpheffect: "spawn", level: 1 },
+  //       { id: "sacrament.chalicite", morpheffect: "transform" },
+  //     ],
+  //   },
+  //   xexts: {
+  //     scrutiny:
+  //       "Floral, musky. Traditionally drunk from the Chalice Murmurous, but you'll generally regret over-indulging even if you drink it from a tin mug in a pub. Especially in a pub.",
+  //   },
+  // },
   {
     ID: "sacrament.malachite",
     Label: "Sacrament Malachite",

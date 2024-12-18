@@ -15,6 +15,7 @@ import { Season } from "../boh/seasons";
 import { FavMemories, Item, Items } from "../boh/crafting";
 import { PrincipleSpan } from "../components/principleList";
 import { FindBooksThatSpawnId } from "../boh/book";
+import { GetCraftingHintString } from "../boh/recipes";
 
 interface Help {
   principle: Principle;
@@ -217,7 +218,7 @@ export function AssistanceView({ save }: { save: Save }) {
                     </span>
                     <div>
                       {memory[principle] ? (
-                        <span>
+                        <span title={GetCraftingHintString(memory.id)}>
                           {memory.label}:{memory[principle]}
                         </span>
                       ) : null}
@@ -228,13 +229,13 @@ export function AssistanceView({ save }: { save: Save }) {
                         </span>
                       ) : null}
                       {tool[principle] ? (
-                        <span>
+                        <span title={GetCraftingHintString(tool.id)}>
                           {" "}
                           {tool.label}:{tool[principle]}
                         </span>
                       ) : null}
                       {beverage[principle] ? (
-                        <span>
+                        <span title={GetCraftingHintString(beverage.id)}>
                           {" "}
                           {beverage.label}:{beverage[principle]}
                         </span>

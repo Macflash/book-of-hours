@@ -6,6 +6,7 @@ import {
   FindBestByPrinciple,
   Or0,
   PrincipleColor,
+  SumPrinciples,
 } from "../boh/principles";
 import { Save } from "../boh/save";
 import { Skill } from "../boh/skills";
@@ -25,15 +26,14 @@ export function ReadingView({ save }: { save: Save }) {
   for (const principle of Principles) {
     const skill = FindBestByPrinciple(principle, [...save.skills.values()]);
     const soul = FindBestByPrinciple(principle, save.souls);
-
     const memory = FindBestByPrinciple(principle, FavMemories);
+
     bestMap.set(principle, {
       principle,
       skill,
       memory,
       soul,
-      value:
-        Or0(soul[principle]) + Or0(skill[principle]) + Or0(memory[principle]),
+      value: SumPrinciples(principle, soul, skill, memory),
     });
   }
 

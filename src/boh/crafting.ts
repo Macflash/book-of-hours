@@ -2,6 +2,7 @@ import { ItemData } from "../data/item_data";
 import { PrototypeData } from "../data/prototype_data";
 import { WorkstationData } from "../data/workstation_data";
 import { AddAspects, AddAspectsInplace, Aspect, AspectMap } from "./aspects";
+import { Principle } from "./principles";
 
 // Recipe -> workstations? or vice-versa?
 // Doesn't matter just generate all possible combos?
@@ -129,7 +130,10 @@ export interface WorkstationSlot {
 }
 
 export interface Workstation {
+  id: string;
+  label: string;
   slots: WorkstationSlot[];
+  hints: Principle[];
 }
 
 export function MatchesAnyRequirement(
