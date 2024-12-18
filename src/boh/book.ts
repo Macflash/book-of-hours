@@ -21,7 +21,7 @@ export function FindBooksThatSpawnId(spawnId: string, books = Books): Book[] {
 
 export const Books = [
   {
-    "mystery.lantern": 10,
+    lantern: 10,
     "period.dawn": 1,
     "w.cracktrack": 1,
     "cost.tally": 8,
@@ -36,7 +36,7 @@ export const Books = [
     language: "s.cracktrack",
   },
   {
-    "mystery.grail": 10,
+    grail: 10,
     "period.dawn": 1,
     "w.cracktrack": 1,
     "cost.tally": 8,
@@ -51,7 +51,7 @@ export const Books = [
     language: "s.cracktrack",
   },
   {
-    "mystery.knock": 10,
+    knock: 10,
     "period.curia": 1,
     "w.ericapaean": 1,
     "cost.tally": 8,
@@ -66,7 +66,7 @@ export const Books = [
     language: "s.ericapaean",
   },
   {
-    "mystery.winter": 10,
+    winter: 10,
     "period.nocturnal": 1,
     "w.ericapaean": 1,
     "cost.tally": 8,
@@ -81,7 +81,7 @@ export const Books = [
     language: "s.ericapaean",
   },
   {
-    "mystery.nectar": 10,
+    nectar: 10,
     "period.dawn": 1,
     "w.vak": 1,
     "cost.tally": 8,
@@ -95,7 +95,7 @@ export const Books = [
     language: "s.vak",
   },
   {
-    "mystery.edge": 10,
+    edge: 10,
     "period.baronial": 1,
     "w.hyksos": 1,
     "cost.tally": 8,
@@ -110,7 +110,7 @@ export const Books = [
     language: "s.hyksos",
   },
   {
-    "mystery.moth": 10,
+    moth: 10,
     "period.dawn": 1,
     "w.killasimi": 1,
     "cost.tally": 8,
@@ -125,7 +125,7 @@ export const Books = [
     language: "s.killasimi",
   },
   {
-    "mystery.rose": 10,
+    rose: 10,
     "period.solar": 1,
     "w.ramsund": 1,
     "cost.tally": 8,
@@ -140,7 +140,7 @@ export const Books = [
     language: "s.ramsund",
   },
   {
-    "mystery.edge": 10,
+    edge: 10,
     "period.dawn": 1,
     "w.sabazine": 1,
     "cost.tally": 8,
@@ -155,7 +155,7 @@ export const Books = [
     language: "s.sabazine",
   },
   {
-    "mystery.sky": 10,
+    sky: 10,
     "period.dawn": 1,
     "w.mandaic": 1,
     "cost.tally": 8,
@@ -170,7 +170,7 @@ export const Books = [
     language: "s.mandaic",
   },
   {
-    "mystery.forge": 10,
+    forge: 10,
     "period.dawn": 1,
     "w.fucine": 1,
     "cost.tally": 8,
@@ -185,7 +185,7 @@ export const Books = [
     language: "s.fucine",
   },
   {
-    "mystery.nectar": 10,
+    nectar: 10,
     "period.dawn": 1,
     "w.cracktrack": 1,
     "cost.tally": 8,
@@ -200,7 +200,7 @@ export const Books = [
     language: "s.cracktrack",
   },
   {
-    "mystery.moon": 18,
+    moon: 18,
     "period.solar": 1,
     "cost.tally": 8,
     "r.edictsinviolable": 1,
@@ -213,7 +213,7 @@ export const Books = [
     inherits: "_book",
   },
   {
-    "mystery.sky": 4,
+    sky: 4,
     "period.nocturnal": 1,
     "cost.tally": 1,
     "r.watchmansparadoxes": 1,
@@ -226,7 +226,7 @@ export const Books = [
     inherits: "_book",
   },
   {
-    "mystery.lantern": 6,
+    lantern: 6,
     "period.nocturnal": 1,
     "cost.tally": 1,
     "r.glaziery.lightsmithing": 1,
@@ -239,7 +239,7 @@ export const Books = [
     inherits: "_book",
   },
   {
-    "mystery.sky": 6,
+    sky: 6,
     "period.baronial": 1,
     "cost.tally": 3,
     "r.ouranoscopy": 1,
@@ -252,7 +252,7 @@ export const Books = [
     inherits: "_book",
   },
   {
-    "mystery.moth": 6,
+    moth: 6,
     "period.curia": 1,
     "cost.tally": 2,
     "r.resurgences.emergences": 1,
@@ -265,7 +265,7 @@ export const Books = [
     inherits: "_book",
   },
   {
-    "mystery.heart": 8,
+    heart: 8,
     "period.baronial": 1,
     "cost.tally": 3,
     "r.drums.dances": 1,
@@ -278,7 +278,7 @@ export const Books = [
     inherits: "_book",
   },
   {
-    "mystery.moon": 4,
+    moon: 4,
     "period.curia": 1,
     "cost.tally": 2,
     "r.wolfstories": 1,
@@ -291,7 +291,7 @@ export const Books = [
     inherits: "_book",
   },
   {
-    "mystery.moon": 4,
+    moon: 4,
     "period.curia": 1,
     "cost.tally": 2,
     "r.sickle.eclipse": 1,
@@ -304,7 +304,7 @@ export const Books = [
     inherits: "_book",
   },
   {
-    "mystery.moth": 10,
+    moth: 10,
     "period.curia": 1,
     "cost.tally": 2,
     "r.solutions.separations": 1,
@@ -317,7 +317,7 @@ export const Books = [
     inherits: "_book",
   },
   {
-    "mystery.forge": 10,
+    forge: 10,
     "period.curia": 1,
     "cost.tally": 2,
     "r.door.wall": 1,
@@ -330,7 +330,7 @@ export const Books = [
     inherits: "_book",
   },
   {
-    "mystery.grail": 4,
+    grail: 4,
     "period.solar": 1,
     "w.henavek": 1,
     "cost.tally": 4,
@@ -345,7 +345,7 @@ export const Books = [
     language: "s.henavek",
   },
   {
-    "mystery.winter": 6,
+    winter: 6,
     "period.curia": 1,
     "cost.tally": 2,
     "r.rhyme.remembrance": 1,
@@ -358,7 +358,7 @@ export const Books = [
     inherits: "_book",
   },
   {
-    "mystery.moon": 4,
+    moon: 4,
     "period.curia": 1,
     "cost.tally": 2,
     "r.putrefactions.calcinations": 1,
@@ -371,7 +371,7 @@ export const Books = [
     inherits: "_book",
   },
   {
-    "mystery.lantern": 6,
+    lantern: 6,
     "period.solar": 1,
     "cost.tally": 4,
     "r.sacrasolisinvicti": 1,
@@ -384,7 +384,7 @@ export const Books = [
     inherits: "_book",
   },
   {
-    "mystery.knock": 10,
+    knock: 10,
     "period.curia": 1,
     "cost.tally": 2,
     "r.edictsliminal": 1,
@@ -397,7 +397,7 @@ export const Books = [
     inherits: "_book",
   },
   {
-    "mystery.rose": 6,
+    rose: 6,
     "period.nocturnal": 1,
     "cost.tally": 1,
     "r.preliminalmeter": 1,
@@ -410,7 +410,7 @@ export const Books = [
     inherits: "_book",
   },
   {
-    "mystery.forge": 6,
+    forge: 6,
     "period.curia": 1,
     "cost.tally": 2,
     "r.pyroglyphics": 1,
@@ -423,7 +423,7 @@ export const Books = [
     inherits: "_book",
   },
   {
-    "mystery.moon": 10,
+    moon: 10,
     "period.curia": 1,
     "w.latin": 1,
     "cost.tally": 2,
@@ -437,7 +437,7 @@ export const Books = [
     inherits: "_book",
   },
   {
-    "mystery.rose": 14,
+    rose: 14,
     "period.solar": 1,
     "cost.tally": 4,
     "r.inks.power": 1,
@@ -450,7 +450,7 @@ export const Books = [
     inherits: "_book",
   },
   {
-    "mystery.lantern": 4,
+    lantern: 4,
     "period.baronial": 1,
     "cost.tally": 3,
     "r.anbary.lapidary": 1,
@@ -463,7 +463,7 @@ export const Books = [
     inherits: "_book",
   },
   {
-    "mystery.moon": 6,
+    moon: 6,
     "period.curia": 1,
     "cost.tally": 2,
     "r.seastories": 1,
@@ -476,7 +476,7 @@ export const Books = [
     inherits: "_book",
   },
   {
-    "mystery.moon": 16,
+    moon: 16,
     "period.dawn": 1,
     "w.fucine": 1,
     "cost.tally": 5,
@@ -491,7 +491,7 @@ export const Books = [
     language: "s.fucine",
   },
   {
-    "mystery.knock": 12,
+    knock: 12,
     "period.baronial": 1,
     "cost.tally": 3,
     "r.thegreatsignsandthegreatscars": 1,
@@ -504,7 +504,7 @@ export const Books = [
     inherits: "_book",
   },
   {
-    "mystery.rose": 10,
+    rose: 10,
     "period.curia": 1,
     "cost.tally": 2,
     "r.preliminalmeter": 1,
@@ -517,7 +517,7 @@ export const Books = [
     inherits: "_book",
   },
   {
-    "mystery.rose": 12,
+    rose: 12,
     "period.nocturnal": 1,
     "cost.tally": 1,
     "r.preliminalmeter": 1,
@@ -530,7 +530,7 @@ export const Books = [
     inherits: "_book",
   },
   {
-    "mystery.rose": 10,
+    rose: 10,
     "period.dawn": 1,
     "w.hyksos": 1,
     "cost.tally": 5,
@@ -545,7 +545,7 @@ export const Books = [
     language: "s.hyksos",
   },
   {
-    "mystery.grail": 8,
+    grail: 8,
     "period.nocturnal": 1,
     "cost.tally": 1,
     "r.desires.dissolutions": 1,
@@ -558,7 +558,7 @@ export const Books = [
     inherits: "_book",
   },
   {
-    "mystery.nectar": 8,
+    nectar: 8,
     "period.curia": 1,
     "w.killasimi": 1,
     "cost.tally": 2,
@@ -573,7 +573,7 @@ export const Books = [
     language: "s.killasimi",
   },
   {
-    "mystery.edge": 10,
+    edge: 10,
     "period.curia": 1,
     "cost.tally": 2,
     "r.disciplines.thehammer": 1,
@@ -586,7 +586,7 @@ export const Books = [
     inherits: "_book",
   },
   {
-    "mystery.moon": 8,
+    moon: 8,
     "period.curia": 1,
     "w.latin": 1,
     "cost.tally": 2,
@@ -600,7 +600,7 @@ export const Books = [
     inherits: "_book",
   },
   {
-    "mystery.moon": 4,
+    moon: 4,
     "period.nocturnal": 1,
     "cost.tally": 1,
     "r.edictsinviolable": 1,
@@ -613,7 +613,7 @@ export const Books = [
     inherits: "_book",
   },
   {
-    "mystery.scale": 4,
+    scale: 4,
     "period.baronial": 1,
     "cost.tally": 3,
     "r.coil.chasm": 1,
@@ -626,7 +626,7 @@ export const Books = [
     inherits: "_book",
   },
   {
-    "mystery.moon": 6,
+    moon: 6,
     "period.baronial": 1,
     "cost.tally": 3,
     "r.wolfstories": 1,
@@ -639,7 +639,7 @@ export const Books = [
     inherits: "_book",
   },
   {
-    "mystery.moon": 6,
+    moon: 6,
     "period.curia": 1,
     "cost.tally": 2,
     "r.pearl.tide": 1,
@@ -652,7 +652,7 @@ export const Books = [
     inherits: "_book",
   },
   {
-    "mystery.heart": 8,
+    heart: 8,
     "period.curia": 1,
     "w.killasimi": 1,
     "cost.tally": 2,
@@ -667,7 +667,7 @@ export const Books = [
     language: "s.killasimi",
   },
   {
-    "mystery.scale": 4,
+    scale: 4,
     "period.baronial": 1,
     "cost.tally": 3,
     "r.pentiments.precursors": 1,
@@ -680,7 +680,7 @@ export const Books = [
     inherits: "_book",
   },
   {
-    "mystery.moon": 6,
+    moon: 6,
     "period.baronial": 1,
     "cost.tally": 3,
     "r.maggephenemysteries": 1,
@@ -693,7 +693,7 @@ export const Books = [
     inherits: "_book",
   },
   {
-    "mystery.grail": 6,
+    grail: 6,
     "period.baronial": 1,
     "cost.tally": 3,
     "r.leaves.thorns": 1,
@@ -706,7 +706,7 @@ export const Books = [
     inherits: "_book",
   },
   {
-    "mystery.knock": 8,
+    knock: 8,
     "period.solar": 1,
     "w.latin": 1,
     "cost.tally": 4,
@@ -720,7 +720,7 @@ export const Books = [
     inherits: "_book",
   },
   {
-    "mystery.knock": 6,
+    knock: 6,
     "period.solar": 1,
     "w.latin": 1,
     "cost.tally": 4,
@@ -734,7 +734,7 @@ export const Books = [
     inherits: "_book",
   },
   {
-    "mystery.knock": 4,
+    knock: 4,
     "period.solar": 1,
     "w.latin": 1,
     "cost.tally": 4,
@@ -748,7 +748,7 @@ export const Books = [
     inherits: "_book",
   },
   {
-    "mystery.grail": 8,
+    grail: 8,
     "period.nocturnal": 1,
     "cost.tally": 1,
     "r.applebrighteuphonies": 1,
@@ -761,7 +761,7 @@ export const Books = [
     inherits: "_book",
   },
   {
-    "mystery.nectar": 8,
+    nectar: 8,
     "period.curia": 1,
     "w.latin": 1,
     "cost.tally": 2,
@@ -775,7 +775,7 @@ export const Books = [
     inherits: "_book",
   },
   {
-    "mystery.lantern": 14,
+    lantern: 14,
     "period.baronial": 1,
     "cost.tally": 3,
     "r.pyroglyphics": 1,
@@ -788,7 +788,7 @@ export const Books = [
     inherits: "_book",
   },
   {
-    "mystery.lantern": 4,
+    lantern: 4,
     "period.baronial": 1,
     "cost.tally": 3,
     "r.auroralcontemplations": 1,
@@ -801,7 +801,7 @@ export const Books = [
     inherits: "_book",
   },
   {
-    "mystery.nectar": 4,
+    nectar: 4,
     "period.baronial": 1,
     "w.latin": 1,
     "cost.tally": 3,
@@ -815,7 +815,7 @@ export const Books = [
     inherits: "_book",
   },
   {
-    "mystery.edge": 4,
+    edge: 4,
     "period.baronial": 1,
     "w.latin": 1,
     "cost.tally": 3,
@@ -829,7 +829,7 @@ export const Books = [
     inherits: "_book",
   },
   {
-    "mystery.edge": 4,
+    edge: 4,
     "period.baronial": 1,
     "w.latin": 1,
     "cost.tally": 3,
@@ -843,7 +843,7 @@ export const Books = [
     inherits: "_book",
   },
   {
-    "mystery.knock": 4,
+    knock: 4,
     "period.nocturnal": 1,
     "cost.tally": 1,
     "r.edictsliminal": 1,
@@ -856,7 +856,7 @@ export const Books = [
     inherits: "_book",
   },
   {
-    "mystery.sky": 6,
+    sky: 6,
     "period.nocturnal": 1,
     "cost.tally": 1,
     "r.sights.sensations": 1,
@@ -869,7 +869,7 @@ export const Books = [
     inherits: "_book",
   },
   {
-    "mystery.knock": 4,
+    knock: 4,
     "period.nocturnal": 1,
     "cost.tally": 1,
     "r.door.wall": 1,
@@ -882,7 +882,7 @@ export const Books = [
     inherits: "_book",
   },
   {
-    "mystery.lantern": 4,
+    lantern: 4,
     "period.nocturnal": 1,
     "cost.tally": 1,
     "r.purifications.exaltations": 1,
@@ -895,7 +895,7 @@ export const Books = [
     inherits: "_book",
   },
   {
-    "mystery.sky": 4,
+    sky: 4,
     "period.nocturnal": 1,
     "cost.tally": 1,
     "r.lockworks.clockworks": 1,
@@ -908,7 +908,7 @@ export const Books = [
     inherits: "_book",
   },
   {
-    "mystery.knock": 6,
+    knock: 6,
     "period.nocturnal": 1,
     "cost.tally": 1,
     "r.edictsliminal": 1,
@@ -921,7 +921,7 @@ export const Books = [
     inherits: "_book",
   },
   {
-    "mystery.moth": 4,
+    moth: 4,
     "period.curia": 1,
     "cost.tally": 2,
     "r.transformations.liberations": 1,
@@ -934,7 +934,7 @@ export const Books = [
     inherits: "_book",
   },
   {
-    "mystery.edge": 4,
+    edge: 4,
     "period.curia": 1,
     "cost.tally": 2,
     "r.sharps": 1,
@@ -947,7 +947,7 @@ export const Books = [
     inherits: "_book",
   },
   {
-    "mystery.winter": 4,
+    winter: 4,
     "period.baronial": 1,
     "cost.tally": 3,
     "r.snowstories": 1,
@@ -960,7 +960,7 @@ export const Books = [
     inherits: "_book",
   },
   {
-    "mystery.winter": 6,
+    winter: 6,
     "period.curia": 1,
     "cost.tally": 2,
     "r.quenchings.quellings": 1,
@@ -973,7 +973,7 @@ export const Books = [
     inherits: "_book",
   },
   {
-    "mystery.sky": 4,
+    sky: 4,
     "period.baronial": 1,
     "cost.tally": 3,
     "r.skystories": 1,
@@ -986,7 +986,7 @@ export const Books = [
     inherits: "_book",
   },
   {
-    "mystery.scale": 4,
+    scale: 4,
     "period.nocturnal": 1,
     "cost.tally": 1,
     "r.path.pilgrim": 1,
@@ -999,7 +999,7 @@ export const Books = [
     inherits: "_book",
   },
   {
-    "mystery.heart": 4,
+    heart: 4,
     "period.curia": 1,
     "cost.tally": 2,
     "r.surgeries.exsanguinations": 1,
@@ -1012,7 +1012,7 @@ export const Books = [
     inherits: "_book",
   },
   {
-    "mystery.grail": 4,
+    grail: 4,
     "period.nocturnal": 1,
     "cost.tally": 1,
     "r.resurgences.emergences": 1,
@@ -1025,7 +1025,7 @@ export const Books = [
     inherits: "_book",
   },
   {
-    "mystery.grail": 4,
+    grail: 4,
     "period.baronial": 1,
     "w.latin": 1,
     "cost.tally": 3,
@@ -1039,7 +1039,7 @@ export const Books = [
     inherits: "_book",
   },
   {
-    "mystery.heart": 4,
+    heart: 4,
     "period.curia": 1,
     "w.latin": 1,
     "cost.tally": 2,
@@ -1053,7 +1053,7 @@ export const Books = [
     inherits: "_book",
   },
   {
-    "mystery.grail": 8,
+    grail: 8,
     "period.baronial": 1,
     "w.latin": 1,
     "cost.tally": 3,
@@ -1067,7 +1067,7 @@ export const Books = [
     inherits: "_book",
   },
   {
-    "mystery.edge": 6,
+    edge: 6,
     "period.curia": 1,
     "w.latin": 1,
     "cost.tally": 2,
@@ -1081,7 +1081,7 @@ export const Books = [
     inherits: "_book",
   },
   {
-    "mystery.sky": 6,
+    sky: 6,
     "period.baronial": 1,
     "w.greek": 1,
     "cost.tally": 3,
@@ -1095,7 +1095,7 @@ export const Books = [
     inherits: "_book",
   },
   {
-    "mystery.heart": 4,
+    heart: 4,
     "period.curia": 1,
     "w.greek": 1,
     "cost.tally": 2,
@@ -1110,7 +1110,7 @@ export const Books = [
     inherits: "_book",
   },
   {
-    "mystery.lantern": 6,
+    lantern: 6,
     "period.baronial": 1,
     "cost.tally": 3,
     "r.auroralcontemplations": 1,
@@ -1123,7 +1123,7 @@ export const Books = [
     inherits: "_book",
   },
   {
-    "mystery.winter": 6,
+    winter: 6,
     "period.baronial": 1,
     "cost.tally": 3,
     "r.snowstories": 1,
@@ -1136,7 +1136,7 @@ export const Books = [
     inherits: "_book",
   },
   {
-    "mystery.edge": 6,
+    edge: 6,
     "period.baronial": 1,
     "w.latin": 1,
     "cost.tally": 3,
@@ -1150,7 +1150,7 @@ export const Books = [
     inherits: "_book",
   },
   {
-    "mystery.grail": 10,
+    grail: 10,
     "period.solar": 1,
     "w.greek": 1,
     "cost.tally": 4,
@@ -1164,7 +1164,7 @@ export const Books = [
     inherits: "_book",
   },
   {
-    "mystery.moth": 8,
+    moth: 8,
     "period.solar": 1,
     "w.greek": 1,
     "cost.tally": 4,
@@ -1178,7 +1178,7 @@ export const Books = [
     inherits: "_book",
   },
   {
-    "mystery.lantern": 8,
+    lantern: 8,
     "period.baronial": 1,
     "w.greek": 1,
     "cost.tally": 3,
@@ -1192,7 +1192,7 @@ export const Books = [
     inherits: "_book",
   },
   {
-    "mystery.knock": 4,
+    knock: 4,
     "period.baronial": 1,
     "cost.tally": 3,
     "r.horns.ivories": 1,
@@ -1205,7 +1205,7 @@ export const Books = [
     inherits: "_book",
   },
   {
-    "mystery.edge": 4,
+    edge: 4,
     "period.curia": 1,
     "cost.tally": 2,
     "r.meniscatereflections": 1,
@@ -1218,7 +1218,7 @@ export const Books = [
     inherits: "_book",
   },
   {
-    "mystery.forge": 4,
+    forge: 4,
     "period.dawn": 1,
     "w.latin": 1,
     "cost.tally": 5,
@@ -1232,7 +1232,7 @@ export const Books = [
     inherits: "_book",
   },
   {
-    "mystery.knock": 8,
+    knock: 8,
     "period.solar": 1,
     "w.greek": 1,
     "cost.tally": 4,
@@ -1246,7 +1246,7 @@ export const Books = [
     inherits: "_book",
   },
   {
-    "mystery.moth": 6,
+    moth: 6,
     "period.dawn": 1,
     "w.aramaic": 1,
     "cost.tally": 5,
@@ -1260,7 +1260,7 @@ export const Books = [
     inherits: "_book",
   },
   {
-    "mystery.forge": 6,
+    forge: 6,
     "period.dawn": 1,
     "w.aramaic": 1,
     "cost.tally": 5,
@@ -1274,7 +1274,7 @@ export const Books = [
     inherits: "_book",
   },
   {
-    "mystery.grail": 6,
+    grail: 6,
     "period.dawn": 1,
     "w.aramaic": 1,
     "cost.tally": 5,
@@ -1288,7 +1288,7 @@ export const Books = [
     inherits: "_book",
   },
   {
-    "mystery.lantern": 4,
+    lantern: 4,
     "period.curia": 1,
     "w.latin": 1,
     "cost.tally": 2,
@@ -1302,7 +1302,7 @@ export const Books = [
     inherits: "_book",
   },
   {
-    "mystery.winter": 6,
+    winter: 6,
     "period.baronial": 1,
     "w.latin": 1,
     "cost.tally": 3,
@@ -1317,7 +1317,7 @@ export const Books = [
     inherits: "_book",
   },
   {
-    "mystery.grail": 6,
+    grail: 6,
     "period.curia": 1,
     "w.sanskrit": 1,
     "cost.tally": 2,
@@ -1331,7 +1331,7 @@ export const Books = [
     inherits: "_book",
   },
   {
-    "mystery.heart": 6,
+    heart: 6,
     "period.curia": 1,
     "w.sanskrit": 1,
     "cost.tally": 2,
@@ -1345,7 +1345,7 @@ export const Books = [
     inherits: "_book",
   },
   {
-    "mystery.lantern": 6,
+    lantern: 6,
     "period.curia": 1,
     "w.sanskrit": 1,
     "cost.tally": 2,
@@ -1359,7 +1359,7 @@ export const Books = [
     inherits: "_book",
   },
   {
-    "mystery.scale": 6,
+    scale: 6,
     "period.curia": 1,
     "w.sanskrit": 1,
     "cost.tally": 2,
@@ -1373,7 +1373,7 @@ export const Books = [
     inherits: "_book",
   },
   {
-    "mystery.moth": 6,
+    moth: 6,
     "period.dawn": 1,
     "w.sanskrit": 1,
     "cost.tally": 5,
@@ -1387,7 +1387,7 @@ export const Books = [
     inherits: "_book",
   },
   {
-    "mystery.scale": 8,
+    scale: 8,
     "period.nocturnal": 1,
     "w.sanskrit": 1,
     "cost.tally": 1,
@@ -1401,7 +1401,7 @@ export const Books = [
     inherits: "_book",
   },
   {
-    "mystery.rose": 6,
+    rose: 6,
     "period.curia": 1,
     "w.greek": 1,
     "cost.tally": 2,
@@ -1415,7 +1415,7 @@ export const Books = [
     inherits: "_book",
   },
   {
-    "mystery.moon": 6,
+    moon: 6,
     "period.dawn": 1,
     "w.aramaic": 1,
     "cost.tally": 5,
@@ -1429,7 +1429,7 @@ export const Books = [
     inherits: "_book",
   },
   {
-    "mystery.forge": 6,
+    forge: 6,
     "period.dawn": 1,
     "w.phrygian": 1,
     "cost.tally": 5,
@@ -1443,7 +1443,7 @@ export const Books = [
     inherits: "_book",
   },
   {
-    "mystery.moon": 6,
+    moon: 6,
     "period.dawn": 1,
     "w.phrygian": 1,
     "cost.tally": 5,
@@ -1457,7 +1457,7 @@ export const Books = [
     inherits: "_book",
   },
   {
-    "mystery.sky": 6,
+    sky: 6,
     "period.curia": 1,
     "w.greek": 1,
     "cost.tally": 2,
@@ -1472,7 +1472,7 @@ export const Books = [
     inherits: "_book",
   },
   {
-    "mystery.moon": 6,
+    moon: 6,
     "period.dawn": 1,
     "w.aramaic": 1,
     "cost.tally": 5,
@@ -1486,7 +1486,7 @@ export const Books = [
     inherits: "_book",
   },
   {
-    "mystery.edge": 8,
+    edge: 8,
     "period.curia": 1,
     "w.sanskrit": 1,
     "cost.tally": 2,
@@ -1500,7 +1500,7 @@ export const Books = [
     inherits: "_book",
   },
   {
-    "mystery.forge": 8,
+    forge: 8,
     "period.curia": 1,
     "w.sanskrit": 1,
     "cost.tally": 2,
@@ -1514,7 +1514,7 @@ export const Books = [
     inherits: "_book",
   },
   {
-    "mystery.grail": 8,
+    grail: 8,
     "period.curia": 1,
     "w.sanskrit": 1,
     "cost.tally": 2,
@@ -1528,7 +1528,7 @@ export const Books = [
     inherits: "_book",
   },
   {
-    "mystery.heart": 8,
+    heart: 8,
     "period.curia": 1,
     "w.sanskrit": 1,
     "cost.tally": 2,
@@ -1542,7 +1542,7 @@ export const Books = [
     inherits: "_book",
   },
   {
-    "mystery.lantern": 8,
+    lantern: 8,
     "period.curia": 1,
     "w.sanskrit": 1,
     "cost.tally": 2,
@@ -1556,7 +1556,7 @@ export const Books = [
     inherits: "_book",
   },
   {
-    "mystery.knock": 8,
+    knock: 8,
     "period.nocturnal": 1,
     "w.sanskrit": 1,
     "cost.tally": 1,
@@ -1570,7 +1570,7 @@ export const Books = [
     inherits: "_book",
   },
   {
-    "mystery.moth": 8,
+    moth: 8,
     "period.curia": 1,
     "w.sanskrit": 1,
     "cost.tally": 2,
@@ -1584,7 +1584,7 @@ export const Books = [
     inherits: "_book",
   },
   {
-    "mystery.edge": 8,
+    edge: 8,
     "period.dawn": 1,
     "w.aramaic": 1,
     "cost.tally": 5,
@@ -1598,7 +1598,7 @@ export const Books = [
     inherits: "_book",
   },
   {
-    "mystery.rose": 8,
+    rose: 8,
     "period.dawn": 1,
     "w.phrygian": 1,
     "cost.tally": 5,
@@ -1612,7 +1612,7 @@ export const Books = [
     inherits: "_book",
   },
   {
-    "mystery.edge": 8,
+    edge: 8,
     "period.dawn": 1,
     "w.fucine": 1,
     "cost.tally": 5,
@@ -1627,7 +1627,7 @@ export const Books = [
     language: "s.fucine",
   },
   {
-    "mystery.moth": 8,
+    moth: 8,
     "period.dawn": 1,
     "w.fucine": 1,
     "cost.tally": 5,
@@ -1642,7 +1642,7 @@ export const Books = [
     language: "s.fucine",
   },
   {
-    "mystery.winter": 8,
+    winter: 8,
     "period.dawn": 1,
     "w.fucine": 1,
     "cost.tally": 5,
@@ -1657,7 +1657,7 @@ export const Books = [
     language: "s.fucine",
   },
   {
-    "mystery.heart": 10,
+    heart: 10,
     "period.curia": 1,
     "w.fucine": 1,
     "cost.tally": 2,
@@ -1672,7 +1672,7 @@ export const Books = [
     language: "s.fucine",
   },
   {
-    "mystery.grail": 10,
+    grail: 10,
     "period.curia": 1,
     "w.fucine": 1,
     "cost.tally": 2,
@@ -1687,7 +1687,7 @@ export const Books = [
     language: "s.fucine",
   },
   {
-    "mystery.moth": 12,
+    moth: 12,
     "period.curia": 1,
     "w.fucine": 1,
     "cost.tally": 2,
@@ -1702,7 +1702,7 @@ export const Books = [
     language: "s.fucine",
   },
   {
-    "mystery.winter": 10,
+    winter: 10,
     "period.solar": 1,
     "w.aramaic": 1,
     "cost.tally": 4,
@@ -1716,7 +1716,7 @@ export const Books = [
     inherits: "_book",
   },
   {
-    "mystery.edge": 12,
+    edge: 12,
     "period.solar": 1,
     "w.greek": 1,
     "cost.tally": 4,
@@ -1730,7 +1730,7 @@ export const Books = [
     inherits: "_book",
   },
   {
-    "mystery.forge": 12,
+    forge: 12,
     "period.dawn": 1,
     "w.mandaic": 1,
     "cost.tally": 5,
@@ -1745,7 +1745,7 @@ export const Books = [
     language: "s.mandaic",
   },
   {
-    "mystery.grail": 12,
+    grail: 12,
     "period.dawn": 1,
     "w.phrygian": 1,
     "cost.tally": 5,
@@ -1759,7 +1759,7 @@ export const Books = [
     inherits: "_book",
   },
   {
-    "mystery.heart": 12,
+    heart: 12,
     "period.dawn": 1,
     "w.fucine": 1,
     "cost.tally": 5,
@@ -1774,7 +1774,7 @@ export const Books = [
     language: "s.fucine",
   },
   {
-    "mystery.lantern": 12,
+    lantern: 12,
     "period.dawn": 1,
     "w.aramaic": 1,
     "cost.tally": 5,
@@ -1788,7 +1788,7 @@ export const Books = [
     inherits: "_book",
   },
   {
-    "mystery.knock": 12,
+    knock: 12,
     "period.curia": 1,
     "w.vak": 1,
     "cost.tally": 2,
@@ -1803,7 +1803,7 @@ export const Books = [
     language: "s.vak",
   },
   {
-    "mystery.moth": 12,
+    moth: 12,
     "period.solar": 1,
     "w.greek": 1,
     "cost.tally": 4,
@@ -1817,7 +1817,7 @@ export const Books = [
     inherits: "_book",
   },
   {
-    "mystery.edge": 12,
+    edge: 12,
     "period.curia": 1,
     "w.phrygian": 1,
     "cost.tally": 2,
@@ -1831,7 +1831,7 @@ export const Books = [
     inherits: "_book",
   },
   {
-    "mystery.winter": 12,
+    winter: 12,
     "period.solar": 1,
     "w.mandaic": 1,
     "cost.tally": 4,
@@ -1846,7 +1846,7 @@ export const Books = [
     language: "s.mandaic",
   },
   {
-    "mystery.edge": 14,
+    edge: 14,
     "period.solar": 1,
     "w.latin": 1,
     "cost.tally": 4,
@@ -1860,7 +1860,7 @@ export const Books = [
     inherits: "_book",
   },
   {
-    "mystery.forge": 14,
+    forge: 14,
     "period.dawn": 1,
     "w.phrygian": 1,
     "cost.tally": 5,
@@ -1874,7 +1874,7 @@ export const Books = [
     inherits: "_book",
   },
   {
-    "mystery.grail": 14,
+    grail: 14,
     "period.nocturnal": 1,
     "w.fucine": 1,
     "cost.tally": 1,
@@ -1889,7 +1889,7 @@ export const Books = [
     language: "s.fucine",
   },
   {
-    "mystery.rose": 14,
+    rose: 14,
     "period.dawn": 1,
     "w.aramaic": 1,
     "cost.tally": 5,
@@ -1903,7 +1903,7 @@ export const Books = [
     inherits: "_book",
   },
   {
-    "mystery.lantern": 14,
+    lantern: 14,
     "period.solar": 1,
     "w.fucine": 1,
     "cost.tally": 4,
@@ -1918,7 +1918,7 @@ export const Books = [
     language: "s.fucine",
   },
   {
-    "mystery.scale": 14,
+    scale: 14,
     "period.solar": 1,
     "w.greek": 1,
     "cost.tally": 4,
@@ -1932,7 +1932,7 @@ export const Books = [
     inherits: "_book",
   },
   {
-    "mystery.moth": 14,
+    moth: 14,
     "period.dawn": 1,
     "w.phrygian": 1,
     "cost.tally": 5,
@@ -1946,7 +1946,7 @@ export const Books = [
     inherits: "_book",
   },
   {
-    "mystery.sky": 18,
+    sky: 18,
     "period.dawn": 1,
     "w.vak": 1,
     "cost.tally": 5,
@@ -1962,7 +1962,7 @@ export const Books = [
     language: "s.vak",
   },
   {
-    "mystery.winter": 12,
+    winter: 12,
     "period.dawn": 1,
     "w.fucine": 1,
     "cost.tally": 5,
@@ -1977,7 +1977,7 @@ export const Books = [
     language: "s.fucine",
   },
   {
-    "mystery.edge": 16,
+    edge: 16,
     "period.dawn": 1,
     "w.fucine": 1,
     "cost.tally": 5,
@@ -1992,7 +1992,7 @@ export const Books = [
     language: "s.fucine",
   },
   {
-    "mystery.forge": 16,
+    forge: 16,
     "period.solar": 1,
     "w.mandaic": 1,
     "cost.tally": 4,
@@ -2008,7 +2008,7 @@ export const Books = [
     language: "s.mandaic",
   },
   {
-    "mystery.grail": 16,
+    grail: 16,
     "period.dawn": 1,
     "w.phrygian": 1,
     "cost.tally": 5,
@@ -2022,7 +2022,7 @@ export const Books = [
     inherits: "_book",
   },
   {
-    "mystery.sky": 16,
+    sky: 16,
     "period.dawn": 1,
     "w.phrygian": 1,
     "cost.tally": 5,
@@ -2036,7 +2036,7 @@ export const Books = [
     inherits: "_book",
   },
   {
-    "mystery.sky": 12,
+    sky: 12,
     "period.dawn": 1,
     "w.mandaic": 1,
     "cost.tally": 5,
@@ -2051,7 +2051,7 @@ export const Books = [
     language: "s.mandaic",
   },
   {
-    "mystery.sky": 14,
+    sky: 14,
     "period.dawn": 1,
     "w.mandaic": 1,
     "cost.tally": 5,
@@ -2066,7 +2066,7 @@ export const Books = [
     language: "s.mandaic",
   },
   {
-    "mystery.sky": 16,
+    sky: 16,
     "period.dawn": 1,
     "w.mandaic": 1,
     "cost.tally": 5,
@@ -2081,7 +2081,7 @@ export const Books = [
     language: "s.mandaic",
   },
   {
-    "mystery.moth": 16,
+    moth: 16,
     "period.dawn": 1,
     "w.fucine": 1,
     "cost.tally": 5,
@@ -2096,7 +2096,7 @@ export const Books = [
     language: "s.fucine",
   },
   {
-    "mystery.sky": 16,
+    sky: 16,
     "period.dawn": 1,
     "w.vak": 1,
     "cost.tally": 5,
@@ -2111,7 +2111,7 @@ export const Books = [
     language: "s.vak",
   },
   {
-    "mystery.rose": 16,
+    rose: 16,
     "period.dawn": 1,
     "w.vak": 1,
     "cost.tally": 5,
@@ -2126,7 +2126,7 @@ export const Books = [
     language: "s.vak",
   },
   {
-    "mystery.heart": 16,
+    heart: 16,
     "period.dawn": 1,
     "w.mandaic": 1,
     "cost.tally": 5,
@@ -2141,7 +2141,7 @@ export const Books = [
     language: "s.mandaic",
   },
   {
-    "mystery.edge": 14,
+    edge: 14,
     "period.dawn": 1,
     "w.vak": 1,
     "cost.tally": 5,
@@ -2156,7 +2156,7 @@ export const Books = [
     language: "s.vak",
   },
   {
-    "mystery.forge": 14,
+    forge: 14,
     "period.curia": 1,
     "w.vak": 1,
     "cost.tally": 2,
@@ -2171,7 +2171,7 @@ export const Books = [
     language: "s.vak",
   },
   {
-    "mystery.moth": 14,
+    moth: 14,
     "period.dawn": 1,
     "w.vak": 1,
     "cost.tally": 5,
@@ -2186,7 +2186,7 @@ export const Books = [
     language: "s.vak",
   },
   {
-    "mystery.heart": 14,
+    heart: 14,
     "period.solar": 1,
     "w.mandaic": 1,
     "cost.tally": 4,
@@ -2201,7 +2201,7 @@ export const Books = [
     language: "s.mandaic",
   },
   {
-    "mystery.heart": 14,
+    heart: 14,
     "period.dawn": 1,
     "w.mandaic": 1,
     "cost.tally": 5,
@@ -2216,7 +2216,7 @@ export const Books = [
     language: "s.mandaic",
   },
   {
-    "mystery.knock": 14,
+    knock: 14,
     "period.dawn": 1,
     "w.vak": 1,
     "cost.tally": 5,
@@ -2231,7 +2231,7 @@ export const Books = [
     language: "s.vak",
   },
   {
-    "mystery.moth": 14,
+    moth: 14,
     "period.curia": 1,
     "w.phrygian": 1,
     "cost.tally": 2,
@@ -2245,7 +2245,7 @@ export const Books = [
     inherits: "_book",
   },
   {
-    "mystery.moon": 18,
+    moon: 18,
     "period.dawn": 1,
     "w.fucine": 1,
     "cost.tally": 5,
@@ -2260,7 +2260,7 @@ export const Books = [
     language: "s.fucine",
   },
   {
-    "mystery.winter": 14,
+    winter: 14,
     "period.dawn": 1,
     "w.fucine": 1,
     "cost.tally": 5,
@@ -2275,7 +2275,7 @@ export const Books = [
     language: "s.fucine",
   },
   {
-    "mystery.sky": 8,
+    sky: 8,
     "period.baronial": 1,
     "cost.tally": 3,
     "r.preliminalmeter": 1,
@@ -2288,7 +2288,7 @@ export const Books = [
     inherits: "_book",
   },
   {
-    "mystery.heart": 4,
+    heart: 4,
     "period.baronial": 1,
     "cost.tally": 3,
     "r.preliminalmeter": 1,
@@ -2301,7 +2301,7 @@ export const Books = [
     inherits: "_book",
   },
   {
-    "mystery.rose": 14,
+    rose: 14,
     "period.curia": 1,
     "w.ericapaean": 1,
     "cost.tally": 2,
@@ -2316,7 +2316,7 @@ export const Books = [
     language: "s.ericapaean",
   },
   {
-    "mystery.grail": 8,
+    grail: 8,
     "period.solar": 1,
     "w.greek": 1,
     "cost.tally": 4,
@@ -2330,7 +2330,7 @@ export const Books = [
     inherits: "_book",
   },
   {
-    "mystery.scale": 8,
+    scale: 8,
     "period.solar": 1,
     "w.greek": 1,
     "cost.tally": 4,
@@ -2344,7 +2344,7 @@ export const Books = [
     inherits: "_book",
   },
   {
-    "mystery.moon": 8,
+    moon: 8,
     "period.solar": 1,
     "w.greek": 1,
     "cost.tally": 4,
@@ -2358,7 +2358,7 @@ export const Books = [
     inherits: "_book",
   },
   {
-    "mystery.edge": 4,
+    edge: 4,
     "period.solar": 1,
     "cost.tally": 4,
     "r.raggedcrossroads": 1,
@@ -2371,7 +2371,7 @@ export const Books = [
     inherits: "_book",
   },
   {
-    "mystery.grail": 4,
+    grail: 4,
     "period.solar": 1,
     "cost.tally": 4,
     "r.applebrighteuphonies": 1,
@@ -2384,7 +2384,7 @@ export const Books = [
     inherits: "_book",
   },
   {
-    "mystery.moon": 4,
+    moon: 4,
     "period.solar": 1,
     "cost.tally": 4,
     "r.pearl.tide": 1,
@@ -2397,7 +2397,7 @@ export const Books = [
     inherits: "_book",
   },
   {
-    "mystery.moon": 12,
+    moon: 12,
     "period.solar": 1,
     "cost.tally": 4,
     "r.inks.containment": 1,
@@ -2410,7 +2410,7 @@ export const Books = [
     inherits: "_book",
   },
   {
-    "mystery.winter": 10,
+    winter: 10,
     "period.solar": 1,
     "cost.tally": 4,
     "r.raggedcrossroads": 1,
@@ -2423,7 +2423,7 @@ export const Books = [
     inherits: "_book",
   },
   {
-    "mystery.rose": 12,
+    rose: 12,
     "period.solar": 1,
     "cost.tally": 4,
     "r.inks.power": 1,
@@ -2436,7 +2436,7 @@ export const Books = [
     inherits: "_book",
   },
   {
-    "mystery.sky": 12,
+    sky: 12,
     "period.solar": 1,
     "cost.tally": 4,
     "r.sights.sensations": 1,
@@ -2449,7 +2449,7 @@ export const Books = [
     inherits: "_book",
   },
   {
-    "mystery.forge": 14,
+    forge: 14,
     "period.solar": 1,
     "cost.tally": 4,
     "r.purifications.exaltations": 1,
@@ -2462,7 +2462,7 @@ export const Books = [
     inherits: "_book",
   },
   {
-    "mystery.sky": 6,
+    sky: 6,
     "period.solar": 1,
     "cost.tally": 4,
     "r.lockworks.clockworks": 1,
@@ -2475,7 +2475,7 @@ export const Books = [
     inherits: "_book",
   },
   {
-    "mystery.sky": 10,
+    sky: 10,
     "period.curia": 1,
     "cost.tally": 2,
     "r.ouranoscopy": 1,
@@ -2488,7 +2488,7 @@ export const Books = [
     inherits: "_book",
   },
   {
-    "mystery.heart": 10,
+    heart: 10,
     "period.solar": 1,
     "cost.tally": 4,
     "r.drums.dances": 1,
@@ -2501,7 +2501,7 @@ export const Books = [
     inherits: "_book",
   },
   {
-    "mystery.sky": 4,
+    sky: 4,
     "period.baronial": 1,
     "cost.tally": 3,
     "r.ouranoscopy": 1,
@@ -2514,7 +2514,7 @@ export const Books = [
     inherits: "_book",
   },
   {
-    "mystery.forge": 6,
+    forge: 6,
     "period.baronial": 1,
     "cost.tally": 3,
     "r.door.wall": 1,
@@ -2527,7 +2527,7 @@ export const Books = [
     inherits: "_book",
   },
   {
-    "mystery.moon": 4,
+    moon: 4,
     "period.curia": 1,
     "cost.tally": 2,
     "r.seastories": 1,
@@ -2540,7 +2540,7 @@ export const Books = [
     inherits: "_book",
   },
   {
-    "mystery.sky": 6,
+    sky: 6,
     "period.baronial": 1,
     "cost.tally": 3,
     "r.furs.feathers": 1,
@@ -2553,7 +2553,7 @@ export const Books = [
     inherits: "_book",
   },
   {
-    "mystery.winter": 4,
+    winter: 4,
     "period.solar": 1,
     "w.latin": 1,
     "cost.tally": 4,
@@ -2567,7 +2567,7 @@ export const Books = [
     inherits: "_book",
   },
   {
-    "mystery.nectar": 4,
+    nectar: 4,
     "period.solar": 1,
     "w.henavek": 1,
     "cost.tally": 4,
@@ -2582,7 +2582,7 @@ export const Books = [
     language: "s.henavek",
   },
   {
-    "mystery.nectar": 4,
+    nectar: 4,
     "period.baronial": 1,
     "cost.tally": 3,
     "r.leaves.thorns": 1,
@@ -2595,7 +2595,7 @@ export const Books = [
     inherits: "_book",
   },
   {
-    "mystery.nectar": 6,
+    nectar: 6,
     "period.baronial": 1,
     "cost.tally": 3,
     "r.coil.chasm": 1,
@@ -2608,7 +2608,7 @@ export const Books = [
     inherits: "_book",
   },
   {
-    "mystery.nectar": 12,
+    nectar: 12,
     "period.nocturnal": 1,
     "cost.tally": 1,
     "r.insects.nectars": 1,
@@ -2621,7 +2621,7 @@ export const Books = [
     inherits: "_book",
   },
   {
-    "mystery.scale": 12,
+    scale: 12,
     "period.nocturnal": 1,
     "cost.tally": 1,
     "r.hill.hollow": 1,
@@ -2634,7 +2634,7 @@ export const Books = [
     inherits: "_book",
   },
   {
-    "mystery.knock": 8,
+    knock: 8,
     "period.curia": 1,
     "w.ramsund": 1,
     "cost.tally": 2,
@@ -2649,7 +2649,7 @@ export const Books = [
     language: "s.ramsund",
   },
   {
-    "mystery.rose": 6,
+    rose: 6,
     "period.baronial": 1,
     "w.phrygian": 1,
     "cost.tally": 3,
@@ -2663,7 +2663,7 @@ export const Books = [
     inherits: "_book",
   },
   {
-    "mystery.sky": 4,
+    sky: 4,
     "period.nocturnal": 1,
     "cost.tally": 1,
     "r.strings.songs": 1,
@@ -2676,7 +2676,7 @@ export const Books = [
     inherits: "_book",
   },
   {
-    "mystery.scale": 6,
+    scale: 6,
     "period.nocturnal": 1,
     "cost.tally": 1,
     "r.pentiments.precursors": 1,
@@ -2689,7 +2689,7 @@ export const Books = [
     inherits: "_book",
   },
   {
-    "mystery.sky": 6,
+    sky: 6,
     "period.baronial": 1,
     "cost.tally": 3,
     "r.bells.brazieries": 1,
@@ -2702,7 +2702,7 @@ export const Books = [
     inherits: "_book",
   },
   {
-    "mystery.moon": 14,
+    moon: 14,
     "period.dawn": 1,
     "w.greek": 1,
     "cost.tally": 5,
@@ -2716,7 +2716,7 @@ export const Books = [
     inherits: "_book",
   },
   {
-    "mystery.scale": 6,
+    scale: 6,
     "period.baronial": 1,
     "cost.tally": 3,
     "r.serpents.venoms": 1,
@@ -2729,7 +2729,7 @@ export const Books = [
     inherits: "_book",
   },
   {
-    "mystery.sky": 4,
+    sky: 4,
     "period.baronial": 1,
     "cost.tally": 3,
     "r.furs.feathers": 1,
@@ -2742,7 +2742,7 @@ export const Books = [
     inherits: "_book",
   },
   {
-    "mystery.grail": 10,
+    grail: 10,
     "period.curia": 1,
     "cost.tally": 2,
     "r.resurgences.emergences": 1,
@@ -2755,7 +2755,7 @@ export const Books = [
     inherits: "_book",
   },
   {
-    "mystery.knock": 6,
+    knock: 6,
     "period.curia": 1,
     "cost.tally": 2,
     "r.surgeries.exsanguinations": 1,
@@ -2768,7 +2768,7 @@ export const Books = [
     inherits: "_book",
   },
   {
-    "mystery.winter": 6,
+    winter: 6,
     "period.curia": 1,
     "cost.tally": 2,
     "r.inks.containment": 1,
@@ -2781,7 +2781,7 @@ export const Books = [
     inherits: "_book",
   },
   {
-    "mystery.lantern": 8,
+    lantern: 8,
     "period.baronial": 1,
     "cost.tally": 3,
     "r.watchmansparadoxes": 1,
@@ -2794,7 +2794,7 @@ export const Books = [
     inherits: "_book",
   },
   {
-    "mystery.forge": 8,
+    forge: 8,
     "period.baronial": 1,
     "cost.tally": 3,
     "r.pyroglyphics": 1,
@@ -2807,7 +2807,7 @@ export const Books = [
     inherits: "_book",
   },
   {
-    "mystery.lantern": 8,
+    lantern: 8,
     "period.baronial": 1,
     "cost.tally": 3,
     "r.inks.revelation": 1,
@@ -2820,7 +2820,7 @@ export const Books = [
     inherits: "_book",
   },
   {
-    "mystery.scale": 8,
+    scale: 8,
     "period.baronial": 1,
     "cost.tally": 3,
     "r.inks.power": 1,
@@ -2833,7 +2833,7 @@ export const Books = [
     inherits: "_book",
   },
   {
-    "mystery.winter": 8,
+    winter: 8,
     "period.baronial": 1,
     "cost.tally": 3,
     "r.inks.containment": 1,
@@ -2846,7 +2846,7 @@ export const Books = [
     inherits: "_book",
   },
   {
-    "mystery.sky": 12,
+    sky: 12,
     "period.nocturnal": 1,
     "cost.tally": 1,
     "r.strings.songs": 1,
@@ -2859,7 +2859,7 @@ export const Books = [
     inherits: "_book",
   },
   {
-    "mystery.sky": 10,
+    sky: 10,
     "period.nocturnal": 1,
     "cost.tally": 1,
     "r.strings.songs": 1,
@@ -2872,7 +2872,7 @@ export const Books = [
     inherits: "_book",
   },
   {
-    "mystery.heart": 12,
+    heart: 12,
     "period.nocturnal": 1,
     "cost.tally": 1,
     "r.drums.dances": 1,
@@ -2885,7 +2885,7 @@ export const Books = [
     inherits: "_book",
   },
   {
-    "mystery.forge": 4,
+    forge: 4,
     "period.baronial": 1,
     "cost.tally": 3,
     "r.bells.brazieries": 1,
@@ -2898,7 +2898,7 @@ export const Books = [
     inherits: "_book",
   },
   {
-    "mystery.nectar": 6,
+    nectar: 6,
     "period.nocturnal": 1,
     "cost.tally": 1,
     "r.insects.nectars": 1,
@@ -2911,7 +2911,7 @@ export const Books = [
     inherits: "_book",
   },
   {
-    "mystery.nectar": 6,
+    nectar: 6,
     "period.baronial": 1,
     "w.aramaic": 1,
     "cost.tally": 3,
@@ -2925,7 +2925,7 @@ export const Books = [
     inherits: "_book",
   },
   {
-    "mystery.nectar": 4,
+    nectar: 4,
     "period.baronial": 1,
     "cost.tally": 3,
     "r.spices.savours": 1,
@@ -2938,7 +2938,7 @@ export const Books = [
     inherits: "_book",
   },
   {
-    "mystery.winter": 10,
+    winter: 10,
     "period.baronial": 1,
     "w.latin": 1,
     "cost.tally": 3,
@@ -2952,7 +2952,7 @@ export const Books = [
     inherits: "_book",
   },
   {
-    "mystery.sky": 8,
+    sky: 8,
     "period.solar": 1,
     "cost.tally": 4,
     "r.sacralimiae": 1,
@@ -2965,7 +2965,7 @@ export const Books = [
     inherits: "_book",
   },
   {
-    "mystery.edge": 6,
+    edge: 6,
     "period.curia": 1,
     "cost.tally": 2,
     "r.sickle.eclipse": 1,
@@ -2978,7 +2978,7 @@ export const Books = [
     inherits: "_book",
   },
   {
-    "mystery.scale": 6,
+    scale: 6,
     "period.nocturnal": 1,
     "cost.tally": 1,
     "r.hill.hollow": 1,
@@ -2991,7 +2991,7 @@ export const Books = [
     inherits: "_book",
   },
   {
-    "mystery.moon": 6,
+    moon: 6,
     "period.nocturnal": 1,
     "cost.tally": 1,
     "r.edictsmartial": 1,
@@ -3004,7 +3004,7 @@ export const Books = [
     inherits: "_book",
   },
   {
-    "mystery.heart": 6,
+    heart: 6,
     "period.nocturnal": 1,
     "cost.tally": 1,
     "r.edictsinviolable": 1,
@@ -3017,7 +3017,7 @@ export const Books = [
     inherits: "_book",
   },
   {
-    "mystery.moon": 4,
+    moon: 4,
     "period.nocturnal": 1,
     "cost.tally": 1,
     "r.hill.hollow": 1,
@@ -3030,7 +3030,7 @@ export const Books = [
     inherits: "_book",
   },
   {
-    "mystery.scale": 4,
+    scale: 4,
     "period.nocturnal": 1,
     "w.mandaic": 1,
     "cost.tally": 1,
@@ -3045,7 +3045,7 @@ export const Books = [
     language: "s.mandaic",
   },
   {
-    "mystery.sky": 6,
+    sky: 6,
     "period.baronial": 1,
     "cost.tally": 3,
     "r.anbary.lapidary": 1,
@@ -3058,7 +3058,7 @@ export const Books = [
     inherits: "_book",
   },
   {
-    "mystery.knock": 4,
+    knock: 4,
     "period.curia": 1,
     "cost.tally": 2,
     "r.glassblowing.vesselcrafting": 1,
@@ -3071,7 +3071,7 @@ export const Books = [
     inherits: "_book",
   },
   {
-    "mystery.forge": 10,
+    forge: 10,
     "period.nocturnal": 1,
     "cost.tally": 1,
     "r.lockworks.clockworks": 1,
@@ -3084,7 +3084,7 @@ export const Books = [
     inherits: "_book",
   },
   {
-    "mystery.forge": 8,
+    forge: 8,
     "period.curia": 1,
     "cost.tally": 2,
     "r.bells.brazieries": 1,
@@ -3097,7 +3097,7 @@ export const Books = [
     inherits: "_book",
   },
   {
-    "mystery.heart": 10,
+    heart: 10,
     "period.baronial": 1,
     "cost.tally": 3,
     "r.stitching.binding": 1,
@@ -3110,7 +3110,7 @@ export const Books = [
     inherits: "_book",
   },
   {
-    "mystery.scale": 8,
+    scale: 8,
     "period.baronial": 1,
     "cost.tally": 3,
     "r.furs.feathers": 1,
@@ -3123,7 +3123,7 @@ export const Books = [
     inherits: "_book",
   },
   {
-    "mystery.moon": 8,
+    moon: 8,
     "period.curia": 1,
     "cost.tally": 2,
     "r.pearl.tide": 1,
@@ -3136,7 +3136,7 @@ export const Books = [
     inherits: "_book",
   },
   {
-    "mystery.nectar": 8,
+    nectar: 8,
     "period.baronial": 1,
     "cost.tally": 3,
     "r.insects.nectars": 1,
@@ -3149,7 +3149,7 @@ export const Books = [
     inherits: "_book",
   },
   {
-    "mystery.heart": 8,
+    heart: 8,
     "period.curia": 1,
     "w.greek": 1,
     "cost.tally": 2,
@@ -3163,7 +3163,7 @@ export const Books = [
     inherits: "_book",
   },
   {
-    "mystery.grail": 10,
+    grail: 10,
     "period.solar": 1,
     "cost.tally": 4,
     "r.orchids.narcotics": 1,
@@ -3176,7 +3176,7 @@ export const Books = [
     inherits: "_book",
   },
   {
-    "mystery.scale": 8,
+    scale: 8,
     "period.dawn": 1,
     "w.greek": 1,
     "cost.tally": 5,
@@ -3190,7 +3190,7 @@ export const Books = [
     inherits: "_book",
   },
   {
-    "mystery.winter": 8,
+    winter: 8,
     "period.curia": 1,
     "cost.tally": 2,
     "r.sights.sensations": 1,
@@ -3203,7 +3203,7 @@ export const Books = [
     inherits: "_book",
   },
   {
-    "mystery.forge": 8,
+    forge: 8,
     "period.curia": 1,
     "cost.tally": 2,
     "r.spices.savours": 1,
@@ -3216,7 +3216,7 @@ export const Books = [
     inherits: "_book",
   },
   {
-    "mystery.winter": 8,
+    winter: 8,
     "period.curia": 1,
     "cost.tally": 2,
     "r.rhyme.remembrance": 1,
@@ -3229,7 +3229,7 @@ export const Books = [
     inherits: "_book",
   },
   {
-    "mystery.forge": 8,
+    forge: 8,
     "period.curia": 1,
     "cost.tally": 2,
     "r.meniscatereflections": 1,
@@ -3242,7 +3242,7 @@ export const Books = [
     inherits: "_book",
   },
   {
-    "mystery.winter": 4,
+    winter: 4,
     "period.baronial": 1,
     "cost.tally": 3,
     "r.rhyme.remembrance": 1,
@@ -3255,7 +3255,7 @@ export const Books = [
     inherits: "_book",
   },
   {
-    "mystery.winter": 8,
+    winter: 8,
     "period.curia": 1,
     "cost.tally": 2,
     "r.putrefactions.calcinations": 1,
@@ -3268,7 +3268,7 @@ export const Books = [
     inherits: "_book",
   },
   {
-    "mystery.lantern": 10,
+    lantern: 10,
     "period.solar": 1,
     "cost.tally": 4,
     "r.purifications.exaltations": 1,
@@ -3281,7 +3281,7 @@ export const Books = [
     inherits: "_book",
   },
   {
-    "mystery.scale": 10,
+    scale: 10,
     "period.solar": 1,
     "w.henavek": 1,
     "cost.tally": 4,
@@ -3296,7 +3296,7 @@ export const Books = [
     language: "s.henavek",
   },
   {
-    "mystery.lantern": 10,
+    lantern: 10,
     "period.solar": 1,
     "w.sabazine": 1,
     "cost.tally": 4,
@@ -3311,7 +3311,7 @@ export const Books = [
     language: "s.sabazine",
   },
   {
-    "mystery.moth": 10,
+    moth: 10,
     "period.solar": 1,
     "w.sabazine": 1,
     "cost.tally": 4,
@@ -3326,7 +3326,7 @@ export const Books = [
     language: "s.sabazine",
   },
   {
-    "mystery.moon": 10,
+    moon: 10,
     "period.solar": 1,
     "w.vak": 1,
     "cost.tally": 4,
@@ -3341,7 +3341,7 @@ export const Books = [
     language: "s.vak",
   },
   {
-    "mystery.edge": 10,
+    edge: 10,
     "period.solar": 1,
     "w.hyksos": 1,
     "cost.tally": 4,
@@ -3356,7 +3356,7 @@ export const Books = [
     language: "s.hyksos",
   },
   {
-    "mystery.moon": 10,
+    moon: 10,
     "period.curia": 1,
     "cost.tally": 2,
     "r.edictsinviolable": 1,
@@ -3369,7 +3369,7 @@ export const Books = [
     inherits: "_book",
   },
   {
-    "mystery.moon": 14,
+    moon: 14,
     "period.solar": 1,
     "cost.tally": 4,
     "r.edictsinviolable": 1,
@@ -3382,7 +3382,7 @@ export const Books = [
     inherits: "_book",
   },
   {
-    "mystery.sky": 10,
+    sky: 10,
     "period.solar": 1,
     "cost.tally": 4,
     "r.anbary.lapidary": 1,
@@ -3395,7 +3395,7 @@ export const Books = [
     inherits: "_book",
   },
   {
-    "mystery.knock": 10,
+    knock: 10,
     "period.baronial": 1,
     "cost.tally": 3,
     "r.glassblowing.vesselcrafting": 1,
@@ -3408,7 +3408,7 @@ export const Books = [
     inherits: "_book",
   },
   {
-    "mystery.moon": 14,
+    moon: 14,
     "period.solar": 1,
     "w.greek": 1,
     "cost.tally": 4,
@@ -3422,7 +3422,7 @@ export const Books = [
     inherits: "_book",
   },
   {
-    "mystery.knock": 14,
+    knock: 14,
     "period.baronial": 1,
     "w.fucine": 1,
     "cost.tally": 3,
@@ -3437,7 +3437,7 @@ export const Books = [
     language: "s.fucine",
   },
   {
-    "mystery.knock": 16,
+    knock: 16,
     "period.nocturnal": 1,
     "w.vak": 1,
     "cost.tally": 1,
@@ -3452,7 +3452,7 @@ export const Books = [
     language: "s.vak",
   },
   {
-    "mystery.rose": 18,
+    rose: 18,
     "period.nocturnal": 1,
     "w.vak": 1,
     "cost.tally": 1,
@@ -3467,7 +3467,7 @@ export const Books = [
     language: "s.vak",
   },
   {
-    "mystery.lantern": 12,
+    lantern: 12,
     "period.curia": 1,
     "cost.tally": 2,
     "r.inks.revelation": 1,
@@ -3480,7 +3480,7 @@ export const Books = [
     inherits: "_book",
   },
   {
-    "mystery.sky": 10,
+    sky: 10,
     "period.curia": 1,
     "cost.tally": 2,
     "r.sacralimiae": 1,
@@ -3493,7 +3493,7 @@ export const Books = [
     inherits: "_book",
   },
   {
-    "mystery.forge": 12,
+    forge: 12,
     "period.baronial": 1,
     "cost.tally": 3,
     "r.disciplines.thehammer": 1,
@@ -3506,7 +3506,7 @@ export const Books = [
     inherits: "_book",
   },
   {
-    "mystery.forge": 18,
+    forge: 18,
     "period.baronial": 1,
     "cost.tally": 3,
     "r.disciplines.thehammer": 1,
@@ -3519,7 +3519,7 @@ export const Books = [
     inherits: "_book",
   },
   {
-    "mystery.lantern": 8,
+    lantern: 8,
     "period.nocturnal": 1,
     "cost.tally": 1,
     "r.inks.revelation": 1,
@@ -3532,7 +3532,7 @@ export const Books = [
     inherits: "_book",
   },
   {
-    "mystery.moth": 10,
+    moth: 10,
     "period.nocturnal": 1,
     "cost.tally": 1,
     "r.inks.revelation": 1,
@@ -3545,7 +3545,7 @@ export const Books = [
     inherits: "_book",
   },
   {
-    "mystery.heart": 16,
+    heart: 16,
     "period.solar": 1,
     "w.ericapaean": 1,
     "cost.tally": 4,
@@ -3560,7 +3560,7 @@ export const Books = [
     language: "s.ericapaean",
   },
   {
-    "mystery.winter": 10,
+    winter: 10,
     "period.solar": 1,
     "w.ericapaean": 1,
     "cost.tally": 4,
@@ -3575,7 +3575,7 @@ export const Books = [
     language: "s.ericapaean",
   },
   {
-    "mystery.moon": 8,
+    moon: 8,
     "period.nocturnal": 1,
     "cost.tally": 1,
     "r.edictsinviolable": 1,
@@ -3588,7 +3588,7 @@ export const Books = [
     inherits: "_book",
   },
   {
-    "mystery.grail": 6,
+    grail: 6,
     "period.nocturnal": 1,
     "cost.tally": 1,
     "r.resurgences.emergences": 1,
@@ -3601,7 +3601,7 @@ export const Books = [
     inherits: "_book",
   },
   {
-    "mystery.edge": 8,
+    edge: 8,
     "period.nocturnal": 1,
     "w.hyksos": 1,
     "cost.tally": 1,
@@ -3616,7 +3616,7 @@ export const Books = [
     language: "s.hyksos",
   },
   {
-    "mystery.moon": 8,
+    moon: 8,
     "period.baronial": 1,
     "w.killasimi": 1,
     "cost.tally": 3,
@@ -3631,7 +3631,7 @@ export const Books = [
     language: "s.killasimi",
   },
   {
-    "mystery.moon": 10,
+    moon: 10,
     "period.baronial": 1,
     "cost.tally": 3,
     "r.hill.hollow": 1,
@@ -3644,7 +3644,7 @@ export const Books = [
     inherits: "_book",
   },
   {
-    "mystery.forge": 10,
+    forge: 10,
     "period.dawn": 1,
     "w.mandaic": 1,
     "cost.tally": 5,
@@ -3659,7 +3659,7 @@ export const Books = [
     language: "s.mandaic",
   },
   {
-    "mystery.grail": 12,
+    grail: 12,
     "period.dawn": 1,
     "w.killasimi": 1,
     "cost.tally": 5,
@@ -3674,7 +3674,7 @@ export const Books = [
     language: "s.killasimi",
   },
   {
-    "mystery.moth": 6,
+    moth: 6,
     "period.baronial": 1,
     "w.sabazine": 1,
     "cost.tally": 3,
@@ -3689,7 +3689,7 @@ export const Books = [
     language: "s.sabazine",
   },
   {
-    "mystery.edge": 18,
+    edge: 18,
     "period.curia": 1,
     "w.killasimi": 1,
     "cost.tally": 2,
@@ -3704,7 +3704,7 @@ export const Books = [
     language: "s.killasimi",
   },
   {
-    "mystery.forge": 10,
+    forge: 10,
     "period.nocturnal": 1,
     "cost.tally": 1,
     "r.sights.sensations": 1,
@@ -3717,7 +3717,7 @@ export const Books = [
     inherits: "_book",
   },
   {
-    "mystery.grail": 10,
+    grail: 10,
     "period.dawn": 1,
     "w.killasimi": 1,
     "cost.tally": 5,
@@ -3732,7 +3732,7 @@ export const Books = [
     language: "s.killasimi",
   },
   {
-    "mystery.knock": 12,
+    knock: 12,
     "period.dawn": 1,
     "w.vak": 1,
     "cost.tally": 5,
@@ -3747,7 +3747,7 @@ export const Books = [
     language: "s.vak",
   },
   {
-    "mystery.forge": 16,
+    forge: 16,
     "period.dawn": 1,
     "w.vak": 1,
     "cost.tally": 5,
@@ -3762,7 +3762,7 @@ export const Books = [
     language: "s.vak",
   },
   {
-    "mystery.knock": 18,
+    knock: 18,
     "period.dawn": 1,
     "w.vak": 1,
     "cost.tally": 5,
@@ -3777,7 +3777,7 @@ export const Books = [
     language: "s.vak",
   },
   {
-    "mystery.nectar": 10,
+    nectar: 10,
     "period.dawn": 1,
     "w.cracktrack": 1,
     "cost.tally": 5,
@@ -3792,7 +3792,7 @@ export const Books = [
     language: "s.cracktrack",
   },
   {
-    "mystery.moth": 14,
+    moth: 14,
     "period.dawn": 1,
     "w.cracktrack": 1,
     "cost.tally": 5,
@@ -3807,7 +3807,7 @@ export const Books = [
     language: "s.cracktrack",
   },
   {
-    "mystery.knock": 21,
+    knock: 21,
     "period.dawn": 1,
     "w.vak": 1,
     "cost.tally": 5,
@@ -3823,7 +3823,7 @@ export const Books = [
     language: "s.vak",
   },
   {
-    "mystery.lantern": 21,
+    lantern: 21,
     "period.solar": 1,
     "w.ericapaean": 1,
     "cost.tally": 4,
@@ -3839,7 +3839,7 @@ export const Books = [
     language: "s.ericapaean",
   },
   {
-    "mystery.grail": 21,
+    grail: 21,
     "period.baronial": 1,
     "w.killasimi": 1,
     "cost.tally": 3,
@@ -3855,7 +3855,7 @@ export const Books = [
     language: "s.killasimi",
   },
   {
-    "mystery.scale": 21,
+    scale: 21,
     "period.curia": 1,
     "w.cracktrack": 1,
     "cost.tally": 2,
@@ -3871,7 +3871,7 @@ export const Books = [
     language: "s.cracktrack",
   },
   {
-    "mystery.winter": 21,
+    winter: 21,
     "period.nocturnal": 1,
     "w.sabazine": 1,
     "cost.tally": 1,
@@ -3887,7 +3887,7 @@ export const Books = [
     language: "s.sabazine",
   },
   {
-    "mystery.moth": 21,
+    moth: 21,
     "period.baronial": 1,
     "w.mandaic": 1,
     "cost.tally": 2,
@@ -3903,7 +3903,7 @@ export const Books = [
     language: "s.mandaic",
   },
   {
-    "mystery.edge": 14,
+    edge: 14,
     "period.nocturnal": 1,
     "w.hyksos": 1,
     "cost.tally": 4,

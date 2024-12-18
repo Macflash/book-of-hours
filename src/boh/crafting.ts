@@ -3,6 +3,7 @@ import { PrototypeData } from "../data/prototype_data";
 import { WorkstationData } from "../data/workstation_data";
 import { AddAspects, AddAspectsInplace, Aspect, AspectMap } from "./aspects";
 import { Principle } from "./principles";
+import { Save } from "./save";
 
 // Recipe -> workstations? or vice-versa?
 // Doesn't matter just generate all possible combos?
@@ -118,6 +119,21 @@ export interface Item extends AspectMap {
 }
 
 export interface Memory extends Item {}
+
+export function GetAvailableMemoriesFromSave(save: Save) {
+  const memories = new Set<string>();
+
+  for (const item of save.availableItems) {
+    if (item.memory) memories.add(item.id);
+    if (item.consider_spawn_id) memories.add(item.consider_spawn_id);
+  }
+
+  for (const book of save.availableBooks) {
+    memories.add(book.reading.id);
+  }
+
+  return [...memories].map((id) => GetItemById(id) as Memory);
+}
 
 export interface WorkstationSlot {
   id: string;

@@ -1,5 +1,13 @@
+import { AspectMap } from "../boh/aspects";
 import { FindBooksThatSpawnId } from "../boh/book";
-import { FavMemories, IsFavMemory, Memories, Memory } from "../boh/crafting";
+import {
+  FavMemories,
+  GetAvailableMemoriesFromSave,
+  IsFavMemory,
+  MatchesAnyRequirement,
+  Memories,
+  Memory,
+} from "../boh/crafting";
 import {
   Principle,
   Principles,
@@ -21,12 +29,13 @@ interface Help {
 }
 
 export function ReadingView({ save }: { save: Save }) {
+  const possibleMemories = GetAvailableMemoriesFromSave(save);
   // Get best skill and soul per principle
   const bestMap = new Map<Principle, Help>();
   for (const principle of Principles) {
     const skill = FindBestByPrinciple(principle, [...save.skills.values()]);
     const soul = FindBestByPrinciple(principle, save.souls);
-    const memory = FindBestByPrinciple(principle, FavMemories);
+    const memory = FindBestByPrinciple(principle, possibleMemories);
 
     bestMap.set(principle, {
       principle,
@@ -37,51 +46,68 @@ export function ReadingView({ save }: { save: Save }) {
     });
   }
 
+  const bestReading: AspectMap = {};
+  for (const principle of Principles) {
+    bestReading[principle] = bestMap.get(principle)?.value;
+  }
+
+  const booksToMaster = save.availableBooks.filter(
+    (b) => !b.mastered && MatchesAnyRequirement(b, bestReading)
+  );
+  console.log("books you can master", booksToMaster);
+
   return (
     <div>
-      {[...bestMap.values()]
-        .sort((a, b) => b.value - a.value)
-        .map(({ memory, principle, skill, soul, value }) => (
-          <div key={principle}>
-            <span key={principle}>
-              <span
-                style={{
-                  color: PrincipleColor(principle),
-                }}
-              >
-                {principle}: {value}{" "}
+      <div>
+        {[...bestMap.values()]
+          .sort((a, b) => b.value - a.value)
+          .map(({ memory, principle, skill, soul, value }) => (
+            <div key={principle}>
+              <span key={principle}>
+                <span
+                  style={{
+                    color: PrincipleColor(principle),
+                  }}
+                >
+                  {principle}: {value}{" "}
+                </span>
+                <span
+                  style={{
+                    fontSize: "1rem",
+                  }}
+                >
+                  {skill?.[principle] ? (
+                    <span>
+                      {skill.label}({skill[principle]}){" "}
+                    </span>
+                  ) : null}
+                  {soul ? (
+                    <span style={{ color: soul.color }}>
+                      {soul.label}({soul[principle]}){" "}
+                    </span>
+                  ) : null}
+                  {memory ? (
+                    <span
+                      title={FindBooksThatSpawnId(
+                        memory.id,
+                        save.availableBooks
+                      )
+                        .map(({ label }) => label)
+                        .join(", ")}
+                      style={{
+                        color: IsFavMemory(memory.id) ? "gold" : undefined,
+                      }}
+                    >
+                      {memory.label} ({memory[principle]})
+                    </span>
+                  ) : null}
+                </span>
               </span>
-              <span
-                style={{
-                  fontSize: "1rem",
-                }}
-              >
-                {skill ? (
-                  <span>
-                    {skill.label}({skill[principle]})
-                  </span>
-                ) : null}
-                {soul ? (
-                  <span style={{ color: soul.color }}>
-                    {soul.label}({soul[principle]}){" "}
-                  </span>
-                ) : null}
-                {memory ? (
-                  <span
-                    title={FindBooksThatSpawnId(memory.id)
-                      .map(({ label }) => label)
-                      .join(", ")}
-                    style={{
-                      color: IsFavMemory(memory.id) ? "gold" : undefined,
-                    }}
-                  >
-                    {memory.label} ({memory[principle]})
-                  </span>
-                ) : null}
-              </span>
-            </span>
-          </div>
-        ))}
+            </div>
+          ))}
+      </div>
+      <div>{booksToMaster.map((b) => b.label).join(", ")}</div>
+      <div>{!booksToMaster.length ? "Can't read anything right now" : ""}</div>
     </div>
   );
 }

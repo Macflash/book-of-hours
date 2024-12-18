@@ -22,6 +22,8 @@ function App() {
     souls: [],
     skills: new Map(),
     rooms: [],
+    availableBooks: [],
+    availableItems: [],
     workstations: [],
     madeBefore: new Set<string>(),
   });
