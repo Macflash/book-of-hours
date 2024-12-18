@@ -9,12 +9,12 @@ export interface Book extends AspectMap {
   reading: { id: string; level: number };
 }
 
-export function GetBookById(id: string): Book | undefined {
-  return Books.find((b) => b.id == id);
+export function GetBookById(id: string, books = Books): Book | undefined {
+  return books.find((b) => b.id == id);
 }
 
-export function FindBooksThatSpawnId(spawnId: string): Book[] {
-  return Books.filter(
+export function FindBooksThatSpawnId(spawnId: string, books = Books): Book[] {
+  return books.filter(
     (b) => b.mastering.id == spawnId || b.reading.id == spawnId
   );
 }
@@ -3917,4 +3917,4 @@ export const Books = [
     inherits: "_book",
     language: "s.hyksos",
   },
-];
+] as any as Book[];

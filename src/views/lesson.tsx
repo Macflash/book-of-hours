@@ -9,15 +9,22 @@ import {
 import { Principle, Principles } from "../boh/principles";
 import { Save } from "../boh/save";
 import { PrincipleList } from "../components/principleList";
-import { GetRecipesByResult, Recipe, ToRecipeString } from "../boh/recipes";
+import {
+  FilterRecipesBySkills,
+  GetRecipesByResult,
+  Recipe,
+  ToRecipeString,
+} from "../boh/recipes";
 import { GetSkillById } from "../boh/skills";
-import { FindBooksThatSpawnId } from "../boh/book";
+import { Book, FindBooksThatSpawnId } from "../boh/book";
 
 export function LessonView({ save }: { save: Save }) {
   const [principles, setPrinciples] = React.useState<Set<Principle>>(new Set());
-  const [selectedMemories, setSelectedMems] = React.useState<Set<string>>(
+  const [manualSelected, setSelectedMems] = React.useState<Set<string>>(
     new Set()
   );
+
+  const selectedMemories = new Set(manualSelected);
 
   const toggleMem = (id: string) => {
     if (selectedMemories.has(id)) selectedMemories.delete(id);
@@ -25,31 +32,64 @@ export function LessonView({ save }: { save: Save }) {
     setSelectedMems(new Set(selectedMemories));
   };
 
-  // search skills by name, to get their principles
-
   const matchingMemories = Memories.filter((memory) => {
     for (const principle of principles) {
-      if (memory[principle]) return true;
+      if (memory[principle]) {
+        if (save.availableItems.some((item) => item.id == memory.id)) {
+          selectedMemories.add(memory.id);
+        }
+        return true;
+      }
     }
     return false;
   });
   console.log("Matching", matchingMemories);
 
-  const regular = matchingMemories.filter((m) => !m.persistent && !m.numen);
-  const persistent = matchingMemories.filter((m) => m.persistent && !m.numen);
-  const numen = matchingMemories.filter((m) => m.numen);
+  // We should filter memories by what is actually CRAFTABLE.
+  // consider: I have access to the item
+  // read: I have the book (and IDEALLY, mastered it already)
+  // craft: I AT LEAST have the skill (and ideally the things to make it)
 
-  // This works great for CRAFTING
-  // But memories can also come from WEATHER, CONSIDERING, and READING
+  // TODO: weather??
+
   const recipeMap = new Map<string, Recipe[]>(
-    matchingMemories.map((m) => [m.id, GetRecipesByResult(m.id)])
+    matchingMemories.map((m) => [
+      m.id,
+      GetRecipesByResult(
+        m.id,
+        FilterRecipesBySkills([...save.skills.values()])
+      ),
+    ])
   );
   console.log("Matching recipes", recipeMap);
 
   const considerMap = new Map<string, Item[]>(
-    matchingMemories.map((m) => [m.id, GetItemsByConsiderSpawnId(m.id)])
+    matchingMemories.map((m) => [
+      m.id,
+      GetItemsByConsiderSpawnId(m.id, save.availableItems),
+    ])
   );
   console.log("Things to consider", considerMap);
+
+  const bookMap = new Map<string, Book[]>(
+    matchingMemories.map((m) => [
+      m.id,
+      FindBooksThatSpawnId(m.id, save.availableBooks),
+    ])
+  );
+
+  const memoriesYouCanGet = matchingMemories.filter(
+    ({ id }) =>
+      selectedMemories.has(id) ||
+      recipeMap.get(id)?.length ||
+      considerMap.get(id)?.length ||
+      bookMap.get(id)?.length
+  );
+
+  // Group memories
+  const regular = memoriesYouCanGet.filter((m) => !m.persistent && !m.numen);
+  const persistent = memoriesYouCanGet.filter((m) => m.persistent && !m.numen);
+  const numen = memoriesYouCanGet.filter((m) => m.numen);
 
   return (
     <div>
@@ -85,7 +125,9 @@ export function LessonView({ save }: { save: Save }) {
           memories={regular}
           recipeMap={recipeMap}
           considerMap={considerMap}
+          bookMap={bookMap}
           madeBefore={save.madeBefore}
+          selectedMemories={selectedMemories}
           toggle={toggleMem}
         />
         <MemoryList
@@ -93,7 +135,9 @@ export function LessonView({ save }: { save: Save }) {
           memories={persistent}
           recipeMap={recipeMap}
           considerMap={considerMap}
+          bookMap={bookMap}
           madeBefore={save.madeBefore}
+          selectedMemories={selectedMemories}
           toggle={toggleMem}
         />
         <MemoryList
@@ -101,7 +145,9 @@ export function LessonView({ save }: { save: Save }) {
           memories={numen}
           recipeMap={recipeMap}
           considerMap={considerMap}
+          bookMap={bookMap}
           madeBefore={save.madeBefore}
+          selectedMemories={selectedMemories}
           toggle={toggleMem}
         />
       </div>
@@ -115,6 +161,7 @@ function MemoryList({
   recipeMap,
   considerMap,
   madeBefore,
+  bookMap,
   toggle,
   selectedMemories,
 }: {
@@ -122,6 +169,7 @@ function MemoryList({
   title?: string;
   recipeMap?: Map<string, Recipe[]>;
   considerMap?: Map<string, Item[]>;
+  bookMap?: Map<string, Book[]>;
   madeBefore?: Set<string>;
   selectedMemories?: Set<string>;
   toggle?: (id: string) => void;
@@ -145,7 +193,8 @@ function MemoryList({
           ?.map((i) => i.label)
           .join("\n");
 
-        const readingString = FindBooksThatSpawnId(m.id)
+        const readingString = bookMap
+          ?.get(m.id)
           ?.map((i) => i.label)
           .join("\n");
 

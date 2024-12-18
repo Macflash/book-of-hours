@@ -16,9 +16,7 @@ export function GetAllWorkstations() {
 export function GenerateAllWorkstationCombos() {
   const combos: Workstation[] = [];
   for (const workstation of WorkstationData) {
-    const ws: Workstation = {
-      ...workstation,
-    };
+    const ws = { ...workstation } as Workstation;
     for (const slot of ws.slots) {
       // find items or memories that fits the slots
       slot.matches = GetMatchingItems(slot.required, slot.essential);
@@ -76,8 +74,8 @@ export function IsFavMemory(id: string) {
   return FavMemories.some((m) => m.id == id);
 }
 
-export function GetItemById(id: string) {
-  return Items.find((item) => item.id == id);
+export function GetItemById(id: string, items = Items) {
+  return items.find((item) => item.id == id);
 }
 
 function GenerateItems() {
@@ -95,12 +93,16 @@ function GenerateItems() {
   });
 }
 
-export function GetItemsByConsiderSpawnId(id: string): Item[] {
-  return Items.filter((i) => i.consider_spawn_id == id);
+export function GetItemsByConsiderSpawnId(id: string, items = Items): Item[] {
+  return items.filter((i) => i.consider_spawn_id == id);
 }
 
-export function GetMatchingItems(required: AspectMap, essential?: AspectMap) {
-  return Items.filter(
+export function GetMatchingItems(
+  required: AspectMap,
+  essential?: AspectMap,
+  items = Items
+) {
+  return items.filter(
     (i) =>
       (!essential || MatchesAllRequirements(essential, i)) &&
       MatchesAnyRequirement(required, i)
