@@ -6,7 +6,6 @@ import { AssistanceView } from "./views/assistance";
 import { CraftingView } from "./views/crafting";
 import { ReadingView } from "./views/reading";
 import { LessonView } from "./views/lesson";
-import { GetRecipesBySkill } from "./boh/recipes";
 import { ContaminationView } from "./views/contamination";
 
 type View =
@@ -16,8 +15,6 @@ type View =
   | "crafting"
   | "lesson"
   | "contamination";
-
-GetRecipesBySkill("s.inks.revelation");
 
 function App() {
   const [view, setView] = React.useState<View>("load");

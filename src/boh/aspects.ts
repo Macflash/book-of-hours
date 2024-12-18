@@ -19,6 +19,7 @@ export type Aspect =
   | "ink"
   | "liquid"
   | "beverage"
+  | "ingredient"
   | "ability" // souls
   | "skill"
   | "device"
