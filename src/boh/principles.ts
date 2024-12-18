@@ -46,7 +46,7 @@ export function SumPrinciples(
   principle: Principle,
   ...principledThings: PrincipleMap[]
 ) {
-  return AddOr0(...principledThings.map((p) => p[principle]));
+  return AddOr0(...(principledThings || []).map((p) => p?.[principle]));
 }
 
 export function AddOr0(...ns: (number | undefined)[]): number {

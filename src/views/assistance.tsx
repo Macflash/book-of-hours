@@ -131,13 +131,16 @@ export function AssistanceView({ save }: { save: Save }) {
           <div>Rooms you can open EASILY</div>
           <div>
             {roomsYouCanOpenEasily.map(({ room, principles }, i) => (
-              <div key={room.id}>
+              <div
+                key={room.id}
+                style={{ border: "1px solid white", padding: 3, margin: 3 }}
+              >
                 {room.label}:{" "}
                 {principles.map((p) => (
-                  <span>
+                  <div>
                     {PrincipleSpan({ principle: p, value: room[p] })}
                     {easyAssistanceMap.get(p)?.assistant.label}
-                  </span>
+                  </div>
                 ))}
               </div>
             ))}

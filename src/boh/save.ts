@@ -1,5 +1,6 @@
 import { WorkstationData } from "../data/workstation_data";
-import { Workstation } from "./crafting";
+import { Book, GetBookById } from "./book";
+import { GetItemById, Item, Workstation } from "./crafting";
 import { PrincipleMap, Principles } from "./principles";
 import { GetRoomById, Room } from "./rooms";
 import { EvolveSkill, GetSkillById, Skill } from "./skills";
@@ -19,7 +20,12 @@ export interface Save {
   skills: Map<string, Skill>;
   rooms: Room[];
   workstations: Workstation[];
-  madeBefore: Set<string>; // unique elements, or recipes ambitt'd
+
+  // Here are the books and stuff you actually HAVE available!
+  availableItems: Item[];
+  availableBooks: Book[];
+
+  madeBefore: Set<string>; //TODO: this isn't quite right unique elements, or recipes ambitt'd
 }
 
 interface Mutations extends PrincipleMap {
@@ -61,6 +67,13 @@ interface Dominion {
 
 interface Token {
   Payload: Payload;
+  Location: Location;
+}
+
+interface Location {
+  AtSpherePath: {
+    Path: string;
+  };
 }
 
 interface Sphere {
@@ -80,6 +93,8 @@ export function ParseSave(saveData: SaveJson) {
     skills: new Map(),
     rooms: [],
     workstations: [],
+    availableItems: [],
+    availableBooks: [],
     madeBefore,
   };
 
@@ -87,6 +102,11 @@ export function ParseSave(saveData: SaveJson) {
 
   function parseSphere(sphere: Sphere) {
     for (const token of sphere.Tokens) {
+      if (token.Location?.AtSpherePath?.Path?.includes("christmasslot")) {
+        // console.log("SKIPPING christmas! I am the grinch.", token);
+        continue;
+      }
+
       if (token.Payload) parsePayload(token.Payload);
     }
   }
@@ -101,6 +121,12 @@ export function ParseSave(saveData: SaveJson) {
 
   function parsePayload(payload: Payload) {
     save.souls.push(...ParseSoul(payload));
+
+    const book = ParseBook(payload);
+    if (book) save.availableBooks.push(book);
+
+    const item = ParseItem(payload);
+    if (item) save.availableItems.push(item);
 
     const skill = ParseSkill(payload);
     if (skill) {
@@ -120,7 +146,7 @@ export function ParseSave(saveData: SaveJson) {
 
     if (payload.Dominions) {
       if (payload.IsSealed) {
-        console.log("skipping sealed dominion", payload.Id);
+        // console.log("skipping sealed dominion", payload.Id);
       } else parseDominions(payload.Dominions);
     }
   }
@@ -149,6 +175,35 @@ function ParseSkill({ EntityId, Mutations }: Payload): Readonly<Skill> | null {
   }
 
   return null;
+}
+
+function ParseBook({ EntityId, Mutations }: Payload): Readonly<Book> | null {
+  if (!EntityId) return null;
+  if (!EntityId.startsWith("t.")) return null;
+
+  const book = GetBookById(EntityId);
+  if (!book) return null;
+
+  // TODO: add the mutations, since it can have "mastery.<principle>";
+  if (Mutations) {
+    for (const key in Mutations) {
+      if (key.startsWith("mastery.") && (Mutations as any)[key]) {
+        console.log("mastered!", book);
+        book.mastered = true;
+      }
+    }
+  }
+
+  return book;
+}
+
+function ParseItem({ EntityId }: Payload): Readonly<Item> | null {
+  if (!EntityId) return null;
+
+  const item = GetItemById(EntityId);
+  if (!item) return null;
+
+  return item;
 }
 
 function ParseSoul({ EntityId, Quantity }: Payload): ReadonlySoul[] {

@@ -3,16 +3,17 @@ import { AspectMap } from "./aspects";
 export interface Book extends AspectMap {
   id: string;
   label: string;
-  language: string;
+  mastered?: boolean;
+  language?: string;
   mastering: { id: string; level: number };
   reading: { id: string; level: number };
 }
 
-export function GetBookById(id: string) {
+export function GetBookById(id: string): Book | undefined {
   return Books.find((b) => b.id == id);
 }
 
-export function FindBooksThatSpawnId(spawnId: string) {
+export function FindBooksThatSpawnId(spawnId: string): Book[] {
   return Books.filter(
     (b) => b.mastering.id == spawnId || b.reading.id == spawnId
   );

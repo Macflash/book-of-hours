@@ -56,19 +56,28 @@ export function ReadingView({ save }: { save: Save }) {
                   fontSize: "1rem",
                 }}
               >
-                {skill.label}({skill[principle]}) &
-                <span style={{ color: soul.color }}>
-                  {soul.label}({soul[principle]})
-                </span>{" "}
-                &{" "}
-                <span
-                  title={FindBooksThatSpawnId(memory.id)
-                    .map(({ label }) => label)
-                    .join(", ")}
-                  style={{ color: IsFavMemory(memory.id) ? "gold" : undefined }}
-                >
-                  {memory.label} ({memory[principle]})
-                </span>
+                {skill ? (
+                  <span>
+                    {skill.label}({skill[principle]})
+                  </span>
+                ) : null}
+                {soul ? (
+                  <span style={{ color: soul.color }}>
+                    {soul.label}({soul[principle]}){" "}
+                  </span>
+                ) : null}
+                {memory ? (
+                  <span
+                    title={FindBooksThatSpawnId(memory.id)
+                      .map(({ label }) => label)
+                      .join(", ")}
+                    style={{
+                      color: IsFavMemory(memory.id) ? "gold" : undefined,
+                    }}
+                  >
+                    {memory.label} ({memory[principle]})
+                  </span>
+                ) : null}
               </span>
             </span>
           </div>
