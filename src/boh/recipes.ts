@@ -3,6 +3,7 @@ import { AspectMap } from "./aspects";
 import { FindBooksThatSpawnId } from "./book";
 import { GetItemsByConsiderSpawnId, Item } from "./crafting";
 import { Principles } from "./principles";
+import { Save } from "./save";
 import { GetSkillById, Skill } from "./skills";
 
 export interface Recipe extends AspectMap {
@@ -78,16 +79,19 @@ export function ToRecipeString(recipe: Recipe): string {
     .join(", ")}`;
 }
 
-export function GetCraftingHintString(id: string): string {
-  const recipeString = GetRecipesByResult(id)
+export function GetCraftingHintString(id: string, save?: Save): string {
+  const recipeString = GetRecipesByResult(
+    id,
+    save ? FilterRecipesBySkills([...save.skills.values()]) : undefined
+  )
     .map((r) => ToRecipeString(r))
     .join("\n");
 
-  const considerString = GetItemsByConsiderSpawnId(id)
+  const considerString = GetItemsByConsiderSpawnId(id, save?.availableItems)
     .map(({ label }) => label)
     .join("\n");
 
-  const readingString = FindBooksThatSpawnId(id)
+  const readingString = FindBooksThatSpawnId(id, save?.availableBooks)
     .map(({ label }) => label)
     .join("\n");
 

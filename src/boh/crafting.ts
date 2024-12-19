@@ -2,7 +2,13 @@ import { ItemData } from "../data/item_data";
 import { PrototypeData } from "../data/prototype_data";
 import { WorkstationData } from "../data/workstation_data";
 import { AddAspects, AddAspectsInplace, Aspect, AspectMap } from "./aspects";
+import { FindBooksThatSpawnId } from "./book";
 import { Principle } from "./principles";
+import {
+  FilterRecipesBySkills,
+  GetRecipesByResult,
+  ToRecipeString,
+} from "./recipes";
 import { Save } from "./save";
 
 // Recipe -> workstations? or vice-versa?
@@ -129,7 +135,8 @@ export function GetAvailableMemoriesFromSave(save: Save) {
   }
 
   for (const book of save.availableBooks) {
-    memories.add(book.reading.id);
+    // Re-reading is easy, if you haven't mastered, you probably can't...
+    if (book.mastered) memories.add(book.reading.id);
   }
 
   return [...memories].map((id) => GetItemById(id) as Memory);

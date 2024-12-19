@@ -16,9 +16,11 @@ import {
   PrincipleColor,
   SumPrinciples,
 } from "../boh/principles";
+import { GetCraftingHintString } from "../boh/recipes";
 import { Save } from "../boh/save";
 import { Skill } from "../boh/skills";
 import { Soul } from "../boh/souls";
+import { PrincipleList } from "../components/principleList";
 
 interface Help {
   principle: Principle;
@@ -81,21 +83,20 @@ export function ReadingView({ save }: { save: Save }) {
                       {skill.label}({skill[principle]}){" "}
                     </span>
                   ) : null}
-                  {soul ? (
+                  {soul?.[principle] ? (
                     <span style={{ color: soul.color }}>
                       {soul.label}({soul[principle]}){" "}
                     </span>
                   ) : null}
-                  {memory ? (
+                  {memory?.[principle] ? (
                     <span
-                      title={FindBooksThatSpawnId(
-                        memory.id,
-                        save.availableBooks
-                      )
-                        .map(({ label }) => label)
-                        .join(", ")}
+                      title={GetCraftingHintString(memory.id, save)}
                       style={{
-                        color: IsFavMemory(memory.id) ? "gold" : undefined,
+                        color: save.availableItems.some(
+                          (item) => item.id == memory.id
+                        )
+                          ? "lightgreen"
+                          : undefined,
                       }}
                     >
                       {memory.label} ({memory[principle]})
@@ -106,7 +107,13 @@ export function ReadingView({ save }: { save: Save }) {
             </div>
           ))}
       </div>
-      <div>{booksToMaster.map((b) => b.label).join(", ")}</div>
+      <div>
+        {booksToMaster.map((b) => (
+          <div>
+            {b.label} <PrincipleList {...b} />
+          </div>
+        ))}
+      </div>
       <div>{!booksToMaster.length ? "Can't read anything right now" : ""}</div>
     </div>
   );

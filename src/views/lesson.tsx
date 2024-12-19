@@ -51,7 +51,7 @@ export function LessonView({ save }: { save: Save }) {
   // craft: I AT LEAST have the skill (and ideally the things to make it)
 
   // TODO: weather??
-  // TODO: TALKING TO ASSISTANTS! This is a good way to get stuff early on.
+  // TODO: TALKING TO ASSISTANTS! This is a good way to get stuff early
   const recipeMap = new Map<string, Recipe[]>(
     matchingMemories.map((m) => [
       m.id,
