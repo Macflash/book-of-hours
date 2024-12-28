@@ -1,11 +1,7 @@
 import { AspectMap } from "../boh/aspects";
-import { FindBooksThatSpawnId } from "../boh/book";
 import {
-  FavMemories,
   GetAvailableMemoriesFromSave,
-  IsFavMemory,
   MatchesAnyRequirement,
-  Memories,
   Memory,
 } from "../boh/crafting";
 import {
@@ -53,7 +49,7 @@ export function ReadingView({ save }: { save: Save }) {
     bestReading[principle] = bestMap.get(principle)?.value;
   }
 
-  const booksToMaster = save.availableBooks.filter(
+  const booksToMaster = save.books.filter(
     (b) => !b.mastered && MatchesAnyRequirement(b, bestReading)
   );
   console.log("books you can master", booksToMaster);
@@ -92,9 +88,7 @@ export function ReadingView({ save }: { save: Save }) {
                     <span
                       title={GetCraftingHintString(memory.id, save)}
                       style={{
-                        color: save.availableItems.some(
-                          (item) => item.id == memory.id
-                        )
+                        color: save.items.some((item) => item.id == memory.id)
                           ? "lightgreen"
                           : undefined,
                       }}

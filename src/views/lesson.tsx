@@ -35,7 +35,7 @@ export function LessonView({ save }: { save: Save }) {
   const matchingMemories = Memories.filter((memory) => {
     for (const principle of principles) {
       if (memory[principle]) {
-        if (save.availableItems.some((item) => item.id == memory.id)) {
+        if (save.items.some((item) => item.id == memory.id)) {
           selectedMemories.add(memory.id);
         }
         return true;
@@ -66,16 +66,13 @@ export function LessonView({ save }: { save: Save }) {
   const considerMap = new Map<string, Item[]>(
     matchingMemories.map((m) => [
       m.id,
-      GetItemsByConsiderSpawnId(m.id, save.availableItems),
+      GetItemsByConsiderSpawnId(m.id, save.items),
     ])
   );
   console.log("Things to consider", considerMap);
 
   const bookMap = new Map<string, Book[]>(
-    matchingMemories.map((m) => [
-      m.id,
-      FindBooksThatSpawnId(m.id, save.availableBooks),
-    ])
+    matchingMemories.map((m) => [m.id, FindBooksThatSpawnId(m.id, save.books)])
   );
 
   const memoriesYouCanGet = matchingMemories.filter(
@@ -164,6 +161,7 @@ function MemoryList({
   bookMap,
   toggle,
   selectedMemories,
+  save,
 }: {
   memories: Memory[];
   title?: string;
@@ -173,6 +171,7 @@ function MemoryList({
   madeBefore?: Set<string>;
   selectedMemories?: Set<string>;
   toggle?: (id: string) => void;
+  save?: Save;
 }) {
   if (!memories.length) return null;
   return (
@@ -183,6 +182,7 @@ function MemoryList({
         </div>
       ) : null}
       {memories.map((m, i) => {
+        // TODO: This could use GetCraftingHintString instead?
         const recipeString = recipeMap
           ?.get(m.id)
           ?.map((r) => ToRecipeString(r))

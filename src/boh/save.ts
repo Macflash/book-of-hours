@@ -22,8 +22,8 @@ export interface Save {
   workstations: Workstation[];
 
   // Here are the books and stuff you actually HAVE available!
-  availableItems: Item[];
-  availableBooks: Book[];
+  items: Item[];
+  books: Book[];
 
   madeBefore: Set<string>; //TODO: this isn't quite right unique elements, or recipes ambitt'd
 }
@@ -93,8 +93,8 @@ export function ParseSave(saveData: SaveJson) {
     skills: new Map(),
     rooms: [],
     workstations: [],
-    availableItems: [],
-    availableBooks: [],
+    items: [],
+    books: [],
     madeBefore,
   };
 
@@ -123,10 +123,10 @@ export function ParseSave(saveData: SaveJson) {
     save.souls.push(...ParseSoul(payload));
 
     const book = ParseBook(payload);
-    if (book) save.availableBooks.push(book);
+    if (book) save.books.push(book);
 
     const item = ParseItem(payload);
-    if (item) save.availableItems.push(item);
+    if (item) save.items.push(item);
 
     const skill = ParseSkill(payload);
     if (skill) {

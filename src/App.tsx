@@ -7,9 +7,11 @@ import { CraftingView } from "./views/crafting";
 import { ReadingView } from "./views/reading";
 import { LessonView } from "./views/lesson";
 import { ContaminationView } from "./views/contamination";
+import { SaveView } from "./views/save";
 
 type View =
   | "load"
+  | "save"
   | "assistance"
   | "read"
   | "crafting"
@@ -22,8 +24,8 @@ function App() {
     souls: [],
     skills: new Map(),
     rooms: [],
-    availableBooks: [],
-    availableItems: [],
+    books: [],
+    items: [],
     workstations: [],
     madeBefore: new Set<string>(),
   });
@@ -35,10 +37,14 @@ function App() {
       <LoadView
         setSave={(newSave: Save) => {
           setSave(newSave);
-          setView("read");
+          setView("save");
         }}
       />
     );
+  }
+
+  if (view == "save") {
+    body = <SaveView save={save} />;
   }
 
   if (view == "assistance") {

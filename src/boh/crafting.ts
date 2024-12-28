@@ -1,14 +1,8 @@
 import { ItemData } from "../data/item_data";
 import { PrototypeData } from "../data/prototype_data";
 import { WorkstationData } from "../data/workstation_data";
-import { AddAspects, AddAspectsInplace, Aspect, AspectMap } from "./aspects";
-import { FindBooksThatSpawnId } from "./book";
+import { AddAspectsInplace, Aspect, AspectMap } from "./aspects";
 import { Principle } from "./principles";
-import {
-  FilterRecipesBySkills,
-  GetRecipesByResult,
-  ToRecipeString,
-} from "./recipes";
 import { Save } from "./save";
 
 // Recipe -> workstations? or vice-versa?
@@ -111,7 +105,7 @@ export function GetMatchingItems(
 ) {
   return items.filter(
     (i) =>
-      (!essential || MatchesAllRequirements(essential, i)) &&
+      (!essential || MatchesAnyRequirement(essential, i)) &&
       MatchesAnyRequirement(required, i)
   );
 }
@@ -129,15 +123,17 @@ export interface Memory extends Item {}
 export function GetAvailableMemoriesFromSave(save: Save) {
   const memories = new Set<string>();
 
-  for (const item of save.availableItems) {
+  for (const item of save.items) {
     if (item.memory) memories.add(item.id);
     if (item.consider_spawn_id) memories.add(item.consider_spawn_id);
   }
 
-  for (const book of save.availableBooks) {
+  for (const book of save.books) {
     // Re-reading is easy, if you haven't mastered, you probably can't...
     if (book.mastered) memories.add(book.reading.id);
   }
+
+  // TODO: what about crafting a memory from a skill?
 
   return [...memories].map((id) => GetItemById(id) as Memory);
 }
@@ -161,6 +157,23 @@ export interface Workstation {
   hints: Principle[];
 }
 
+export function FindBestWorkstationByPrinciple(
+  principle: Principle,
+  save?: Save
+) {
+  const workstations = save?.workstations;
+}
+
+export function MatchesSlot(
+  slot: WorkstationSlot,
+  something: AspectMap
+): boolean {
+  if (slot.essential && !MatchesAnyRequirement(slot.essential, something))
+    return false;
+
+  return MatchesAnyRequirement(slot.required, something);
+}
+
 export function MatchesAnyRequirement(
   required: AspectMap,
   provided: AspectMap
@@ -176,17 +189,18 @@ export function MatchesAnyRequirement(
   return false;
 }
 
-export function MatchesAllRequirements(
-  required: AspectMap,
-  provided: AspectMap
-) {
-  for (const key in required) {
-    const aspect = key as Aspect;
-    const r = required[aspect];
-    const p = provided[aspect];
-    if (!r) continue;
-    if (!p) return false;
-    if (p < r) return false;
-  }
-  return true;
-}
+// I don't think this is actually ever used!
+// export function MatchesAllRequirements(
+//   required: AspectMap,
+//   provided: AspectMap
+// ) {
+//   for (const key in required) {
+//     const aspect = key as Aspect;
+//     const r = required[aspect];
+//     const p = provided[aspect];
+//     if (!r) continue;
+//     if (!p) return false;
+//     if (p < r) return false;
+//   }
+//   return true;
+// }

@@ -87,11 +87,14 @@ export function GetCraftingHintString(id: string, save?: Save): string {
     .map((r) => ToRecipeString(r))
     .join("\n");
 
-  const considerString = GetItemsByConsiderSpawnId(id, save?.availableItems)
+  const considerString = GetItemsByConsiderSpawnId(id, save?.items)
     .map(({ label }) => label)
     .join("\n");
 
-  const readingString = FindBooksThatSpawnId(id, save?.availableBooks)
+  const readingString = FindBooksThatSpawnId(
+    id,
+    save?.books.filter((b) => b.mastered)
+  )
     .map(({ label }) => label)
     .join("\n");
 

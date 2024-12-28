@@ -12,7 +12,12 @@ import {
 import { Soul } from "../boh/souls";
 import { Save } from "../boh/save";
 import { Season } from "../boh/seasons";
-import { FavMemories, Item, Items } from "../boh/crafting";
+import {
+  FavMemories,
+  GetAvailableMemoriesFromSave,
+  Item,
+  Items,
+} from "../boh/crafting";
 import { PrincipleSpan } from "../components/principleList";
 import { FindBooksThatSpawnId } from "../boh/book";
 import { GetCraftingHintString } from "../boh/recipes";
@@ -30,6 +35,8 @@ interface Help {
 export function AssistanceView({ save }: { save: Save }) {
   const [season, setSeason] = React.useState<Season | undefined>(undefined);
 
+  const possibleMemories = GetAvailableMemoriesFromSave(save);
+
   // list rooms that need to be unlocked
   const roomsToOpen = save.rooms.filter((r) => r.shrouded && !r.sealed);
   console.log(roomsToOpen);
@@ -42,7 +49,7 @@ export function AssistanceView({ save }: { save: Save }) {
   const bestAssistanceMap = new Map<Principle, Help>();
   for (const principle of Principles) {
     const soul = FindBestByPrinciple(principle, save.souls);
-    const memory = FindBestByPrinciple(principle, FavMemories);
+    const memory = FindBestByPrinciple(principle, possibleMemories);
     const beverage = FindBestByPrinciple(
       principle,
       Items.filter(({ beverage }) => beverage)
@@ -51,10 +58,11 @@ export function AssistanceView({ save }: { save: Save }) {
       principle,
       Items.filter(({ tool, device }) => tool && !device)
     );
-    const device = FindBestByPrinciple(
-      principle,
-      Items.filter(({ tool, device }) => device)
-    );
+    // Devices are single use but POWERFUL.
+    // const device = FindBestByPrinciple(
+    //   principle,
+    //   Items.filter(({ tool, device }) => device)
+    // );
     const sum = SumPrinciples(principle, soul, memory, beverage, tool);
     const easyA = FindBestByPrinciple(principle, easyAssistants);
     const specialA = FindBestByPrinciple(principle, specialAssistants);
@@ -139,7 +147,8 @@ export function AssistanceView({ save }: { save: Save }) {
                 {principles.map((p) => (
                   <div>
                     {PrincipleSpan({ principle: p, value: room[p] })}
-                    {easyAssistanceMap.get(p)?.assistant.label}
+                    {easyAssistanceMap.get(p)?.assistant.label},
+                    {easyAssistanceMap.get(p)?.memory.label}
                   </div>
                 ))}
               </div>
@@ -221,7 +230,7 @@ export function AssistanceView({ save }: { save: Save }) {
                     </span>
                     <div>
                       {memory[principle] ? (
-                        <span title={GetCraftingHintString(memory.id)}>
+                        <span title={GetCraftingHintString(memory.id, save)}>
                           {memory.label}:{memory[principle]}
                         </span>
                       ) : null}
@@ -232,13 +241,13 @@ export function AssistanceView({ save }: { save: Save }) {
                         </span>
                       ) : null}
                       {tool[principle] ? (
-                        <span title={GetCraftingHintString(tool.id)}>
+                        <span title={GetCraftingHintString(tool.id, save)}>
                           {" "}
                           {tool.label}:{tool[principle]}
                         </span>
                       ) : null}
                       {beverage[principle] ? (
-                        <span title={GetCraftingHintString(beverage.id)}>
+                        <span title={GetCraftingHintString(beverage.id, save)}>
                           {" "}
                           {beverage.label}:{beverage[principle]}
                         </span>
