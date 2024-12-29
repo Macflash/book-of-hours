@@ -1,19 +1,11 @@
 import { WorkstationData } from "../data/workstation_data";
-import { AspectMap } from "./aspects";
+import { AddAspectsInplace } from "./aspects";
 import { Book, GetBookById } from "./book";
 import { GetItemById, Item } from "./crafting";
-import { PrincipleMap, Principles } from "./principles";
+import { Or0, PrincipleMap, Principles } from "./principles";
 import { GetRoomById, Room } from "./rooms";
 import { EvolveSkill, GetSkillById, Skill } from "./skills";
-import {
-  Soul,
-  ReadonlySoul,
-  Health,
-  Wist,
-  EvolveSoul,
-  Chor,
-  Ereb,
-} from "./souls";
+import { Soul, ReadonlySoul, EvolveSoul, Chor, Ereb } from "./souls";
 import * as Souls from "./souls";
 import { Workstation } from "./workstation";
 
@@ -139,15 +131,9 @@ export function ParseSave(saveData: SaveJson) {
 
   function parseSphere(sphere: Sphere) {
     for (const token of sphere.Tokens) {
-      if (token.Location?.AtSpherePath?.Path?.includes("christmasslot")) {
-        // console.log("SKIPPING christmas! I am the grinch.", token);
-        continue;
-      }
-
-      console.log(token.Location?.AtSpherePath?.Path);
-
-      if (token.Payload)
-        parsePayload(token.Payload, token.Location?.AtSpherePath?.Path);
+      const path = token.Location?.AtSpherePath?.Path;
+      if (path?.includes("christmasslot")) continue;
+      if (token.Payload) parsePayload(token.Payload, path);
     }
   }
 
@@ -170,11 +156,13 @@ export function ParseSave(saveData: SaveJson) {
 
     const skill = ParseSkill(payload);
     if (skill) {
-      const existing = save.skills.find((s) => s.id == skill.id);
+      const index = save.skills.findIndex((s) => s.id == skill.id);
+      const existing = save.skills[index];
       if (!existing) {
         save.skills.push(skill);
-      } else if (skill.level > existing.level) {
-        existing.level = skill.level;
+      } else if (Or0(skill.skill) > Or0(existing.skill)) {
+        console.log("replacing skill", skill);
+        save.skills[index] = skill;
       }
     }
 
@@ -216,9 +204,11 @@ function ParseWorkstation(
 function ParseSkill({ EntityId, Mutations }: Payload): Readonly<Skill> | null {
   if (!EntityId) return null;
   if (EntityId?.indexOf("s.") == 0) {
-    const skill = GetSkillById(EntityId);
+    const skill = { ...GetSkillById(EntityId) };
     if (!skill) return null;
-    return EvolveSkill(skill, (Mutations.skill || 0) + 1);
+    if (Mutations) AddAspectsInplace(skill, Mutations);
+    return skill;
+    // return EvolveSkill(skill, (Mutations.skill || 0) + 1);
   }
 
   return null;
@@ -265,20 +255,20 @@ function ParseSoul({ EntityId, Quantity }: Payload): ReadonlySoul[] {
   let soul: ReadonlySoul | null = null;
   switch (EntityId) {
     // Chor
-    case "xchor":
-    case "zchor":
+    case "xcho":
+    case "zcho":
       soul = EvolveSoul(Chor, 1);
       break;
-    case "xchor2":
-    case "zchor2":
+    case "xcho2":
+    case "zcho2":
       soul = EvolveSoul(Chor, 2);
       break;
-    case "xchor3":
-    case "zchor3":
+    case "xcho3":
+    case "zcho3":
       soul = EvolveSoul(Chor, 3);
       break;
-    case "xchor4":
-    case "zchor4":
+    case "xcho4":
+    case "zcho4":
       soul = EvolveSoul(Chor, 4);
       break;
 
@@ -410,19 +400,19 @@ function ParseSoul({ EntityId, Quantity }: Payload): ReadonlySoul[] {
     // Wist
     case "xwis":
     case "zwis":
-      soul = EvolveSoul(Wist, 1);
+      soul = EvolveSoul(Souls.Wist, 1);
       break;
     case "xwis2":
     case "zwis2":
-      soul = EvolveSoul(Wist, 2);
+      soul = EvolveSoul(Souls.Wist, 2);
       break;
     case "xwis3":
     case "zwis3":
-      soul = EvolveSoul(Wist, 3);
+      soul = EvolveSoul(Souls.Wist, 3);
       break;
     case "xwis4":
     case "zwis4":
-      soul = EvolveSoul(Wist, 4);
+      soul = EvolveSoul(Souls.Wist, 4);
       break;
   }
   if (!soul) return [];

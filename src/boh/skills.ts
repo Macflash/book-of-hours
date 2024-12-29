@@ -1,10 +1,10 @@
 import { SkillData } from "../data/skill_data";
-import { PrincipleMap, Principles } from "./principles";
+import { AspectMap } from "./aspects";
+import { Or0, Principles } from "./principles";
 
-export interface Skill extends PrincipleMap {
+export interface Skill extends AspectMap {
   id: string;
   label: string;
-  level: number;
 }
 
 function GenerateSkills(): Skill[] {
@@ -15,7 +15,6 @@ function GenerateSkills(): Skill[] {
       ...data.aspects,
       id: data.id,
       label: data.Label,
-      level: 1,
     });
   }
 
@@ -37,7 +36,7 @@ export function EvolveSkill(skill: Skill, level = 1): Skill {
     if (skill[principle]) skill[principle] += 1;
   }
 
-  skill.level++;
+  skill.skill = Or0(skill.skill) + 1;
 
   return EvolveSkill(skill, level - 1);
 }

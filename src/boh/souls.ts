@@ -1,4 +1,4 @@
-import { FindBestByPrinciple, PrincipleMap, Principles } from "./principles";
+import { PrincipleMap, Principles } from "./principles";
 
 export type Element =
   | "Chor"

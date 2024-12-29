@@ -25,6 +25,7 @@ export type Aspect =
   | "skill"
   | "device"
   | "memory"
+  | "skill"
   | "tool"
   | "record.phonograph"
   | "film"

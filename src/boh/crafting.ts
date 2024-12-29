@@ -95,6 +95,7 @@ export interface Item extends AspectMap {
 
 export interface Memory extends Item {}
 
+// Get a list of all the memories you either have or can get based on your save data.
 export function GetAvailableMemoriesFromSave(save: Save) {
   const memories = new Set<string>();
 
@@ -112,3 +113,5 @@ export function GetAvailableMemoriesFromSave(save: Save) {
 
   return [...memories].map((id) => GetItemById(id) as Memory);
 }
+
+// TODO: what if we built everything from the ground up? E.g. For each skill what can you make from scratch, and keep track of the total time cost, and the principle cost.

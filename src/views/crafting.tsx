@@ -1,26 +1,8 @@
 import React from "react";
 import { Save } from "../boh/save";
-import { GetMatchingItems } from "../boh/crafting";
-import { RecipeData } from "../data/recipe_data";
-import { AspectMap } from "../boh/aspects";
 import { Recipes, ToRecipeString } from "../boh/recipes";
-import { Principles } from "../boh/principles";
-import { GetAllWorkstations, Workstation } from "../boh/workstation";
 
 export function CraftingView({ save }: { save: Save }) {
-  const wsMap = new Map<string, Workstation[]>(
-    Principles.map((p) => [
-      p,
-      GetAllWorkstations().filter(
-        (ws) =>
-          ws.hints.includes(p) &&
-          ws.slots.some(
-            (slot) => slot.required["liquid"] || slot.required["ingredient"]
-          )
-      ),
-    ])
-  );
-  console.log("workstations by principle", wsMap);
   const [search, setSearch] = React.useState("");
   const [target, setTarget] = React.useState("");
   return (

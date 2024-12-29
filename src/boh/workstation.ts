@@ -70,18 +70,26 @@ export function MatchesSlot(
 // Actually, only the soul HAS to be populated.
 // But complex since things like MEMORY can only exist once.
 // TODO: Have consider be first? List multiple desks if they have the same values??
+// Also need to have at least 1 soul! but it could be any soul I guess?
 export function FindBestWorkstationByPrinciple(
   principle: Principle,
   workstations = GetAllWorkstations(),
-  slotables = GetAllSlotables()
+  slotables = GetAllSlotables(),
+  requiredSlotables?: Slotable[]
 ) {
   //   const workstationMap = new Map<string, Map<string, Slotable>>();
   let bestWorkstation: Workstation | null = null;
   let bestSum = 0;
   let bestSlotMap = new Map<string, Slotable>();
   for (const workstation of workstations) {
+    // First find out if we can slot each
+    // const requiredSlotMap = new Map<Slotable, WorkstationSlot[]>(
+    //   requiredSlotables
+    // );
+
     // console.log(`Checking workstation ${workstation.label}`);
 
+    // Map from slot id -> item in the slot.
     const slotmap = new Map<string, Slotable>();
     for (const slot of workstation.slots) {
       if (slot.essential) console.log("essential slot!", slot.id);
@@ -103,6 +111,18 @@ export function FindBestWorkstationByPrinciple(
     bestSum,
     bestSlotMap,
   };
+}
+
+export function FillSlotsByPrinciple(
+  principle: Principle,
+  slots: WorkstationSlot[]
+) {}
+
+export function FindMatchingSlots(
+  workstation: Workstation,
+  slotable: Slotable
+): WorkstationSlot[] {
+  return workstation.slots.filter((slot) => MatchesSlot(slot, slotable));
 }
 
 export function SumWorkstationSlots(

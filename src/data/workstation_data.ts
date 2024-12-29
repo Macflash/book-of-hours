@@ -10,7 +10,7 @@ export const WorkstationData = [
         description: "There's always more to know.",
         required: {
           readable: 1,
-          // considerable: 1,
+          // considerable: 1, // This being removed was a hack for reading. What we should do is instead make sure it slots the needed item, and matches the requirements of the slots.
           // skill: 1,
           // lesson: 1,
           // cache: 1,

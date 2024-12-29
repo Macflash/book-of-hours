@@ -11,11 +11,10 @@ import { Save } from "../boh/save";
 import { PrincipleList } from "../components/principleList";
 import {
   FilterRecipesBySkills,
+  GetCraftingHintString,
   GetRecipesByResult,
   Recipe,
-  ToRecipeString,
 } from "../boh/recipes";
-import { GetSkillById } from "../boh/skills";
 import { Book, FindBooksThatSpawnId } from "../boh/book";
 
 export function LessonView({ save }: { save: Save }) {
@@ -117,9 +116,7 @@ export function LessonView({ save }: { save: Save }) {
         <MemoryList
           title="Memories"
           memories={regular}
-          recipeMap={recipeMap}
-          considerMap={considerMap}
-          bookMap={bookMap}
+          save={save}
           madeBefore={save.madeBefore}
           selectedMemories={selectedMemories}
           toggle={toggleMem}
@@ -127,9 +124,7 @@ export function LessonView({ save }: { save: Save }) {
         <MemoryList
           title="Persistent"
           memories={persistent}
-          recipeMap={recipeMap}
-          considerMap={considerMap}
-          bookMap={bookMap}
+          save={save}
           madeBefore={save.madeBefore}
           selectedMemories={selectedMemories}
           toggle={toggleMem}
@@ -137,9 +132,7 @@ export function LessonView({ save }: { save: Save }) {
         <MemoryList
           title="Numen"
           memories={numen}
-          recipeMap={recipeMap}
-          considerMap={considerMap}
-          bookMap={bookMap}
+          save={save}
           madeBefore={save.madeBefore}
           selectedMemories={selectedMemories}
           toggle={toggleMem}
@@ -152,19 +145,13 @@ export function LessonView({ save }: { save: Save }) {
 function MemoryList({
   memories,
   title,
-  recipeMap,
-  considerMap,
   madeBefore,
-  bookMap,
   toggle,
   selectedMemories,
   save,
 }: {
   memories: Memory[];
   title?: string;
-  recipeMap?: Map<string, Recipe[]>;
-  considerMap?: Map<string, Item[]>;
-  bookMap?: Map<string, Book[]>;
   madeBefore?: Set<string>;
   selectedMemories?: Set<string>;
   toggle?: (id: string) => void;
@@ -179,29 +166,8 @@ function MemoryList({
         </div>
       ) : null}
       {memories.map((m, i) => {
-        // TODO: This could use GetCraftingHintString instead?
-        const recipeString = recipeMap
-          ?.get(m.id)
-          ?.map((r) => ToRecipeString(r))
-          .join("\n");
-
-        const considerString = considerMap
-          ?.get(m.id)
-          ?.map((i) => i.label)
-          .join("\n");
-
-        const readingString = bookMap
-          ?.get(m.id)
-          ?.map((i) => i.label)
-          .join("\n");
-
         return (
-          <div
-            key={m.id}
-            title={`${recipeString ? `Craft:\n${recipeString}\n` : ""}${
-              considerString ? `Consider:\n${considerString}\n` : ""
-            }${readingString ? `Read:\n${readingString}\n` : ""}`}
-          >
+          <div key={m.id} title={GetCraftingHintString(m, save)}>
             <label>
               <input
                 type="checkbox"
