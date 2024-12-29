@@ -3,6 +3,8 @@ import { AspectMap } from "./aspects";
 export interface Book extends AspectMap {
   id: string;
   label: string;
+  location?: string;
+
   mastered?: boolean;
   language?: string;
   mastering: { id: string; level: number };

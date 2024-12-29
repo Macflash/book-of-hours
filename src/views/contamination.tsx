@@ -1,41 +1,23 @@
 import React from "react";
-import {
-  Memories,
-  Memory,
-  FavMemories,
-  GetItemsByConsiderSpawnId,
-  Item,
-  GetAllWorkstations,
-  MatchesAnyRequirement,
-} from "../boh/crafting";
+import { FavMemories } from "../boh/crafting";
 import {
   FindBestByPrinciple,
-  Principle,
   PrincipleColor,
-  Principles,
   SumPrinciples,
 } from "../boh/principles";
 import { Save } from "../boh/save";
 import { PrincipleList } from "../components/principleList";
-import {
-  GetCraftingHintString,
-  GetRecipesByResult,
-  Recipe,
-  ToRecipeString,
-} from "../boh/recipes";
-import {
-  GetSkillByEffectiveAgainstId,
-  GetSkillById,
-  Skill,
-} from "../boh/skills";
-import { FindBooksThatSpawnId } from "../boh/book";
+import { GetCraftingHintString } from "../boh/recipes";
+import { GetSkillByEffectiveAgainstId, Skill } from "../boh/skills";
 import { Contaminations } from "../boh/contaminations";
+import { MatchesRequiredAspects } from "../boh/aspects";
+import { GetAllWorkstations } from "../boh/workstation";
 
 export function ContaminationView({ save }: { save: Save }) {
   const skillMap = new Map<string, Skill[]>(
     Contaminations.map((c) => [
       c.id,
-      GetSkillByEffectiveAgainstId(c.curedBy, [...save.skills.values()]),
+      GetSkillByEffectiveAgainstId(c.curedBy, save.skills),
     ])
   );
 
@@ -75,7 +57,7 @@ export function ContaminationView({ save }: { save: Save }) {
                     ws.slots.some(
                       (slot) =>
                         slot.essential?.["skill"] &&
-                        MatchesAnyRequirement(slot.required, skill)
+                        MatchesRequiredAspects(slot.required, skill)
                     )
                   );
 

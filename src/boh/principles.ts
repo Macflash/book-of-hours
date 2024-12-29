@@ -92,3 +92,13 @@ export function MapPrinciples(principleMap: PrincipleMap) {
   }
   return [...map.entries()];
 }
+
+export function ForAllPrinciples<TResult>(
+  cb: (p: Principle) => TResult
+): Map<Principle, NoInfer<TResult>> {
+  const resultMap = new Map<Principle, TResult>();
+  for (const p of Principles) {
+    resultMap.set(p, cb(p));
+  }
+  return resultMap;
+}

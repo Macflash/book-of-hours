@@ -1,6 +1,6 @@
 import React from "react";
 import "./App.css";
-import { Save } from "./boh/save";
+import { EmptySave, Save } from "./boh/save";
 import { LoadView } from "./views/load";
 import { AssistanceView } from "./views/assistance";
 import { CraftingView } from "./views/crafting";
@@ -20,15 +20,7 @@ type View =
 
 function App() {
   const [view, setView] = React.useState<View>("load");
-  const [save, setSave] = React.useState<Save>({
-    souls: [],
-    skills: new Map(),
-    rooms: [],
-    books: [],
-    items: [],
-    workstations: [],
-    madeBefore: new Set<string>(),
-  });
+  const [save, setSave] = React.useState<Save>(EmptySave());
 
   let body = <div>Unknown view: {view}</div>;
 
@@ -85,6 +77,8 @@ function App() {
               setView(ev.target.value as View);
             }}
           >
+            <option value="load">Load</option>
+            <option value="save">Save</option>
             <option value="assistance">Assistance</option>
             <option value="crafting">Crafting</option>
             <option value="read">Read</option>

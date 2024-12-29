@@ -1,5 +1,4 @@
 import { SkillData } from "../data/skill_data";
-import { GetAspectStartingWith } from "./aspects";
 import { PrincipleMap, Principles } from "./principles";
 
 export interface Skill extends PrincipleMap {
@@ -11,28 +10,19 @@ export interface Skill extends PrincipleMap {
 function GenerateSkills(): Skill[] {
   const skills: Skill[] = [];
   for (const data of SkillData) {
-    const skill: Skill = {
+    skills.push({
       ...data,
       ...data.aspects,
       id: data.id,
       label: data.Label,
       level: 1,
-    };
-    // Shouldn't need this now.
-    // for (const principle of Principles) {
-    //   if (data.aspects[principle]) {
-    //     skill[principle] = data.aspects[principle];
-    //   }
-    // }
-
-    skills.push(skill);
+    });
   }
 
   return skills;
 }
 
 export const Skills = GenerateSkills();
-console.log("Skills", Skills);
 
 export function GetSkillById(id: string, level = 1): Skill {
   const skill = Skills.find((s) => s.id === id);

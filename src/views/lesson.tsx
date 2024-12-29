@@ -55,10 +55,7 @@ export function LessonView({ save }: { save: Save }) {
   const recipeMap = new Map<string, Recipe[]>(
     matchingMemories.map((m) => [
       m.id,
-      GetRecipesByResult(
-        m.id,
-        FilterRecipesBySkills([...save.skills.values()])
-      ),
+      GetRecipesByResult(m.id, FilterRecipesBySkills(save.skills)),
     ])
   );
   console.log("Matching recipes", recipeMap);

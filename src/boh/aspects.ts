@@ -66,12 +66,17 @@ export function AddAspectsInplace(a: AspectMap, b: AspectMap) {
   }
 }
 
-export function GetAspectStartingWith(
-  a: AspectMap,
-  prefix: string
-): number | undefined {
-  for (const key in a) {
-    if (key.startsWith(prefix)) return (a as any)[key];
+export function MatchesRequiredAspects(
+  required: AspectMap,
+  provided: AspectMap
+) {
+  for (const key in required) {
+    const aspect = key as Aspect;
+    const r = required[aspect];
+    const p = provided[aspect];
+    if (!r) continue;
+    if (!p) continue;
+    if (p >= r) return true;
   }
-  return undefined;
+  return false;
 }

@@ -1,6 +1,7 @@
 import { WorkstationData } from "../data/workstation_data";
+import { AspectMap } from "./aspects";
 import { Book, GetBookById } from "./book";
-import { GetItemById, Item, Workstation } from "./crafting";
+import { GetItemById, Item } from "./crafting";
 import { PrincipleMap, Principles } from "./principles";
 import { GetRoomById, Room } from "./rooms";
 import { EvolveSkill, GetSkillById, Skill } from "./skills";
@@ -14,14 +15,13 @@ import {
   Ereb,
 } from "./souls";
 import * as Souls from "./souls";
+import { Workstation } from "./workstation";
 
 export interface Save {
   souls: Soul[];
-  skills: Map<string, Skill>;
+  skills: Skill[];
   rooms: Room[];
   workstations: Workstation[];
-
-  // Here are the books and stuff you actually HAVE available!
   items: Item[];
   books: Book[];
 
@@ -80,23 +80,56 @@ interface Sphere {
   Tokens: Token[];
 }
 
-export function ParseSave(saveData: SaveJson) {
-  const ccc = saveData?.CharacterCreationCommands?.[0];
-  const madeBefore = new Set<string>([
-    ...(ccc?.AmbittableRecipesUnlocked || []),
-    ...(ccc?.UniqueElementsManifested || []),
-  ]);
-  console.log("Made before", madeBefore, saveData.CharacterCreationCommands);
-
-  const save: Save = {
+export function EmptySave(): Save {
+  return {
     souls: [],
-    skills: new Map(),
+    skills: [],
     rooms: [],
     workstations: [],
     items: [],
     books: [],
-    madeBefore,
+    madeBefore: new Set(),
   };
+}
+
+export function ParseLocationString(location: string | undefined) {
+  if (!location) return null;
+  if (location.startsWith("~/library!")) {
+    location = location.replace("~/library!", "");
+    const splits = location.split("/");
+    const roomId = splits[0];
+
+    const room = GetRoomById(roomId);
+    let label = room.label;
+
+    const spaceId = splits[1]
+      .replace("thingslot", "")
+      .replace("comfortslot", "")
+      .replace("spacespherea", "")
+      .replace("spacesphereb", "")
+      .replace("spacesphere", "")
+      .replace(".1", "")
+      .replace(".2", "");
+    // .replace("sphere", "");
+    if (spaceId && !spaceId.includes("fitmentslot")) label += ` (${spaceId})`;
+
+    return label;
+  }
+}
+
+export function ParseSave(saveData: SaveJson) {
+  const ccc = saveData?.CharacterCreationCommands?.[0];
+  const save: Save = EmptySave();
+  save.madeBefore = new Set<string>([
+    ...(ccc?.AmbittableRecipesUnlocked || []),
+    ...(ccc?.UniqueElementsManifested || []),
+  ]);
+  // TODO: this doesn't give the values you'd expect?
+  // console.log(
+  //   "Made before",
+  //   save.madeBefore,
+  //   saveData.CharacterCreationCommands
+  // );
 
   const spheres = saveData.RootPopulationCommand.Spheres;
 
@@ -107,7 +140,10 @@ export function ParseSave(saveData: SaveJson) {
         continue;
       }
 
-      if (token.Payload) parsePayload(token.Payload);
+      console.log(token.Location?.AtSpherePath?.Path);
+
+      if (token.Payload)
+        parsePayload(token.Payload, token.Location?.AtSpherePath?.Path);
     }
   }
 
@@ -119,26 +155,26 @@ export function ParseSave(saveData: SaveJson) {
     }
   }
 
-  function parsePayload(payload: Payload) {
+  function parsePayload(payload: Payload, location?: string) {
     save.souls.push(...ParseSoul(payload));
 
-    const book = ParseBook(payload);
+    const book = ParseBook(payload, location);
     if (book) save.books.push(book);
 
-    const item = ParseItem(payload);
+    const item = ParseItem(payload, location);
     if (item) save.items.push(item);
 
     const skill = ParseSkill(payload);
     if (skill) {
-      const existing = save.skills.get(skill.id);
+      const existing = save.skills.find((s) => s.id == skill.id);
       if (!existing) {
-        save.skills.set(skill.id, skill);
+        save.skills.push(skill);
       } else if (skill.level > existing.level) {
-        save.skills.set(skill.id, skill);
+        existing.level = skill.level;
       }
     }
 
-    const workstation = ParseWorkstation(payload);
+    const workstation = ParseWorkstation(payload, location);
     if (workstation) save.workstations.push(workstation);
 
     const room = ParseRoom(payload);
@@ -160,10 +196,17 @@ export function ParseSave(saveData: SaveJson) {
 
 const PATH_SOUL = "~/hand.abilities";
 
-function ParseWorkstation({ VerbId }: Payload): Workstation | null {
+function ParseWorkstation(
+  { VerbId }: Payload,
+  location?: string
+): Workstation | null {
   if (!VerbId) return null;
   // "VerbId": "library.desk.reading.consider",
-  return WorkstationData.find((w) => w.id === VerbId) as Workstation;
+  const ws = WorkstationData.find((w) => w.id === VerbId) as Workstation;
+  if (!ws) return null;
+
+  if (location) ws.location = location;
+  return ws;
 }
 
 function ParseSkill({ EntityId, Mutations }: Payload): Readonly<Skill> | null {
@@ -177,31 +220,39 @@ function ParseSkill({ EntityId, Mutations }: Payload): Readonly<Skill> | null {
   return null;
 }
 
-function ParseBook({ EntityId, Mutations }: Payload): Readonly<Book> | null {
+function ParseBook(
+  { EntityId, Mutations }: Payload,
+  location?: string
+): Readonly<Book> | null {
   if (!EntityId) return null;
   if (!EntityId.startsWith("t.")) return null;
 
   const book = GetBookById(EntityId);
   if (!book) return null;
 
-  // TODO: add the mutations, since it can have "mastery.<principle>";
   if (Mutations) {
     for (const key in Mutations) {
       if (key.startsWith("mastery.") && (Mutations as any)[key]) {
-        console.log("mastered!", book);
         book.mastered = true;
       }
     }
   }
 
+  if (location) book.location = location;
+
   return book;
 }
 
-function ParseItem({ EntityId }: Payload): Readonly<Item> | null {
+function ParseItem(
+  { EntityId }: Payload,
+  location?: string
+): Readonly<Item> | null {
   if (!EntityId) return null;
 
   const item = GetItemById(EntityId);
   if (!item) return null;
+
+  if (location) item.location = location;
 
   return item;
 }

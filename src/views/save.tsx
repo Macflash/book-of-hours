@@ -4,17 +4,14 @@ export function SaveView({ save }: { save: Save }) {
   return (
     <div>
       Your save:
+      <div>Souls: {save.souls.length}</div>
+      <div>Skills: {save.skills.length}</div>
       <div>
-        Souls ({save.souls.length}): {save.souls.map((s) => s.label).join(", ")}
+        Rooms: {save.rooms.filter((r) => !r.shrouded && !r.sealed).length}
       </div>
-      <div>
-        Skills ({save.skills.size}):{" "}
-        {[...save.skills.values()].map((s) => s.label).join(", ")}
-      </div>
-      <div>Rooms: {save.rooms.map((s) => s.label).join(", ")}</div>
-      <div>
-        Workstations: {save.workstations.map((s) => s.label).join(", ")}
-      </div>
+      <div>Workstations: {save.workstations.length}</div>
+      <div>Items: {save.items.length}</div>
+      <div>Books: {save.books.length}</div>
     </div>
   );
 }

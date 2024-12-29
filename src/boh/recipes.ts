@@ -3,7 +3,7 @@ import { AspectMap } from "./aspects";
 import { FindBooksThatSpawnId } from "./book";
 import { GetItemsByConsiderSpawnId, Item } from "./crafting";
 import { Principles } from "./principles";
-import { Save } from "./save";
+import { ParseLocationString, Save } from "./save";
 import { GetSkillById, Skill } from "./skills";
 
 export interface Recipe extends AspectMap {
@@ -43,7 +43,6 @@ function GenerateRecipes(): Recipe[] {
 }
 
 export const Recipes = GenerateRecipes();
-console.log("Recipes", Recipes);
 
 export function GetRecipeById(id: string, recipes = Recipes): Recipe {
   const recipe = recipes.find((r) => r.id === id);
@@ -79,26 +78,54 @@ export function ToRecipeString(recipe: Recipe): string {
     .join(", ")}`;
 }
 
-export function GetCraftingHintString(id: string, save?: Save): string {
+function labelAndLocation({
+  label,
+  location,
+}: {
+  label: string;
+  location?: string;
+}): string {
+  const locationString = ParseLocationString(location);
+  if (locationString) label += ` (${locationString})`;
+  return label;
+}
+
+export function GetCraftingHintString(
+  thingOrId: string | { id?: string; location?: string },
+  save?: Save
+): string {
+  // YUCK!
+  const id = (thingOrId as { id: string })?.id || (thingOrId as string);
+  const location = ParseLocationString(
+    (thingOrId as { location?: string }).location ||
+      save?.items.find((item) => item.id == id)?.location
+  );
+
   const recipeString = GetRecipesByResult(
     id,
-    save ? FilterRecipesBySkills([...save.skills.values()]) : undefined
+    save ? FilterRecipesBySkills(save.skills) : undefined
   )
     .map((r) => ToRecipeString(r))
     .join("\n");
 
-  const considerString = GetItemsByConsiderSpawnId(id, save?.items)
-    .map(({ label }) => label)
-    .join("\n");
+  // Remove duplicates from many items!
+  const considerString = [
+    ...new Set(
+      GetItemsByConsiderSpawnId(id, save?.items).map((item) =>
+        labelAndLocation(item)
+      )
+    ),
+  ].join("\n");
 
   const readingString = FindBooksThatSpawnId(
     id,
     save?.books.filter((b) => b.mastered)
   )
-    .map(({ label }) => label)
+    .map((book) => labelAndLocation(book))
     .join("\n");
 
   let result = "";
+  if (location) result += `Located in ${location}\n`;
   if (recipeString) result += `Craft:\n${recipeString}\n`;
   if (considerString) result += `Consider:\n${considerString}\n`;
   if (readingString) result += `Read:\n${readingString}\n`;

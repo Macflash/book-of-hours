@@ -28,6 +28,7 @@ export interface Soul extends PrincipleMap {
   color: string;
   level: number;
   label: string;
+  ability: 1;
 }
 
 export type ReadonlySoul = Readonly<Soul>;
@@ -64,6 +65,7 @@ export const Chor: ReadonlySoul = {
   heart: 2,
   grail: 1,
   level: 1,
+  ability: 1,
 };
 
 export const Ereb: ReadonlySoul = {
@@ -73,6 +75,7 @@ export const Ereb: ReadonlySoul = {
   grail: 2,
   edge: 1,
   level: 1,
+  ability: 1,
 };
 
 export const Fet: ReadonlySoul = {
@@ -82,6 +85,7 @@ export const Fet: ReadonlySoul = {
   rose: 2,
   moth: 1,
   level: 1,
+  ability: 1,
 };
 
 export const Health: ReadonlySoul = {
@@ -92,6 +96,7 @@ export const Health: ReadonlySoul = {
   nectar: 1,
   scale: 1,
   level: 1,
+  ability: 1,
 };
 
 export const Mettle: ReadonlySoul = {
@@ -101,6 +106,7 @@ export const Mettle: ReadonlySoul = {
   forge: 2,
   edge: 1,
   level: 1,
+  ability: 1,
 };
 
 export const Phost: ReadonlySoul = {
@@ -110,6 +116,7 @@ export const Phost: ReadonlySoul = {
   lantern: 2,
   sky: 1,
   level: 1,
+  ability: 1,
 };
 
 export const Shapt: ReadonlySoul = {
@@ -119,6 +126,7 @@ export const Shapt: ReadonlySoul = {
   knock: 2,
   forge: 1,
   level: 1,
+  ability: 1,
 };
 
 export const Trist: ReadonlySoul = {
@@ -128,6 +136,7 @@ export const Trist: ReadonlySoul = {
   moth: 2,
   moon: 1,
   level: 1,
+  ability: 1,
 };
 
 export const Wist: ReadonlySoul = {
@@ -137,6 +146,7 @@ export const Wist: ReadonlySoul = {
   winter: 2,
   lantern: 1,
   level: 1,
+  ability: 1,
 };
 
 export const Souls = [

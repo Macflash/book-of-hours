@@ -1,22 +1,23 @@
-import { AspectMap } from "../boh/aspects";
-import {
-  GetAvailableMemoriesFromSave,
-  MatchesAnyRequirement,
-  Memory,
-} from "../boh/crafting";
+import { AspectMap, MatchesRequiredAspects } from "../boh/aspects";
+import { GetAvailableMemoriesFromSave, Memory } from "../boh/crafting";
 import {
   Principle,
   Principles,
   FindBestByPrinciple,
-  Or0,
   PrincipleColor,
   SumPrinciples,
+  ForAllPrinciples,
+  Or0,
 } from "../boh/principles";
 import { GetCraftingHintString } from "../boh/recipes";
 import { Save } from "../boh/save";
 import { Skill } from "../boh/skills";
 import { Soul } from "../boh/souls";
-import { PrincipleList } from "../components/principleList";
+import {
+  FindBestWorkstationByPrinciple,
+  GetSlotablesFromSave,
+} from "../boh/workstation";
+import { Principlable, PrincipleList } from "../components/principleList";
 
 interface Help {
   principle: Principle;
@@ -27,54 +28,79 @@ interface Help {
 }
 
 export function ReadingView({ save }: { save: Save }) {
-  const possibleMemories = GetAvailableMemoriesFromSave(save);
-  // Get best skill and soul per principle
-  const bestMap = new Map<Principle, Help>();
-  for (const principle of Principles) {
-    const skill = FindBestByPrinciple(principle, [...save.skills.values()]);
-    const soul = FindBestByPrinciple(principle, save.souls);
-    const memory = FindBestByPrinciple(principle, possibleMemories);
+  const desks = save.workstations.filter((w) =>
+    w.slots.some((s) => s.required.readable)
+  );
+  console.log("desks", desks);
 
-    bestMap.set(principle, {
-      principle,
-      skill,
-      memory,
-      soul,
-      value: SumPrinciples(principle, soul, skill, memory),
-    });
-  }
+  const workstationPrincipleMap = ForAllPrinciples((p) => {
+    // Filter out books and paper since that is what we need to read bro.
+    return FindBestWorkstationByPrinciple(
+      p,
+      desks,
+      GetSlotablesFromSave(save).filter(
+        (s) => !s.blank && !s.readable && !s.device
+      )
+    );
+  });
 
-  const bestReading: AspectMap = {};
-  for (const principle of Principles) {
-    bestReading[principle] = bestMap.get(principle)?.value;
-  }
+  console.log("desks per principle", workstationPrincipleMap);
 
   const booksToMaster = save.books.filter(
-    (b) => !b.mastered && MatchesAnyRequirement(b, bestReading)
+    (b) =>
+      !b.mastered &&
+      Principles.some(
+        (principle) =>
+          b[principle] &&
+          Or0(workstationPrincipleMap.get(principle)?.bestSum) > b[principle]
+      )
   );
   console.log("books you can master", booksToMaster);
 
   return (
     <div>
       <div>
-        {[...bestMap.values()]
-          .sort((a, b) => b.value - a.value)
-          .map(({ memory, principle, skill, soul, value }) => (
-            <div key={principle}>
+        {[...workstationPrincipleMap.entries()]
+          .sort((a, b) => b[1].bestSum - a[1].bestSum)
+          .map(([principle, { bestWorkstation, bestSum, bestSlotMap }]) => (
+            <div
+              key={principle}
+              style={{
+                padding: 3,
+                margin: 3,
+                border: `1px solid ${PrincipleColor(principle)}`,
+              }}
+            >
               <span key={principle}>
                 <span
                   style={{
                     color: PrincipleColor(principle),
                   }}
                 >
-                  {principle}: {value}{" "}
+                  {principle}: {bestSum}{" "}
                 </span>
                 <span
                   style={{
                     fontSize: "1rem",
                   }}
                 >
-                  {skill?.[principle] ? (
+                  <Principlable principlable={bestWorkstation!} save={save} />
+                  {", "}
+                  {bestSlotMap
+                    .values()
+                    .toArray()
+                    .filter((s) => s && s[principle])
+                    .map((s) => (
+                      <>
+                        <Principlable
+                          principlable={s}
+                          principle={principle}
+                          save={save}
+                        />
+                        {", "}
+                      </>
+                    ))}
+                  {/* {skill?.[principle] ? (
                     <span>
                       {skill.label}({skill[principle]}){" "}
                     </span>
@@ -94,8 +120,8 @@ export function ReadingView({ save }: { save: Save }) {
                       }}
                     >
                       {memory.label} ({memory[principle]})
-                    </span>
-                  ) : null}
+                    </span> */}
+                  {/* ) : null} */}
                 </span>
               </span>
             </div>

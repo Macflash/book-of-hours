@@ -4,6 +4,41 @@ import {
   PrincipleMap,
   Principles,
 } from "../boh/principles";
+import { GetCraftingHintString } from "../boh/recipes";
+import { Save } from "../boh/save";
+
+export interface IPrinciplable extends PrincipleMap {
+  id?: string;
+  label: string;
+  color?: string;
+  location?: string;
+  principle?: Principle;
+}
+
+export function Principlable({
+  principlable,
+  principle,
+  save,
+}: {
+  principlable: IPrinciplable;
+  principle?: Principle;
+  save?: Save;
+}) {
+  const tooltip =
+    save && principlable
+      ? GetCraftingHintString(principlable, save)
+      : undefined;
+  return (
+    <span title={tooltip}>
+      <span style={{ color: principlable.color }}>{principlable.label}</span>
+      {principle && principlable[principle] ? (
+        <span style={{ color: PrincipleColor(principle), paddingLeft: 3 }}>
+          ({principlable[principle]})
+        </span>
+      ) : null}
+    </span>
+  );
+}
 
 export function PrincipleList(map: PrincipleMap) {
   return (
