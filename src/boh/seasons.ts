@@ -1,4 +1,10 @@
-export type Season = "spring" | "autumn" | "summer" | "winter" | "numa";
+export type Season =
+  | "spring"
+  | "autumn"
+  | "summer"
+  | "winter"
+  | "numa"
+  | "none";
 
 /** Excludes NUMA for reasons. */
 export const Seasons: ReadonlyArray<Season> = [
@@ -6,4 +12,5 @@ export const Seasons: ReadonlyArray<Season> = [
   "summer",
   "autumn",
   "winter",
+  "none",
 ];

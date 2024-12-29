@@ -1,5 +1,6 @@
 import { PrincipleMap } from "./principles";
 import { Season } from "./seasons";
+import { WorkstationSlot } from "./workstation";
 
 export interface Assistant extends PrincipleMap {
   id: string;
@@ -9,14 +10,42 @@ export interface Assistant extends PrincipleMap {
   season?: Season;
   unusual?: boolean;
 
-  candles?: boolean;
-  wood?: boolean;
-  fabric?: boolean;
-  metal?: boolean;
-  fuel?: boolean;
-  omen?: boolean;
-  pigment?: boolean;
-  flower?: boolean;
+  // This isn't exactly right but, it works well!
+  slots: WorkstationSlot[];
+}
+
+// All assistants can use these!
+const DefaultAssistanceSlots: WorkstationSlot[] = [
+  {
+    id: "soul",
+    label: "Soul",
+    required: { ability: 1 },
+  },
+  {
+    id: "memory",
+    label: "Memory",
+    required: { memory: 1 },
+  },
+  {
+    id: "tool",
+    label: "Tool",
+    required: { tool: 1 },
+  },
+  {
+    id: "sustenance",
+    label: "Sustenance",
+    required: { sustenance: 1 },
+  },
+  {
+    id: "beverage",
+    label: "Beverage",
+    required: { beverage: 1 },
+  },
+];
+
+function withSlot(customSlot?: WorkstationSlot): WorkstationSlot[] {
+  if (customSlot) return [...DefaultAssistanceSlots, customSlot];
+  return DefaultAssistanceSlots;
 }
 
 export const Assistants: ReadonlyArray<Readonly<Assistant>> = [
@@ -27,6 +56,7 @@ export const Assistants: ReadonlyArray<Readonly<Assistant>> = [
     moon: 2,
     sky: 1,
     season: "winter",
+    slots: withSlot(),
   },
   {
     id: "assistance.orchardkeeper",
@@ -35,6 +65,7 @@ export const Assistants: ReadonlyArray<Readonly<Assistant>> = [
     nectar: 2,
     heart: 1,
     season: "autumn",
+    slots: withSlot(),
   },
   {
     id: "assistance.barber",
@@ -43,6 +74,7 @@ export const Assistants: ReadonlyArray<Readonly<Assistant>> = [
     moth: 2,
     rose: 1,
     season: "summer",
+    slots: withSlot(),
   },
   {
     id: "assistance.miner",
@@ -52,6 +84,7 @@ export const Assistants: ReadonlyArray<Readonly<Assistant>> = [
     forge: 1,
     moon: 1,
     season: "spring",
+    slots: withSlot(),
   },
   {
     id: "assistance.rector",
@@ -59,7 +92,7 @@ export const Assistants: ReadonlyArray<Readonly<Assistant>> = [
     fee: 12,
     lantern: 2,
     knock: 1,
-    candles: true,
+    slots: withSlot({ id: "c", label: "Candles", required: { candle: 1 } }),
   },
   {
     id: "assistance.coffinmaker",
@@ -67,7 +100,7 @@ export const Assistants: ReadonlyArray<Readonly<Assistant>> = [
     fee: 12,
     winter: 2,
     sky: 1,
-    wood: true,
+    slots: withSlot({ id: "w", label: "Wood", required: { wood: 1 } }),
   },
   {
     id: "assistance.fisherman",
@@ -75,6 +108,7 @@ export const Assistants: ReadonlyArray<Readonly<Assistant>> = [
     fee: 12,
     moon: 2,
     sky: 1,
+    slots: withSlot(),
   },
   {
     id: "assistance.midwife",
@@ -82,7 +116,7 @@ export const Assistants: ReadonlyArray<Readonly<Assistant>> = [
     fee: 12,
     grail: 2,
     heart: 1,
-    fabric: true,
+    slots: withSlot({ id: "f", label: "Fabric", required: { fabric: 1 } }),
   },
   {
     id: "assistance.blacksmith",
@@ -90,7 +124,7 @@ export const Assistants: ReadonlyArray<Readonly<Assistant>> = [
     fee: 12,
     forge: 2,
     edge: 2,
-    metal: true,
+    slots: withSlot({ id: "metal", label: "Metal", required: { metal: 1 } }),
   },
   {
     id: "assistance.engineer",
@@ -99,8 +133,8 @@ export const Assistants: ReadonlyArray<Readonly<Assistant>> = [
     sky: 4,
     lantern: 4,
     fee: 24,
-    fuel: true,
     unusual: true,
+    slots: withSlot({ id: "fuel", label: "Fuel", required: { fuel: 1 } }),
   },
   {
     id: "assistance.fugitive",
@@ -110,6 +144,7 @@ export const Assistants: ReadonlyArray<Readonly<Assistant>> = [
     heart: 4,
     fee: 24,
     unusual: true,
+    slots: withSlot(),
   },
   {
     id: "assistance.musician",
@@ -118,7 +153,7 @@ export const Assistants: ReadonlyArray<Readonly<Assistant>> = [
     rose: 4,
     nectar: 4,
     fee: 24,
-    unusual: true,
+    slots: withSlot(),
   },
   {
     id: "assistance.nun",
@@ -127,8 +162,8 @@ export const Assistants: ReadonlyArray<Readonly<Assistant>> = [
     moon: 4,
     grail: 4,
     fee: 24,
-    omen: true,
     unusual: true,
+    slots: withSlot({ id: "o", label: "Omen", required: { omen: 1 } }),
   },
   {
     id: "assistance.painter",
@@ -137,8 +172,8 @@ export const Assistants: ReadonlyArray<Readonly<Assistant>> = [
     moth: 4,
     rose: 4,
     fee: 24,
-    pigment: true,
     unusual: true,
+    slots: withSlot({ id: "p", label: "Pigment", required: { pigment: 1 } }),
   },
   {
     id: "assistance.poet",
@@ -147,8 +182,8 @@ export const Assistants: ReadonlyArray<Readonly<Assistant>> = [
     moth: 4,
     sky: 4,
     fee: 24,
-    flower: true,
     unusual: true,
+    slots: withSlot({ id: "flower", label: "Flower", required: { flower: 1 } }),
   },
 ];
 
@@ -158,7 +193,7 @@ export function GetAssistants(
 ): Assistant[] {
   return Assistants.filter((a) => {
     if (season && a.season && a.season !== season) return false;
-    if (!includeUnusual && a.fee >= 24) return false;
+    if (!includeUnusual && a.unusual) return false;
     return true;
   });
 }

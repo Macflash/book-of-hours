@@ -8,6 +8,7 @@ import {
   MapPrinciples,
   Or0,
   SumPrinciples,
+  ForAllPrinciples,
 } from "../boh/principles";
 import { Soul } from "../boh/souls";
 import { Save } from "../boh/save";
@@ -18,9 +19,17 @@ import {
   Item,
   Items,
 } from "../boh/crafting";
-import { PrincipleSpan } from "../components/principleList";
+import {
+  Principlable,
+  Principlables,
+  PrincipleSpan,
+} from "../components/principleList";
 import { FindBooksThatSpawnId } from "../boh/book";
 import { GetCraftingHintString } from "../boh/recipes";
+import {
+  FindBestWorkstationByPrinciple,
+  GetSlotablesFromSave,
+} from "../boh/workstation";
 
 interface Help {
   principle: Principle;
@@ -33,89 +42,31 @@ interface Help {
 }
 
 export function AssistanceView({ save }: { save: Save }) {
-  const [season, setSeason] = React.useState<Season | undefined>(undefined);
+  const [season, setSeason] = React.useState<Season | undefined | "unusual">(
+    undefined
+  );
 
-  const possibleMemories = GetAvailableMemoriesFromSave(save);
+  // TODO: So this finds the MAX you can do, but we actually want...
+  // the MINIMUM that is good enough?
+
+  const assistants = GetAssistants(
+    season == "unusual" ? "none" : season,
+    season == "unusual" || season == undefined
+  );
+
+  console.log("assistants", assistants);
+
+  const assistanceMap = ForAllPrinciples((p) =>
+    FindBestWorkstationByPrinciple(
+      p,
+      assistants,
+      GetSlotablesFromSave(save).filter((s) => s && !s.device)
+    )
+  );
 
   // list rooms that need to be unlocked
   const roomsToOpen = save.rooms.filter((r) => r.shrouded && !r.sealed);
-  console.log(roomsToOpen);
-
-  const easyAssistants = GetAssistants(season, false);
-  const specialAssistants = GetAssistants(undefined, true);
-
-  // Get best assistance per principle
-  const easyAssistanceMap = new Map<Principle, Help>();
-  const bestAssistanceMap = new Map<Principle, Help>();
-  for (const principle of Principles) {
-    const soul = FindBestByPrinciple(principle, save.souls);
-    const memory = FindBestByPrinciple(principle, possibleMemories);
-    const beverage = FindBestByPrinciple(
-      principle,
-      Items.filter(({ beverage }) => beverage)
-    );
-    const tool = FindBestByPrinciple(
-      principle,
-      Items.filter(({ tool, device }) => tool && !device)
-    );
-    // Devices are single use but POWERFUL.
-    // const device = FindBestByPrinciple(
-    //   principle,
-    //   Items.filter(({ tool, device }) => device)
-    // );
-    const sum = SumPrinciples(principle, soul, memory, beverage, tool);
-    const easyA = FindBestByPrinciple(principle, easyAssistants);
-    const specialA = FindBestByPrinciple(principle, specialAssistants);
-    easyAssistanceMap.set(principle, {
-      assistant: easyA,
-      principle,
-      memory,
-      soul,
-      beverage,
-      tool,
-      value: sum + Or0(easyA[principle]),
-    });
-
-    bestAssistanceMap.set(principle, {
-      assistant: specialA,
-      principle,
-      soul,
-      memory,
-      beverage,
-      tool,
-      value: sum + Or0(specialA[principle]),
-    });
-  }
-
-  const roomsYouCanOpenEasily = roomsToOpen
-    .map((room) => {
-      const principles = Principles.filter(
-        (principle) =>
-          (room[principle] ?? Number.MAX_SAFE_INTEGER) <=
-          easyAssistanceMap.get(principle)!.value
-      );
-      return {
-        room,
-        principles,
-      };
-    })
-    .filter(({ principles }) => principles.length);
-  console.log("rooms you CAN open EASILY", roomsYouCanOpenEasily);
-
-  const roomsYouCanOpen = roomsToOpen
-    .map((room) => {
-      const principles = Principles.filter(
-        (principle) =>
-          (room[principle] ?? Number.MAX_SAFE_INTEGER) <=
-          bestAssistanceMap.get(principle)!.value
-      );
-      return {
-        room,
-        principles,
-      };
-    })
-    .filter(({ principles }) => principles.length);
-  console.log("rooms you CAN open", roomsYouCanOpen);
+  console.log("rooms to open", roomsToOpen);
 
   return (
     <div>
@@ -128,13 +79,14 @@ export function AssistanceView({ save }: { save: Save }) {
         >
           <option value="">Any</option>
           <option value="none">none</option>
+          <option value="unusual">unusual</option>
           <option value="spring">spring</option>
           <option value="summer">summer</option>
           <option value="autumn">autumn</option>
           <option value="winter">winter</option>
         </select>
       </div>
-      {roomsYouCanOpenEasily.length > 0 ? (
+      {/* {roomsYouCanOpenEasily.length > 0 ? (
         <div>
           <div>Rooms you can open EASILY</div>
           <div>
@@ -155,8 +107,8 @@ export function AssistanceView({ save }: { save: Save }) {
             ))}
           </div>
         </div>
-      ) : null}
-      {roomsYouCanOpen.length > 0 ? (
+      ) : null} */}
+      {/* {roomsYouCanOpen.length > 0 ? (
         <div>
           <div>Rooms you can open</div>
           <div>
@@ -188,78 +140,79 @@ export function AssistanceView({ save }: { save: Save }) {
             ))}
           </div>
         </div>
-      )}
+      )} */}
 
       {/* Assistance you can get */}
-      <div style={{ flexWrap: "wrap", display: "flex", flexDirection: "row" }}>
-        {[...bestAssistanceMap.values()]
-          .sort((a, b) => b.value - a.value)
-          .map(
-            ({ principle, tool, beverage, assistant, memory, soul, value }) => (
+      <div>
+        {[...assistanceMap.entries()]
+          .sort((a, b) => b[1].bestSum - a[1].bestSum)
+          .map(([principle, { bestWorkstation, bestSum, bestSlotMap }]) => {
+            const slotables = bestSlotMap
+              .values()
+              .toArray()
+              .filter((s) => s?.[principle]);
+            const roomsYouCanOpenWithThisPrinciple = roomsToOpen.filter(
+              (r) => r[principle] && bestSum >= r[principle]
+            );
+            return (
               <div
                 key={principle}
                 style={{
                   flex: 1,
                   padding: 5,
-                  border: `1px solid ${PrincipleColor(principle)}`,
+                  border: `2px solid ${PrincipleColor(principle)}`,
                   margin: 5,
                 }}
               >
-                <span key={principle}>
+                <span>
                   <span
                     style={{
                       color: PrincipleColor(principle),
                     }}
                   >
-                    {principle}: {value}{" "}
+                    {principle}: {bestSum}{" "}
                   </span>
                   <span
                     style={{
                       fontSize: "1rem",
                     }}
                   >
-                    <span>
-                      {assistant.label
-                        .replace("Elegiac", "")
-                        .replace("Surrealist", "")
-                        .replace("Consulting", "")
-                        .replace("Travelling", "")
-                        .replace("'s Assistance", "")
-                        .trim()}{" "}
-                      ({assistant[principle]})
-                    </span>
+                    <Principlable
+                      principlable={bestWorkstation!}
+                      save={save}
+                      principle={principle}
+                    />
                     <div>
-                      {memory[principle] ? (
-                        <span title={GetCraftingHintString(memory.id, save)}>
-                          {memory.label}:{memory[principle]}
-                        </span>
-                      ) : null}
-                      {soul[principle] ? (
-                        <span style={{ color: soul.color }}>
-                          {" "}
-                          {soul.label}:{soul[principle]}
-                        </span>
-                      ) : null}
-                      {tool[principle] ? (
-                        <span title={GetCraftingHintString(tool.id, save)}>
-                          {" "}
-                          {tool.label}:{tool[principle]}
-                        </span>
-                      ) : null}
-                      {beverage[principle] ? (
-                        <span title={GetCraftingHintString(beverage.id, save)}>
-                          {" "}
-                          {beverage.label}:{beverage[principle]}
-                        </span>
-                      ) : null}
+                      <Principlables
+                        principlables={slotables}
+                        principle={principle}
+                        save={save}
+                      />
                     </div>
+                    {/*  List what rooms you can open with this principle */}
+                    {roomsYouCanOpenWithThisPrinciple.length ? (
+                      <div
+                        style={{
+                          border: "2px solid grey",
+                          margin: 3,
+                          padding: 3,
+                        }}
+                      >
+                        <div>You can open:</div>
+                        <Principlables
+                          principlables={roomsYouCanOpenWithThisPrinciple}
+                          principle={principle}
+                          save={save}
+                        />
+                      </div>
+                    ) : null}
                   </span>
                 </span>
               </div>
-            )
-          )}
+            );
+          })}
       </div>
-
+      {/* 
       <div>
         <div>Numen</div>
         {Items.filter(({ numen }) => numen).map((i) => (
@@ -279,7 +232,7 @@ export function AssistanceView({ save }: { save: Save }) {
             ))}
           </div>
         ))}
-      </div>
+      </div> */}
     </div>
   );
 }

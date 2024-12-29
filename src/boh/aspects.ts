@@ -2,7 +2,7 @@ import { Or0, Principle } from "./principles";
 
 export type Aspect =
   | Principle
-  | "candles"
+  | "candle"
   | "wood"
   | "fabric"
   | "metal"
@@ -14,6 +14,7 @@ export type Aspect =
   | "material"
   | "root"
   | "instrument"
+  | "sustenance"
   | "leaf"
   | "sound"
   | "ink"

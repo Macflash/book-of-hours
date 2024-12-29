@@ -1,4 +1,39 @@
 export const WorkstationData = [
+  // Consider for books
+  {
+    id: "consider",
+    label: "Consider",
+    slots: [
+      {
+        id: "consider",
+        label: "Consider",
+        description: "There's always more to know.",
+        required: {
+          readable: 1,
+          // considerable: 1,
+          // skill: 1,
+          // lesson: 1,
+          // cache: 1,
+        },
+        forbidden: { "record.phonograph": 1, film: 1, fixed: 1 },
+      },
+      {
+        id: "a",
+        label: "Soul",
+        required: { ability: 1 },
+      },
+      {
+        id: "s",
+        label: "Skill",
+        required: { skill: 1 },
+      },
+      {
+        id: "m",
+        label: "Memory",
+        required: { memory: 1 },
+      },
+    ],
+  },
   // workstations_library_world
   {
     id: "library.altar.ascite",
@@ -575,13 +610,11 @@ export const WorkstationData = [
         id: "i1",
         label: "Restore",
         required: { fatigued: 1, malady: 1 },
-        forbidden: {},
       },
       {
         id: "i2",
         label: "With",
         required: { beverage: 1, covenant: 1, restorative: 1 },
-        forbidden: {},
       },
     ],
     aspects: {
@@ -622,13 +655,11 @@ export const WorkstationData = [
         id: "i1",
         label: "Restore",
         required: { fatigued: 1, malady: 1 },
-        forbidden: {},
       },
       {
         id: "i2",
         label: "With",
         required: { beverage: 1, covenant: 1, restorative: 1 },
-        forbidden: {},
       },
     ],
     aspects: {
@@ -669,13 +700,11 @@ export const WorkstationData = [
         id: "i1",
         label: "Restore",
         required: { fatigued: 1, malady: 1 },
-        forbidden: {},
       },
       {
         id: "i2",
         label: "With",
         required: { beverage: 1, covenant: 1, restorative: 1 },
-        forbidden: {},
       },
     ],
     aspects: {
@@ -716,13 +745,11 @@ export const WorkstationData = [
         id: "i1",
         label: "Restore",
         required: { fatigued: 1, malady: 1 },
-        forbidden: {},
       },
       {
         id: "i2",
         label: "With",
         required: { beverage: 1, covenant: 1, restorative: 1 },
-        forbidden: {},
       },
     ],
     aspects: {
@@ -763,13 +790,11 @@ export const WorkstationData = [
         id: "i1",
         label: "Restore",
         required: { fatigued: 1, malady: 1 },
-        forbidden: {},
       },
       {
         id: "i2",
         label: "With",
         required: { beverage: 1, covenant: 1, restorative: 1 },
-        forbidden: {},
       },
     ],
     aspects: {
@@ -810,13 +835,11 @@ export const WorkstationData = [
         id: "i1",
         label: "Restore",
         required: { fatigued: 1, malady: 1 },
-        forbidden: {},
       },
       {
         id: "i2",
         label: "With",
         required: { beverage: 1, covenant: 1, restorative: 1 },
-        forbidden: {},
       },
     ],
     aspects: {
@@ -857,13 +880,11 @@ export const WorkstationData = [
         id: "i1",
         label: "Restore",
         required: { fatigued: 1, malady: 1 },
-        forbidden: {},
       },
       {
         id: "i2",
         label: "With",
         required: { beverage: 1, covenant: 1, restorative: 1 },
-        forbidden: {},
       },
     ],
     aspects: {
@@ -904,13 +925,11 @@ export const WorkstationData = [
         id: "i1",
         label: "Restore",
         required: { fatigued: 1, malady: 1 },
-        forbidden: {},
       },
       {
         id: "i2",
         label: "With",
         required: { beverage: 1, covenant: 1, restorative: 1 },
-        forbidden: {},
       },
     ],
     aspects: {
@@ -951,13 +970,11 @@ export const WorkstationData = [
         id: "i1",
         label: "Restore",
         required: { fatigued: 1, malady: 1 },
-        forbidden: {},
       },
       {
         id: "i2",
         label: "With",
         required: { beverage: 1, covenant: 1, restorative: 1 },
-        forbidden: {},
       },
     ],
     aspects: {
@@ -998,13 +1015,11 @@ export const WorkstationData = [
         id: "i1",
         label: "Restore",
         required: { fatigued: 1, malady: 1 },
-        forbidden: {},
       },
       {
         id: "i2",
         label: "With",
         required: { beverage: 1, covenant: 1, restorative: 1 },
-        forbidden: {},
       },
     ],
     aspects: {
@@ -1045,13 +1060,11 @@ export const WorkstationData = [
         id: "i1",
         label: "Restore",
         required: { fatigued: 1, malady: 1 },
-        forbidden: {},
       },
       {
         id: "i2",
         label: "With",
         required: { beverage: 1, covenant: 1, restorative: 1 },
-        forbidden: {},
       },
     ],
     aspects: {
@@ -1092,13 +1105,11 @@ export const WorkstationData = [
         id: "i1",
         label: "Restore",
         required: { fatigued: 1, malady: 1 },
-        forbidden: {},
       },
       {
         id: "i2",
         label: "With",
         required: { beverage: 1, covenant: 1, restorative: 1 },
-        forbidden: {},
       },
     ],
     aspects: {
@@ -1139,13 +1150,11 @@ export const WorkstationData = [
         id: "i1",
         label: "Restore",
         required: { fatigued: 1, malady: 1 },
-        forbidden: {},
       },
       {
         id: "i2",
         label: "With",
         required: { beverage: 1, covenant: 1, restorative: 1 },
-        forbidden: {},
       },
     ],
     aspects: {
@@ -1186,13 +1195,11 @@ export const WorkstationData = [
         id: "i1",
         label: "Restore",
         required: { fatigued: 1, malady: 1 },
-        forbidden: {},
       },
       {
         id: "i2",
         label: "With",
         required: { beverage: 1, covenant: 1, restorative: 1 },
-        forbidden: {},
       },
     ],
     aspects: {
@@ -1233,13 +1240,11 @@ export const WorkstationData = [
         id: "i1",
         label: "Restore",
         required: { fatigued: 1, malady: 1 },
-        forbidden: {},
       },
       {
         id: "i2",
         label: "With",
         required: { beverage: 1, covenant: 1, restorative: 1 },
-        forbidden: {},
       },
     ],
     aspects: {
@@ -2697,7 +2702,6 @@ export const WorkstationData = [
         id: "i1",
         label: "Record",
         required: { "record.phonograph": 1 },
-        forbidden: {},
       },
       {
         id: "i2",
@@ -2743,7 +2747,6 @@ export const WorkstationData = [
         id: "i1",
         label: "Record",
         required: { "record.phonograph": 1 },
-        forbidden: {},
       },
       {
         id: "i2",

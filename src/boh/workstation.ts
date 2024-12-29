@@ -13,6 +13,9 @@ export interface WorkstationSlot {
   // Must match essential if it is there.
   essential?: AspectMap;
 
+  // Must NOT matching if it is there.
+  forbidden?: AspectMap;
+
   // Can match any one of the required
   required: AspectMap;
 }
@@ -30,7 +33,7 @@ export interface Workstation {
   location?: string;
 
   slots: WorkstationSlot[];
-  hints: Principle[];
+  hints?: Principle[]; // Not really that useful TBH.
 }
 
 export function GetAllWorkstations() {
@@ -45,7 +48,7 @@ export function GetSlotablesFromSave(save: Save): Slotable[] {
     ...GetAvailableMemoriesFromSave(save),
     // Maybe some other CRAFTABLES?
     // ...save.books, // Not really useful for INPUTS???
-  ];
+  ].filter((s) => !!s); // Sometimes null was getting in here.
 }
 
 export function GetAllSlotables(): Slotable[] {
@@ -53,13 +56,12 @@ export function GetAllSlotables(): Slotable[] {
 }
 
 export function MatchesSlot(
-  slot: WorkstationSlot,
+  { required, essential, forbidden }: WorkstationSlot,
   slotable: AspectMap
 ): boolean {
-  if (slot.essential && !MatchesRequiredAspects(slot.essential, slotable))
-    return false;
-
-  return MatchesRequiredAspects(slot.required, slotable);
+  if (forbidden && MatchesRequiredAspects(forbidden, slotable)) return false;
+  if (essential && !MatchesRequiredAspects(essential, slotable)) return false;
+  return MatchesRequiredAspects(required, slotable);
 }
 
 // TODO!!!
@@ -78,13 +80,14 @@ export function FindBestWorkstationByPrinciple(
   let bestSum = 0;
   let bestSlotMap = new Map<string, Slotable>();
   for (const workstation of workstations) {
-    console.log(`Checking workstation ${workstation.label}`);
+    // console.log(`Checking workstation ${workstation.label}`);
+
     const slotmap = new Map<string, Slotable>();
     for (const slot of workstation.slots) {
       if (slot.essential) console.log("essential slot!", slot.id);
       const matching = slotables.filter((s) => MatchesSlot(slot, s));
       const best = FindBestByPrinciple(principle, matching);
-      slotmap.set(slot.id, best);
+      if (best) slotmap.set(slot.id, best);
     }
 
     const sum = SumWorkstationSlots(principle, [...slotmap.values()]);

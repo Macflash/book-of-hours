@@ -108,8 +108,12 @@ export function ParseLocationString(location: string | undefined) {
       .replace("spacespherea", "")
       .replace("spacesphereb", "")
       .replace("spacesphere", "")
+      // .replace("shelfspace", "")
       .replace(".1", "")
-      .replace(".2", "");
+      .replace(".2", "")
+      .replace(".3", "")
+      .replace(".4", "")
+      .replace(".5", "");
     // .replace("sphere", "");
     if (spaceId && !spaceId.includes("fitmentslot")) label += ` (${spaceId})`;
 

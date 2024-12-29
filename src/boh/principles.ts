@@ -44,7 +44,7 @@ export type PrincipleMap = Partial<{
 
 export function SumPrinciples(
   principle: Principle,
-  ...principledThings: PrincipleMap[]
+  ...principledThings: (PrincipleMap | null | undefined)[]
 ) {
   return AddOr0(...(principledThings || []).map((p) => p?.[principle]));
 }
@@ -62,11 +62,11 @@ export function Or0(n: number | undefined) {
 export function FindBestByPrinciple<T extends PrincipleMap>(
   principle: Principle,
   things: readonly T[]
-): T {
-  let bestThing = things[0];
+): T | null {
+  let bestThing: T | null = null;
   let bestValue = 0;
   for (const thing of things) {
-    if (Or0(thing[principle]) > bestValue) {
+    if (Or0(thing?.[principle]) > bestValue) {
       bestValue = Or0(thing[principle]);
       bestThing = thing;
     }

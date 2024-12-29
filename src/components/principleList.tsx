@@ -1,3 +1,4 @@
+import { AspectMap } from "../boh/aspects";
 import {
   Principle,
   PrincipleColor,
@@ -15,6 +16,25 @@ export interface IPrinciplable extends PrincipleMap {
   principle?: Principle;
 }
 
+export function Principlables({
+  principlables,
+  principle,
+  save,
+}: {
+  principlables: IPrinciplable[];
+  principle?: Principle;
+  save?: Save;
+}) {
+  return principlables
+    .filter((s) => !principle || s?.[principle])
+    .map((s, i) => (
+      <span key={i}>
+        {i > 0 ? ", " : ""}
+        <Principlable principlable={s} principle={principle} save={save} />
+      </span>
+    ));
+}
+
 export function Principlable({
   principlable,
   principle,
@@ -28,9 +48,16 @@ export function Principlable({
     save && principlable
       ? GetCraftingHintString(principlable, save)
       : undefined;
+
+  let color = principlable.color;
+  if (save?.items.some((i) => i.id == principlable.id)) color = "lightgreen";
+  const aspectable = principlable as AspectMap;
+  // TODO: this is meant to cover all things that will be DESTROYED/CONSUMED when used.
+  if (aspectable.device || aspectable.beverage) color = "orange";
+
   return (
     <span title={tooltip}>
-      <span style={{ color: principlable.color }}>{principlable.label}</span>
+      <span style={{ color }}>{principlable.label}</span>
       {principle && principlable[principle] ? (
         <span style={{ color: PrincipleColor(principle), paddingLeft: 3 }}>
           ({principlable[principle]})
