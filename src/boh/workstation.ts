@@ -6,7 +6,18 @@ import { Save } from "./save";
 import { Skills } from "./skills";
 import { Element, Souls } from "./souls";
 
-export interface WorkstationSlot {
+export interface Workstation {
+  id: string;
+  label: string;
+  location?: string;
+
+  aspects: AspectMap;
+
+  slots: Slot[];
+  hints?: Principle[]; // Not really that useful TBH.
+}
+
+export interface Slot {
   id: string;
   label: string;
 
@@ -25,15 +36,6 @@ export interface Slotable extends AspectMap {
   element?: Element; // Souls don't have id right now... it's in the save data.
   label: string;
   location?: string;
-}
-
-export interface Workstation {
-  id: string;
-  label: string;
-  location?: string;
-
-  slots: WorkstationSlot[];
-  hints?: Principle[]; // Not really that useful TBH.
 }
 
 export function GetAllWorkstations() {
@@ -56,7 +58,7 @@ export function GetAllSlotables(): Slotable[] {
 }
 
 export function MatchesSlot(
-  { required, essential, forbidden }: WorkstationSlot,
+  { required, essential, forbidden }: Slot,
   slotable: AspectMap
 ): boolean {
   if (forbidden && MatchesRequiredAspects(forbidden, slotable)) return false;
@@ -80,23 +82,23 @@ export function FindBestWorkstationByPrinciple(
   //   const workstationMap = new Map<string, Map<string, Slotable>>();
   let bestWorkstation: Workstation | null = null;
   let bestSum = 0;
-  let bestSlotMap = new Map<string, Slotable>();
+  let bestSlotMap = new Map<Slot, Slotable>();
   for (const workstation of workstations) {
-    // First find out if we can slot each
-    // const requiredSlotMap = new Map<Slotable, WorkstationSlot[]>(
-    //   requiredSlotables
-    // );
+    let slots = workstation.slots;
+    if (requiredSlotables) {
+      const matchingSlotsPerSlotable = requiredSlotables.map((r) =>
+        FindMatchingSlots(workstation, r)
+      );
+    }
 
     // console.log(`Checking workstation ${workstation.label}`);
 
     // Map from slot id -> item in the slot.
-    const slotmap = new Map<string, Slotable>();
-    for (const slot of workstation.slots) {
-      if (slot.essential) console.log("essential slot!", slot.id);
-      const matching = slotables.filter((s) => MatchesSlot(slot, s));
-      const best = FindBestByPrinciple(principle, matching);
-      if (best) slotmap.set(slot.id, best);
-    }
+    const slotmap = FillSlotsByPrinciple(
+      principle,
+      workstation.slots,
+      slotables
+    );
 
     const sum = SumWorkstationSlots(principle, [...slotmap.values()]);
     if (sum > bestSum) {
@@ -115,13 +117,23 @@ export function FindBestWorkstationByPrinciple(
 
 export function FillSlotsByPrinciple(
   principle: Principle,
-  slots: WorkstationSlot[]
-) {}
+  slots: Slot[],
+  slotables: Slotable[]
+) {
+  const slotmap = new Map<Slot, Slotable>();
+  for (const slot of slots) {
+    const matching = slotables.filter((s) => MatchesSlot(slot, s));
+    const best = FindBestByPrinciple(principle, matching);
+    if (best) slotmap.set(slot, best);
+  }
+
+  return slotmap;
+}
 
 export function FindMatchingSlots(
   workstation: Workstation,
   slotable: Slotable
-): WorkstationSlot[] {
+): Slot[] {
   return workstation.slots.filter((slot) => MatchesSlot(slot, slotable));
 }
 

@@ -33,6 +33,7 @@ export const WorkstationData = [
         required: { memory: 1 },
       },
     ],
+    aspects: {},
   },
   // workstations_library_world
   {

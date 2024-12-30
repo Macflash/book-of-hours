@@ -1,10 +1,18 @@
 import React from "react";
 import { Save } from "../boh/save";
-import { Recipes, ToRecipeString } from "../boh/recipes";
+import {
+  CalculateRecipeCost,
+  GetRecipeById,
+  Recipes,
+  ToRecipeString,
+} from "../boh/recipes";
 
 export function CraftingView({ save }: { save: Save }) {
   const [search, setSearch] = React.useState("");
   const [target, setTarget] = React.useState("");
+
+  target && console.log(CalculateRecipeCost(GetRecipeById(target)));
+
   return (
     <div>
       {/* Search */}

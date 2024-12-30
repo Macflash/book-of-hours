@@ -1,45 +1,13 @@
 import React from "react";
-import { Assistant, Assistants, GetAssistants } from "../boh/assistance";
-import {
-  Principle,
-  Principles,
-  FindBestByPrinciple,
-  PrincipleColor,
-  MapPrinciples,
-  Or0,
-  SumPrinciples,
-  ForAllPrinciples,
-} from "../boh/principles";
-import { Soul } from "../boh/souls";
+import { GetAssistants } from "../boh/assistance";
+import { PrincipleColor, ForAllPrinciples } from "../boh/principles";
 import { Save } from "../boh/save";
 import { Season } from "../boh/seasons";
-import {
-  FavMemories,
-  GetAvailableMemoriesFromSave,
-  Item,
-  Items,
-} from "../boh/crafting";
-import {
-  Principlable,
-  Principlables,
-  PrincipleSpan,
-} from "../components/principleList";
-import { FindBooksThatSpawnId } from "../boh/book";
-import { GetCraftingHintString } from "../boh/recipes";
+import { Principlable, Principlables } from "../components/principleList";
 import {
   FindBestWorkstationByPrinciple,
   GetSlotablesFromSave,
 } from "../boh/workstation";
-
-interface Help {
-  principle: Principle;
-  assistant: Assistant;
-  soul: Soul;
-  memory: Item;
-  value: number;
-  tool: Item;
-  beverage: Item;
-}
 
 export function AssistanceView({ save }: { save: Save }) {
   const [season, setSeason] = React.useState<Season | undefined | "unusual">(
@@ -59,7 +27,7 @@ export function AssistanceView({ save }: { save: Save }) {
   const assistanceMap = ForAllPrinciples((p) =>
     FindBestWorkstationByPrinciple(
       p,
-      assistants,
+      assistants as any[],
       GetSlotablesFromSave(save).filter((s) => s && !s.device)
     )
   );
@@ -86,61 +54,6 @@ export function AssistanceView({ save }: { save: Save }) {
           <option value="winter">winter</option>
         </select>
       </div>
-      {/* {roomsYouCanOpenEasily.length > 0 ? (
-        <div>
-          <div>Rooms you can open EASILY</div>
-          <div>
-            {roomsYouCanOpenEasily.map(({ room, principles }, i) => (
-              <div
-                key={room.id}
-                style={{ border: "1px solid white", padding: 3, margin: 3 }}
-              >
-                {room.label}:{" "}
-                {principles.map((p) => (
-                  <div>
-                    {PrincipleSpan({ principle: p, value: room[p] })}
-                    {easyAssistanceMap.get(p)?.assistant.label},
-                    {easyAssistanceMap.get(p)?.memory.label}
-                  </div>
-                ))}
-              </div>
-            ))}
-          </div>
-        </div>
-      ) : null} */}
-      {/* {roomsYouCanOpen.length > 0 ? (
-        <div>
-          <div>Rooms you can open</div>
-          <div>
-            {roomsYouCanOpen.map(({ room, principles }, i) => (
-              <div key={room.id}>
-                {room.label}:{" "}
-                {principles.map((p) =>
-                  PrincipleSpan({ principle: p, value: room[p] })
-                )}
-              </div>
-            ))}
-          </div>
-        </div>
-      ) : (
-        <div>
-          <div>Rooms</div>
-          <div>
-            {roomsToOpen.map((room, i) => (
-              <div key={room.id}>
-                {room.label}:
-                {MapPrinciples(room).map(([principle, value]) => (
-                  <PrincipleSpan
-                    key={principle}
-                    principle={principle}
-                    value={bestAssistanceMap.get(principle)!.value - value}
-                  />
-                ))}
-              </div>
-            ))}
-          </div>
-        </div>
-      )} */}
 
       {/* Assistance you can get */}
       <div>
@@ -212,27 +125,6 @@ export function AssistanceView({ save }: { save: Save }) {
             );
           })}
       </div>
-      {/* 
-      <div>
-        <div>Numen</div>
-        {Items.filter(({ numen }) => numen).map((i) => (
-          <div
-            key={i.id}
-            title={FindBooksThatSpawnId(i.id)
-              .map(({ label }) => label)
-              .join(", ")}
-          >
-            {i.label}:{" "}
-            {MapPrinciples(i).map(([principle, value]) => (
-              <PrincipleSpan
-                key={principle}
-                principle={principle}
-                value={value}
-              />
-            ))}
-          </div>
-        ))}
-      </div> */}
     </div>
   );
 }

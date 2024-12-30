@@ -5,6 +5,9 @@ import { Or0, Principles } from "./principles";
 export interface Skill extends AspectMap {
   id: string;
   label: string;
+
+  "wisdom.committed"?: number;
+  "a.xhausted"?: number;
 }
 
 function GenerateSkills(): Skill[] {

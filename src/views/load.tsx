@@ -1,7 +1,9 @@
 import React from "react";
 import { Save, ParseSave } from "../boh/save";
+// import { ExampleSaveData } from "../data/example_save_data";
 
 export function LoadView({ setSave }: { setSave: (newSave: Save) => void }) {
+  // React.useEffect(() => setSave(ParseSave(ExampleSaveData as any)));
   return (
     <div>
       <input
@@ -21,7 +23,6 @@ export function LoadView({ setSave }: { setSave: (newSave: Save) => void }) {
           reader.onload = (ev) => {
             const text = ev.target?.result;
             const newSave = ParseSave(JSON.parse(text?.toString() ?? ""));
-            console.log("Loaded", newSave);
             setSave(newSave);
           };
           reader.readAsText(file);

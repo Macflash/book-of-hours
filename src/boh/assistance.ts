@@ -1,6 +1,6 @@
 import { PrincipleMap } from "./principles";
 import { Season } from "./seasons";
-import { WorkstationSlot } from "./workstation";
+import { Slot } from "./workstation";
 
 export interface Assistant extends PrincipleMap {
   id: string;
@@ -11,11 +11,11 @@ export interface Assistant extends PrincipleMap {
   unusual?: boolean;
 
   // This isn't exactly right but, it works well!
-  slots: WorkstationSlot[];
+  slots: Slot[];
 }
 
 // All assistants can use these!
-const DefaultAssistanceSlots: WorkstationSlot[] = [
+const DefaultAssistanceSlots: Slot[] = [
   {
     id: "soul",
     label: "Soul",
@@ -43,7 +43,7 @@ const DefaultAssistanceSlots: WorkstationSlot[] = [
   },
 ];
 
-function withSlot(customSlot?: WorkstationSlot): WorkstationSlot[] {
+function withSlot(customSlot?: Slot): Slot[] {
   if (customSlot) return [...DefaultAssistanceSlots, customSlot];
   return DefaultAssistanceSlots;
 }

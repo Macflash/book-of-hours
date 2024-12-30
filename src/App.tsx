@@ -8,6 +8,7 @@ import { ReadingView } from "./views/reading";
 import { LessonView } from "./views/lesson";
 import { ContaminationView } from "./views/contamination";
 import { SaveView } from "./views/save";
+import { EvolveView } from "./views/evolve";
 
 type View =
   | "load"
@@ -16,6 +17,7 @@ type View =
   | "read"
   | "crafting"
   | "lesson"
+  | "evolve"
   | "contamination";
 
 function App() {
@@ -28,6 +30,7 @@ function App() {
     body = (
       <LoadView
         setSave={(newSave: Save) => {
+          console.log("Loaded", newSave);
           setSave(newSave);
           setView("save");
         }}
@@ -60,6 +63,10 @@ function App() {
     body = <ContaminationView save={save} />;
   }
 
+  if (view == "evolve") {
+    body = <EvolveView save={save} />;
+  }
+
   return (
     <div className="App">
       {view !== "load" ? (
@@ -73,12 +80,11 @@ function App() {
         >
           <select
             value={view}
-            onChange={(ev) => {
-              setView(ev.target.value as View);
-            }}
+            onChange={(ev) => void setView(ev.target.value as View)}
           >
             <option value="load">Load</option>
             <option value="save">Save</option>
+            <option value="evolve">Evolve</option>
             <option value="assistance">Assistance</option>
             <option value="crafting">Crafting</option>
             <option value="read">Read</option>

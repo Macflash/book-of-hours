@@ -23,6 +23,35 @@ export const Elements: ReadonlyArray<Element> = [
   "Wist",
 ];
 
+export function GetElementFromId(id: string): Element | null {
+  id = id.replace("z", "").replace("x", "");
+  switch (id) {
+    case "cho":
+      return "Chor";
+    case "ere":
+      return "Ereb";
+    case "fet":
+      return "Fet";
+    case "hea":
+      return "Health";
+    case "met":
+      return "Mettle";
+    case "pho":
+      return "Phost";
+    case "sha":
+      return "Shapt";
+    case "tri":
+      return "Trist";
+    case "wis":
+      return "Wist";
+  }
+  return null;
+}
+
+export function GetSoulByElement(element: Element): Readonly<Soul> {
+  return Souls.find((s) => s.element == element)!;
+}
+
 export interface Soul extends PrincipleMap {
   element: Element;
   color: string;

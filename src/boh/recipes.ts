@@ -1,7 +1,7 @@
 import { RecipeData } from "../data/recipe_data";
 import { AspectMap } from "./aspects";
 import { FindBooksThatSpawnId } from "./book";
-import { GetItemsByConsiderSpawnId, Item } from "./crafting";
+import { GetItemById, GetItemsByConsiderSpawnId, Item } from "./crafting";
 import { Principles } from "./principles";
 import { ParseLocationString, Save } from "./save";
 import { GetSkillById, Skill } from "./skills";
@@ -130,4 +130,29 @@ export function GetCraftingHintString(
   if (considerString) result += `Consider:\n${considerString}\n`;
   if (readingString) result += `Read:\n${readingString}\n`;
   return result;
+}
+
+export function GetRequiredRecipeInputs(recipe: Recipe) {
+  return Object.keys(recipe).filter((key) => GetItemById(key));
+}
+
+export function CalculateRecipeCost(recipe: Recipe) {
+  console.log("Checking cost for " + recipe.id, recipe.duration);
+  const requiredInputs = GetRequiredRecipeInputs(recipe);
+  if (!requiredInputs.length) return recipe.duration;
+
+  console.log(recipe.id + " requires", requiredInputs);
+
+  let inputCost = 0;
+  for (const input of requiredInputs) {
+    const inputRecipes = GetRecipesByResult(input);
+    let minRecipeCost = Number.MAX_SAFE_INTEGER;
+    for (const inputRecipe of inputRecipes) {
+      const cost = CalculateRecipeCost(inputRecipe);
+      minRecipeCost = Math.min(minRecipeCost, cost);
+    }
+    inputCost += minRecipeCost;
+  }
+
+  return inputCost + recipe.duration;
 }

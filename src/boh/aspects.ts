@@ -82,3 +82,10 @@ export function MatchesRequiredAspects(
   }
   return false;
 }
+
+export function GetAspectsWithPrefix(aspectable: AspectMap, prefix: string) {
+  if (!aspectable) return [];
+  return Object.keys(aspectable)
+    .filter((k) => k.startsWith(prefix) && aspectable[k as Aspect])
+    .map((k) => k.substring(prefix.length));
+}
