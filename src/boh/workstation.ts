@@ -1,5 +1,9 @@
 import { WorkstationData } from "../data/workstation_data";
-import { AspectMap, MatchesRequiredAspects } from "./aspects";
+import {
+  AddAspectsInplace,
+  AspectMap,
+  MatchesRequiredAspects,
+} from "./aspects";
 import { GetAvailableMemoriesFromSave, Items } from "./crafting";
 import { FindBestByPrinciple, Or0, Principle } from "./principles";
 import { Save } from "./save";
@@ -81,10 +85,10 @@ export function FindBestWorkstationByPrinciple(
   let bestSum = 0;
   let bestSlotMap = new Map<Slot, Slotable>();
   for (const workstation of workstations) {
-    const requiredSlotablesAndSlots = requiredSlotables.map((required) => ({
-      required,
-      slots: FindMatchingSlots(workstation, required),
-    }));
+    // const requiredSlotablesAndSlots = requiredSlotables.map((required) => ({
+    //   required,
+    //   slots: FindMatchingSlots(workstation, required),
+    // }));
 
     // We want to generate all COMBINATIONS of the matching slots.
 
@@ -118,7 +122,41 @@ export function FillSlotsByPrinciple(
   slots: Slot[],
   slotables: Slotable[]
 ) {
+  let bestSum = 0;
+  let bestSlotmap = new Map<Slot, Slotable>();
+  // Try a few different orders of slots...
+  for (let i = 0; i < slots.length; i++) {
+    const shuffled = [...slots];
+    for (let j = 0; j < i; j++) {
+      shuffled.push(shuffled.pop()!);
+    }
+
+    const slotmap = FillSlotsByPrincipleOnlyUseOnce(
+      principle,
+      shuffled,
+      slotables
+    );
+
+    const sum = SumWorkstationSlots(principle, slotmap.values().toArray());
+    if (sum > bestSum) {
+      bestSum = sum;
+      bestSlotmap = slotmap;
+    }
+  }
+
+  return bestSlotmap;
+}
+
+// Dumbly uses an item in the first matching slot only
+// This is quick though
+export function FillSlotsByPrincipleOnlyUseOnce(
+  principle: Principle,
+  slots: Slot[],
+  slotables: Slotable[]
+) {
   const slotmap = new Map<Slot, Slotable>();
+  // Could simply try this but with every order of the slots?
+  // might only be like 5x longer?
   for (const slot of slots) {
     const matching = slotables.filter(
       // Filter out things already assigned in a slot, this uses object reference
@@ -199,11 +237,17 @@ export function FindMatchingSlots(
   return workstation.slots.filter((slot) => MatchesSlot(slot, slotable));
 }
 
+export function SumSlotAspects(slotables: Slotable[]): AspectMap {
+  const sum = {} as AspectMap;
+  for (const slotable of slotables) AddAspectsInplace(sum, slotable);
+  return sum;
+}
+
 export function SumWorkstationSlots(
   principle: Principle,
-  slotted: Slotable[]
+  slotables: Slotable[]
 ): number {
   let sum = 0;
-  for (const s of slotted) sum += Or0(s?.[principle]);
+  for (const slotable of slotables) sum += Or0(slotable?.[principle]);
   return sum;
 }

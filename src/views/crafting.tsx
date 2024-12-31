@@ -12,8 +12,7 @@ import {
 } from "../boh/workstation";
 import { GetItemById } from "../boh/crafting";
 import "../boh/array";
-import { ForAllPrinciples, Principles } from "../boh/principles";
-import { Principlables } from "../components/principleList";
+import { Principles } from "../boh/principles";
 
 export function CraftingView({ save }: { save: Save }) {
   const [type, setType] = React.useState<

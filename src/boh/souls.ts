@@ -53,6 +53,7 @@ export function GetSoulByElement(element: Element): Readonly<Soul> {
 }
 
 export interface Soul extends PrincipleMap {
+  id: string;
   element: Element;
   color: string;
   level: number;

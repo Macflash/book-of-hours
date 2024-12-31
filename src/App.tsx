@@ -9,6 +9,7 @@ import { LessonView } from "./views/lesson";
 import { ContaminationView } from "./views/contamination";
 import { SaveView } from "./views/save";
 import { EvolveView } from "./views/evolve";
+import { WorkstationView } from "./views/workstation";
 
 type View =
   | "load"
@@ -17,6 +18,7 @@ type View =
   | "read"
   | "crafting"
   | "lesson"
+  | "workstation"
   | "evolve"
   | "contamination";
 
@@ -67,6 +69,10 @@ function App() {
     body = <EvolveView save={save} />;
   }
 
+  if (view == "workstation") {
+    body = <WorkstationView save={save} />;
+  }
+
   return (
     <div className="App">
       {view !== "load" ? (
@@ -89,6 +95,7 @@ function App() {
             <option value="crafting">Crafting</option>
             <option value="read">Read</option>
             <option value="lesson">Lessons</option>
+            <option value="workstation">Workstation</option>
             <option value="contamination">Contamination</option>
           </select>
         </div>
