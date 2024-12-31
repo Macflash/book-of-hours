@@ -1,17 +1,104 @@
 import React from "react";
 import { Save } from "../boh/save";
 import {
-  CalculateRecipeCost,
-  GetRecipeById,
+  GetRequiredRecipeInputs,
   Recipes,
   ToRecipeString,
 } from "../boh/recipes";
+import {
+  FindBestWorkstationByPrinciple,
+  FindMatchingSlots,
+  GetSlotablesFromSave,
+} from "../boh/workstation";
+import { GetItemById } from "../boh/crafting";
+import "../boh/array";
+import { ForAllPrinciples, Principles } from "../boh/principles";
+import { Principlables } from "../components/principleList";
 
 export function CraftingView({ save }: { save: Save }) {
+  const [type, setType] = React.useState<
+    "persistent" | "memory" | "item" | "tool"
+  >("persistent");
   const [search, setSearch] = React.useState("");
   const [target, setTarget] = React.useState("");
 
-  target && console.log(CalculateRecipeCost(GetRecipeById(target)));
+  //target && console.log(CalculateRecipeCost(GetRecipeById(target)));
+
+  const recipes = Recipes.filter(
+    (r) =>
+      (type == "memory" &&
+        r.result_ids
+          .map((id) => GetItemById(id))
+          .some((result) => result?.memory)) ||
+      (type == "persistent" &&
+        r.result_ids
+          .map((id) => GetItemById(id))
+          .some((result) => result?.persistent)) ||
+      (type == "item" &&
+        r.result_ids
+          .map((id) => GetItemById(id))
+          .some((result) => !result?.memory)) ||
+      (type == "tool" &&
+        r.result_ids
+          .map((id) => GetItemById(id))
+          .some((result) => result?.tool))
+  )
+    .filter(
+      (recipe) =>
+        recipe.id.includes(search) ||
+        recipe.label.includes(search) ||
+        recipe.result_ids[0].includes(search)
+    )
+    .map((recipe) => {
+      const skill = save.skills.find((s) => s.id == recipe.skill_id);
+      if (!skill) return null;
+
+      return { recipe, skill };
+    })
+    .noNulls();
+
+  const slotables = GetSlotablesFromSave(save);
+
+  const combos = recipes
+    .map(({ recipe, skill }) => {
+      const requiredInputs = GetRequiredRecipeInputs(recipe)
+        .map((id) => GetItemById(id))
+        .noNulls();
+
+      const workstations = save.workstations.filter(
+        (ws) =>
+          // I think consider can't craft!
+          ws.id != "consider" &&
+          FindMatchingSlots(ws, skill).length &&
+          requiredInputs.all((input) => FindMatchingSlots(ws, input).length > 0)
+      );
+
+      const principle = Principles.find((p) => recipe[p])!;
+      const requiredPrinciple = recipe[principle]!;
+
+      const { bestWorkstation, bestSum, bestSlotMap } =
+        FindBestWorkstationByPrinciple(
+          principle,
+          workstations,
+          slotables,
+          requiredInputs
+        );
+
+      return {
+        recipe,
+        skill,
+        requiredInputs,
+        workstations,
+        principle,
+        bestWorkstation,
+        bestSum,
+        requiredPrinciple,
+        bestSlotMap,
+      };
+    })
+    .filter(({ bestSum, requiredPrinciple }) => bestSum >= requiredPrinciple);
+
+  console.log("combos", combos);
 
   return (
     <div>
@@ -24,15 +111,16 @@ export function CraftingView({ save }: { save: Save }) {
             setSearch(ev.target.value);
           }}
         />
+        <select value={type} onChange={(ev) => setType(ev.target.value as any)}>
+          <option value="item">Item</option>
+          <option value="tool">Tool</option>
+          <option value="persistent">Persistent Memory</option>
+          <option value="memory"> Memory</option>
+        </select>
       </div>
       {/* recipes */}
       <div>
-        {Recipes.filter(
-          (r) =>
-            r.id.includes(search) ||
-            r.label.includes(search) ||
-            r.result_ids[0].includes(search)
-        ).map((recipe) => (
+        {combos.map(({ recipe }) => (
           <div key={recipe.id} onClick={() => setTarget(recipe.id)}>
             {recipe.label}: {ToRecipeString(recipe)}
           </div>

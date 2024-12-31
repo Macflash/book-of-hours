@@ -1,5 +1,5 @@
 import { RecipeData } from "../data/recipe_data";
-import { AspectMap } from "./aspects";
+import { AddAspectsInplace, AspectMap } from "./aspects";
 import { FindBooksThatSpawnId } from "./book";
 import { GetItemById, GetItemsByConsiderSpawnId, Item } from "./crafting";
 import { Principles } from "./principles";
@@ -23,9 +23,7 @@ function GenerateRecipes(): Recipe[] {
   for (const data of RecipeData) {
     let skill_id = "";
     for (const key of Object.keys(data.reqs)) {
-      if (key.startsWith("s.")) {
-        skill_id = key;
-      }
+      if (key.startsWith("s.")) skill_id = key;
     }
 
     const recipe: Recipe = {
@@ -43,6 +41,12 @@ function GenerateRecipes(): Recipe[] {
 }
 
 export const Recipes = GenerateRecipes();
+// Literally only recipes with 2 outputs include "larva.hungry"!!
+// Can just filter that one out and make this a SINGLE field.
+console.log(
+  "recipes with outputs",
+  Recipes.filter((r) => r.result_ids.length > 1)
+);
 
 export function GetRecipeById(id: string, recipes = Recipes): Recipe {
   const recipe = recipes.find((r) => r.id === id);
@@ -132,27 +136,34 @@ export function GetCraftingHintString(
   return result;
 }
 
+// This doesn't..
 export function GetRequiredRecipeInputs(recipe: Recipe) {
   return Object.keys(recipe).filter((key) => GetItemById(key));
 }
 
-export function CalculateRecipeCost(recipe: Recipe) {
+interface RecipeCost extends AspectMap {
+  duration: number;
+}
+
+export function CalculateRecipeCost(recipe: Recipe): RecipeCost {
   console.log("Checking cost for " + recipe.id, recipe.duration);
   const requiredInputs = GetRequiredRecipeInputs(recipe);
-  if (!requiredInputs.length) return recipe.duration;
+  if (!requiredInputs.length) return { ...recipe };
 
   console.log(recipe.id + " requires", requiredInputs);
 
-  let inputCost = 0;
+  let inputCost: RecipeCost = { ...recipe };
   for (const input of requiredInputs) {
     const inputRecipes = GetRecipesByResult(input);
-    let minRecipeCost = Number.MAX_SAFE_INTEGER;
+    let minRecipeCost: RecipeCost = { duration: Number.MAX_SAFE_INTEGER };
     for (const inputRecipe of inputRecipes) {
       const cost = CalculateRecipeCost(inputRecipe);
-      minRecipeCost = Math.min(minRecipeCost, cost);
+      if (cost.duration < minRecipeCost.duration) {
+        minRecipeCost = cost;
+      }
     }
-    inputCost += minRecipeCost;
+    AddAspectsInplace(inputCost, minRecipeCost);
   }
 
-  return inputCost + recipe.duration;
+  return inputCost;
 }

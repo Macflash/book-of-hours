@@ -1,4 +1,5 @@
 import { Aspect, GetAspectsWithPrefix } from "../boh/aspects";
+import { Items } from "../boh/crafting";
 import { Or0 } from "../boh/principles";
 import { Save } from "../boh/save";
 import { Element, GetElementFromId, GetSoulByElement } from "../boh/souls";
@@ -81,6 +82,41 @@ export function EvolveView({ save }: { save: Save }) {
 
   // TODO: Could also use EVOLVE VIA memories.
 
+  const evolveViaMemories = Items.filter(
+    (i) => GetAspectsWithPrefix(i, "e.").length
+  );
+  console.log("evolveViaMemories", evolveViaMemories);
+  const evolveViaCombos = skillsWithSoulCopies
+    .map(({ skill, soul, wisdom }) => {
+      const matchingWorkstations = save.workstations
+        .map((ws) => {
+          const skillSlots = FindMatchingSlots(ws, skill);
+          const soulSlots = FindMatchingSlots(ws, soul);
+          // This additionally needs a slot for the evolve via memory.
+          const evolveViaSlots = evolveViaMemories.filter(
+            (e) => e[("e." + wisdom) as Aspect] && FindMatchingSlots(ws, e)
+          );
+          return { ws, skillSlots, soulSlots, evolveViaSlots };
+        })
+        .filter(
+          ({ skillSlots, soulSlots, evolveViaSlots }) =>
+            skillSlots.length >= 1 &&
+            soulSlots.length >= 2 &&
+            evolveViaSlots.length >= 1
+        );
+
+      // Need 1 skill slot, and 2 soul slots!
+
+      return {
+        skill,
+        soul,
+        wisdom,
+        matchingWorkstations,
+      };
+    })
+    .filter(({ matchingWorkstations }) => matchingWorkstations.length);
+  console.log("evolveViaCombos", evolveViaCombos);
+
   return (
     <div>
       <div style={{ border: "1px solid grey", padding: 3, margin: 3 }}>
@@ -117,7 +153,21 @@ export function EvolveView({ save }: { save: Save }) {
         ))}
       </div>
 
-      <div>TODO: Handle Evolve Via memories.</div>
+      <div>
+        {evolveViaCombos.map(({ skill, soul, matchingWorkstations }) => (
+          <div>
+            Evolve {soul.label} with {skill.label} at{" "}
+            {matchingWorkstations
+              .map(
+                ({ ws, evolveViaSlots }) =>
+                  `${ws.label} (can use ${[...evolveViaSlots.values()]
+                    .map((v) => v.label)
+                    .join(", ")})`
+              )
+              .join(", ")}
+          </div>
+        ))}
+      </div>
     </div>
   );
 }

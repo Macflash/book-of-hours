@@ -67,29 +67,26 @@ export function MatchesSlot(
 }
 
 // TODO!!!
-// HMMM! for reading we need to like.. pass in the REQUIRED items.
-// This could also be useful for recipes that require SPECIFIC inputs, e.g. use the fife, or solomans preparation.
-// Actually, only the soul HAS to be populated.
-// But complex since things like MEMORY can only exist once.
-// TODO: Have consider be first? List multiple desks if they have the same values??
-// Also need to have at least 1 soul! but it could be any soul I guess?
+// This will use DUPLICATES of things that are unique.
+// E.G. Can only use a memory ONCE.
+// Might only have a single +Phost, but it will use it twice!
 export function FindBestWorkstationByPrinciple(
   principle: Principle,
   workstations = GetAllWorkstations(),
   slotables = GetAllSlotables(),
-  requiredSlotables?: Slotable[]
+  requiredSlotables: Slotable[] = []
 ) {
   //   const workstationMap = new Map<string, Map<string, Slotable>>();
   let bestWorkstation: Workstation | null = null;
   let bestSum = 0;
   let bestSlotMap = new Map<Slot, Slotable>();
   for (const workstation of workstations) {
-    let slots = workstation.slots;
-    if (requiredSlotables) {
-      const matchingSlotsPerSlotable = requiredSlotables.map((r) =>
-        FindMatchingSlots(workstation, r)
-      );
-    }
+    const requiredSlotablesAndSlots = requiredSlotables.map((required) => ({
+      required,
+      slots: FindMatchingSlots(workstation, required),
+    }));
+
+    // We want to generate all COMBINATIONS of the matching slots.
 
     // console.log(`Checking workstation ${workstation.label}`);
 
@@ -115,6 +112,7 @@ export function FindBestWorkstationByPrinciple(
   };
 }
 
+// Dumbly uses an item in the first matching slot only
 export function FillSlotsByPrinciple(
   principle: Principle,
   slots: Slot[],
@@ -122,12 +120,76 @@ export function FillSlotsByPrinciple(
 ) {
   const slotmap = new Map<Slot, Slotable>();
   for (const slot of slots) {
-    const matching = slotables.filter((s) => MatchesSlot(slot, s));
+    const matching = slotables.filter(
+      // Filter out things already assigned in a slot, this uses object reference
+      // So if you pass in a slotable twice, it can be used twice.
+      (s) => ![...slotmap.values()].includes(s) && MatchesSlot(slot, s)
+    );
+    // This should... recurse for the other slots?
     const best = FindBestByPrinciple(principle, matching);
     if (best) slotmap.set(slot, best);
   }
 
   return slotmap;
+}
+
+// This will use the same item twice, e.g. you have 1 Phost, but it will use it twice.
+export function FillSlotsByPrincipleNaively(
+  principle: Principle,
+  slots: Slot[],
+  slotables: Slotable[]
+) {
+  const slotmap = new Map<Slot, Slotable>();
+  for (const slot of slots) {
+    const matching = slotables.filter((s) => MatchesSlot(slot, s));
+    // This should... recurse for the other slots?
+    const best = FindBestByPrinciple(principle, matching);
+    if (best) slotmap.set(slot, best);
+  }
+
+  return slotmap;
+}
+
+// This one does it recursively to avoid duplicating things incorrectly.
+// Wow this is SOOOO much slower.
+export function FillSlotsByPrincipleRecursively(
+  principle: Principle,
+  slots: Slot[],
+  slotables: Slotable[]
+) {
+  const slotmap = new Map<Slot, Slotable>();
+  if (!slots.length) return slotmap;
+  if (!slotables.length) return slotmap;
+
+  const slot = slots[0];
+  const matching = slotables.filter((s) => MatchesSlot(slot, s));
+  if (!matching.length) return slotmap;
+  console.log("matching", matching.length);
+
+  let bestSum = 0;
+  let bestSlotMap = new Map<Slot, Slotable>();
+  for (const match of matching) {
+    const remainingSlotables = slotables.filter((s) => s != match);
+    const remainingSlotMap = FillSlotsByPrinciple(
+      principle,
+      slots.slice(1),
+      remainingSlotables
+    );
+
+    // ADD THE CURRENT ITEM!
+    remainingSlotMap.set(slot, match);
+
+    const remainingSum = SumWorkstationSlots(
+      principle,
+      remainingSlotMap.values().toArray()
+    );
+    if (remainingSum > bestSum) {
+      bestSum = remainingSum;
+      bestSlotMap = remainingSlotMap;
+    }
+  }
+
+  return bestSlotMap;
 }
 
 export function FindMatchingSlots(
