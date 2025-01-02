@@ -1,117 +1,79 @@
-import { ItemData } from "../data/item_data";
-import { PrototypeData } from "../data/prototype_data";
-import { WorkstationData } from "../data/workstation_data";
 import {
-  AddAspectsInplace,
+  Aspect,
   AspectMap,
   MatchesRequiredAspects,
+  NoPositiveAspects,
+  PositiveAspects,
+  SubtractAspects,
 } from "./aspects";
-import { Save } from "./save";
-import { Workstation } from "./workstation";
+import { Items } from "./items";
+import { Recipes } from "./recipes";
+import { MatchesSlot, Slot, Slotable } from "./workstation";
 
-function GetPrototype(id: string) {
-  const data = PrototypeData.find((p) => p.id == id);
-  if (!data) throw new Error(`Couldn't find prototype ${id}`);
-
-  let proto: Item = { id: data.id, label: data.id, ...data.aspects };
-  if (data.inherits) {
-    const nested = GetPrototype(data.inherits);
-    AddAspectsInplace(proto, nested);
-  }
-  return proto;
+function GenerateCraftableItems() {
+  const recipes = new Set(Recipes.map((r) => r.result_ids[0]));
+  return Items.filter((item) => recipes.has(item.id));
 }
 
-export const Items = GenerateItems();
-export const Memories = Items.filter((i) => i.memory) as Memory[];
+export const CraftableItems = GenerateCraftableItems();
 
-/** @deprecated Use save data instead */
-export const FavMemories: Memory[] = [
-  "mem.fear",
-  "mem.scent",
-  "didumos",
-  "windinwaiting",
-  "ascendant.harmony",
-  "wormwood.dream",
-  "old.wound",
-  "forbidden.epic",
-  "invincible.audacity",
-  "enduring.reflection",
-  "earthsign",
-  "numen.desc",
-  "numen.loop",
-  "numen.thre",
-  "numen.worl",
-  "numen.bala",
-  "numen.oldl",
-].map((id) => GetItemById(id)! as Memory);
-
-export function IsFavMemory(id: string) {
-  return FavMemories.some((m) => m.id == id);
-}
-
-export function GetItemById(id: string, items = Items) {
-  return items.find((item) => item.id == id);
-}
-
-function GenerateItems() {
-  return ItemData.map((data) => {
-    let item: Item = { id: data.ID, label: data.Label };
-    if (data.aspects) item = { ...item, ...data.aspects };
-    if (data.inherits) {
-      const proto = GetPrototype(data.inherits);
-      AddAspectsInplace(item, proto);
-    }
-    const spawns = data.xtriggers?.scrutiny?.[0];
-    if (spawns) item.consider_spawn_id = spawns.id;
-
-    return item;
-  });
-}
-
-export function GetItemsByConsiderSpawnId(id: string, items = Items): Item[] {
-  return items.filter((i) => i.consider_spawn_id == id);
-}
-
-export function GetMatchingItems(
-  required: AspectMap,
-  essential?: AspectMap,
-  items = Items
+export function FillSlotsByRequiredAspects(
+  slots: Slot[],
+  requiredAspects: AspectMap,
+  slotables: Slotable[]
 ) {
-  return items.filter(
-    (i) =>
-      (!essential || MatchesRequiredAspects(essential, i)) &&
-      MatchesRequiredAspects(required, i)
+  const aspects = PositiveAspects(requiredAspects);
+  const aspectMap = new Map<Aspect, Slotable[]>();
+  for (const aspect of aspects) {
+    const matching = slotables.filter((s) => (s[aspect] || 0) > 0);
+    aspectMap.set(aspect, matching);
+  }
+
+  console.log("Looking for required aspects", aspectMap);
+
+  // Ideally a smaller set of items.
+  const itemsWithAspects = slotables.filter((slotable) =>
+    MatchesRequiredAspects(requiredAspects, slotable)
   );
-}
+  // lol this is like... ALWAYS all the items.
+  // console.log("itemsWithAspects", itemsWithAspects.length);
 
-export interface Item extends AspectMap {
-  id: string;
-  label: string;
-  location?: string;
-
-  /** Anything that spawns when you consider it */
-  consider_spawn_id?: string;
-}
-
-export interface Memory extends Item {}
-
-// Get a list of all the memories you either have or can get based on your save data.
-export function GetAvailableMemoriesFromSave(save: Save) {
-  const memories = new Set<string>();
-
-  for (const item of save.items) {
-    if (item.memory) memories.add(item.id);
-    if (item.consider_spawn_id) memories.add(item.consider_spawn_id);
+  // A set of items that can fill each slot
+  const slotMap = new Map<Slot, Slotable[]>();
+  for (const slot of slots) {
+    slotMap.set(
+      slot,
+      itemsWithAspects.filter((item) => MatchesSlot(slot, item))
+    );
   }
 
-  for (const book of save.books) {
-    // Re-reading is easy, if you haven't mastered, you probably can't...
-    if (book.mastered) memories.add(book.reading.id);
+  // soul HAS to be filled
+  // skill should almost always be filled
+  // memory/items are next cheapest.
+
+  const soulSlot = slots.find((s) => s.id == "a")!;
+  const skillSlot = slots.find((s) => s.id == "s")!;
+  const memorySlot = slots.find((s) => s.id == "m")!;
+  const otherSlots = slots.filter(
+    (s) => s != soulSlot && s != skillSlot && s != memorySlot
+  );
+
+  // Always fill the soul!
+  for (const soul of slotMap.get(soulSlot) || []) {
+    const soulAspects = SubtractAspects(requiredAspects, soul);
+    // if (NoPositiveAspects(soulAspects)) return { soul };
+    for (const skill of slotMap.get(skillSlot) || []) {
+      const skillAspects = SubtractAspects(soulAspects, skill);
+      if (NoPositiveAspects(skillAspects)) return { soul, skill };
+      // console.log("skillAspects", skillAspects);
+
+      // Check the remaining slots!
+      // And ideally return the one with the most craftable inputs or the ones with the lowest cost?
+      // That could be done just by sorting the sortable list by cost first.
+    }
   }
 
-  // TODO: what about crafting a memory from a skill?
+  // for each item we can place it in any slot, and see
 
-  return [...memories].map((id) => GetItemById(id) as Memory);
+  return null;
 }
-
-// TODO: what if we built everything from the ground up? E.g. For each skill what can you make from scratch, and keep track of the total time cost, and the principle cost.

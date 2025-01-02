@@ -1,5 +1,5 @@
 import { Aspect, GetAspectsWithPrefix } from "../boh/aspects";
-import { Items } from "../boh/crafting";
+import { Items } from "../boh/items";
 import { Or0 } from "../boh/principles";
 import { Save } from "../boh/save";
 import { Element, GetElementFromId, GetSoulByElement } from "../boh/souls";
@@ -145,8 +145,8 @@ export function EvolveView({ save }: { save: Save }) {
       </div>
 
       <div>
-        {combos.map(({ skill, soul, matchingWorkstations }) => (
-          <div>
+        {combos.map(({ skill, soul, matchingWorkstations }, i) => (
+          <div key={i}>
             Evolve {soul.label} with {skill.label} at{" "}
             {matchingWorkstations.map(({ ws }) => ws.label).join(", ")}
           </div>
@@ -154,8 +154,8 @@ export function EvolveView({ save }: { save: Save }) {
       </div>
 
       <div>
-        {evolveViaCombos.map(({ skill, soul, matchingWorkstations }) => (
-          <div>
+        {evolveViaCombos.map(({ skill, soul, matchingWorkstations }, i) => (
+          <div key={i}>
             Evolve {soul.label} with {skill.label} at{" "}
             {matchingWorkstations
               .map(

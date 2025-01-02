@@ -1,7 +1,7 @@
 import { RecipeData } from "../data/recipe_data";
-import { AddAspectsInplace, AspectMap } from "./aspects";
+import { AddAspects, AspectMap } from "./aspects";
 import { FindBooksThatSpawnId } from "./book";
-import { GetItemById, GetItemsByConsiderSpawnId, Item } from "./crafting";
+import { GetItemsByConsiderSpawnId, GetItemById } from "./items";
 import { Principles } from "./principles";
 import { ParseLocationString, Save } from "./save";
 import { GetSkillById, Skill } from "./skills";
@@ -29,10 +29,13 @@ function GenerateRecipes(): Recipe[] {
     const recipe: Recipe = {
       ...data.reqs,
       id: data.id,
-      label: data.Label,
+      label: data.Label!,
       skill_id,
       duration: data.warmup,
-      result_ids: Object.keys(data.effects),
+      result_ids: Object.keys(data.effects).filter(
+        // I hate TS sometimes.
+        (k) => Number((data.effects as any)[k as any]) > 0
+      ),
     };
 
     recipes.push(recipe);
@@ -138,32 +141,52 @@ export function GetCraftingHintString(
 
 // This doesn't..
 export function GetRequiredRecipeInputs(recipe: Recipe) {
-  return Object.keys(recipe).filter((key) => GetItemById(key));
+  return Object.keys(recipe)
+    .filter((key) => GetItemById(key))
+    .noNulls();
 }
 
 interface RecipeCost extends AspectMap {
   duration: number;
 }
 
+const recipeCostMap = new Map<string, RecipeCost>();
+
+// lol, 2 items are literally recursive!!
 export function CalculateRecipeCost(recipe: Recipe): RecipeCost {
-  console.log("Checking cost for " + recipe.id, recipe.duration);
+  const existingCost = recipeCostMap.get(recipe.id);
+  if (existingCost) return { ...existingCost };
+
+  // console.log("Checking cost for " + recipe.id, recipe.duration);
   const requiredInputs = GetRequiredRecipeInputs(recipe);
   if (!requiredInputs.length) return { ...recipe };
 
-  console.log(recipe.id + " requires", requiredInputs);
+  // console.log(recipe.id + " requires", requiredInputs);
 
   let inputCost: RecipeCost = { ...recipe };
   for (const input of requiredInputs) {
     const inputRecipes = GetRecipesByResult(input);
     let minRecipeCost: RecipeCost = { duration: Number.MAX_SAFE_INTEGER };
+    if (!inputRecipes.length) {
+      console.log("Can't make this!", input);
+      break;
+    }
+
     for (const inputRecipe of inputRecipes) {
       const cost = CalculateRecipeCost(inputRecipe);
-      if (cost.duration < minRecipeCost.duration) {
-        minRecipeCost = cost;
-      }
+      if (cost.duration < minRecipeCost.duration) minRecipeCost = cost;
     }
-    AddAspectsInplace(inputCost, minRecipeCost);
+    if (minRecipeCost.duration == Number.MAX_SAFE_INTEGER)
+      console.log("Couldn't make this!", input);
+    AddAspects(inputCost, minRecipeCost);
   }
 
+  recipeCostMap.set(recipe.id, inputCost);
   return inputCost;
+}
+
+export function IsCraftable(id: string) {
+  return GetRecipesByResult(id).some(
+    (r) => CalculateRecipeCost(r).duration < Number.MAX_SAFE_INTEGER
+  );
 }

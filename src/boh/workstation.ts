@@ -1,10 +1,7 @@
 import { WorkstationData } from "../data/workstation_data";
-import {
-  AddAspectsInplace,
-  AspectMap,
-  MatchesRequiredAspects,
-} from "./aspects";
-import { GetAvailableMemoriesFromSave, Items } from "./crafting";
+import { AddAspects, AspectMap, MatchesRequiredAspects } from "./aspects";
+import { Items } from "./items";
+import { GetAvailableMemoriesFromSave } from "./memories";
 import { FindBestByPrinciple, Or0, Principle } from "./principles";
 import { Save } from "./save";
 import { Skills } from "./skills";
@@ -171,65 +168,6 @@ export function FillSlotsByPrincipleOnlyUseOnce(
   return slotmap;
 }
 
-// This will use the same item twice, e.g. you have 1 Phost, but it will use it twice.
-export function FillSlotsByPrincipleNaively(
-  principle: Principle,
-  slots: Slot[],
-  slotables: Slotable[]
-) {
-  const slotmap = new Map<Slot, Slotable>();
-  for (const slot of slots) {
-    const matching = slotables.filter((s) => MatchesSlot(slot, s));
-    // This should... recurse for the other slots?
-    const best = FindBestByPrinciple(principle, matching);
-    if (best) slotmap.set(slot, best);
-  }
-
-  return slotmap;
-}
-
-// This one does it recursively to avoid duplicating things incorrectly.
-// Wow this is SOOOO much slower.
-export function FillSlotsByPrincipleRecursively(
-  principle: Principle,
-  slots: Slot[],
-  slotables: Slotable[]
-) {
-  const slotmap = new Map<Slot, Slotable>();
-  if (!slots.length) return slotmap;
-  if (!slotables.length) return slotmap;
-
-  const slot = slots[0];
-  const matching = slotables.filter((s) => MatchesSlot(slot, s));
-  if (!matching.length) return slotmap;
-  console.log("matching", matching.length);
-
-  let bestSum = 0;
-  let bestSlotMap = new Map<Slot, Slotable>();
-  for (const match of matching) {
-    const remainingSlotables = slotables.filter((s) => s != match);
-    const remainingSlotMap = FillSlotsByPrinciple(
-      principle,
-      slots.slice(1),
-      remainingSlotables
-    );
-
-    // ADD THE CURRENT ITEM!
-    remainingSlotMap.set(slot, match);
-
-    const remainingSum = SumWorkstationSlots(
-      principle,
-      remainingSlotMap.values().toArray()
-    );
-    if (remainingSum > bestSum) {
-      bestSum = remainingSum;
-      bestSlotMap = remainingSlotMap;
-    }
-  }
-
-  return bestSlotMap;
-}
-
 export function FindMatchingSlots(
   workstation: Workstation,
   slotable: Slotable
@@ -239,7 +177,7 @@ export function FindMatchingSlots(
 
 export function SumSlotAspects(slotables: Slotable[]): AspectMap {
   const sum = {} as AspectMap;
-  for (const slotable of slotables) AddAspectsInplace(sum, slotable);
+  for (const slotable of slotables) AddAspects(sum, slotable);
   return sum;
 }
 

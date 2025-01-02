@@ -10,6 +10,13 @@ import { ContaminationView } from "./views/contamination";
 import { SaveView } from "./views/save";
 import { EvolveView } from "./views/evolve";
 import { WorkstationView } from "./views/workstation";
+import { Items } from "./boh/items";
+import {
+  CalculateRecipeCost,
+  GetRecipesByResult,
+  IsCraftable,
+  Recipes,
+} from "./boh/recipes";
 
 type View =
   | "load"
@@ -23,6 +30,33 @@ type View =
   | "contamination";
 
 function App() {
+  const recipes = new Set(Recipes.map((r) => r.result_ids[0]));
+  console.log("recipes", recipes);
+
+  const costs = Items.map((item) => {
+    const recipes = GetRecipesByResult(item.id);
+    if (!recipes.length) return null;
+    const costs = recipes.map((r) => CalculateRecipeCost(r).duration);
+    const minCost = Math.min(...costs);
+    return {
+      item,
+      minCost,
+    };
+  })
+    .noNulls()
+    .sort((a, b) => a.minCost - b.minCost);
+  console.log("costs", costs);
+
+  console.log(
+    "memories",
+    costs.filter((c) => c.item.memory)
+  );
+
+  console.log(
+    "craftable stuff",
+    Items.filter((item) => IsCraftable(item.id))
+  );
+
   const [view, setView] = React.useState<View>("load");
   const [save, setSave] = React.useState<Save>(EmptySave());
 

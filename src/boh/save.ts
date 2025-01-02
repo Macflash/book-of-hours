@@ -1,10 +1,10 @@
 import { WorkstationData } from "../data/workstation_data";
-import { AddAspectsInplace } from "./aspects";
+import { AddAspects } from "./aspects";
 import { Book, GetBookById } from "./book";
-import { GetItemById, Item } from "./crafting";
+import { Item, GetItemById } from "./items";
 import { Or0, PrincipleMap, Principles } from "./principles";
 import { GetRoomById, Room } from "./rooms";
-import { EvolveSkill, GetSkillById, Skill } from "./skills";
+import { GetSkillById, Skill } from "./skills";
 import { Soul, ReadonlySoul, EvolveSoul, Chor, Ereb } from "./souls";
 import * as Souls from "./souls";
 import { Workstation } from "./workstation";
@@ -206,7 +206,7 @@ function ParseSkill({ EntityId, Mutations }: Payload): Readonly<Skill> | null {
   if (EntityId?.indexOf("s.") == 0) {
     const skill = { ...GetSkillById(EntityId) };
     if (!skill) return null;
-    if (Mutations) AddAspectsInplace(skill, Mutations);
+    if (Mutations) AddAspects(skill, Mutations);
     return skill;
     // return EvolveSkill(skill, (Mutations.skill || 0) + 1);
   }

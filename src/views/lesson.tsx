@@ -1,11 +1,4 @@
 import React from "react";
-import {
-  Memories,
-  Memory,
-  FavMemories,
-  GetItemsByConsiderSpawnId,
-  Item,
-} from "../boh/crafting";
 import { Principle, Principles } from "../boh/principles";
 import { Save } from "../boh/save";
 import { PrincipleList } from "../components/principleList";
@@ -16,6 +9,8 @@ import {
   Recipe,
 } from "../boh/recipes";
 import { Book, FindBooksThatSpawnId } from "../boh/book";
+import { Item, GetItemsByConsiderSpawnId } from "../boh/items";
+import { Memories, Memory, FavMemories } from "../boh/memories";
 
 export function LessonView({ save }: { save: Save }) {
   const [principles, setPrinciples] = React.useState<Set<Principle>>(new Set());

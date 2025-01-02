@@ -23,29 +23,14 @@ export const Elements: ReadonlyArray<Element> = [
   "Wist",
 ];
 
-export function GetElementFromId(id: string): Element | null {
-  id = id.replace("z", "").replace("x", "");
-  switch (id) {
-    case "cho":
-      return "Chor";
-    case "ere":
-      return "Ereb";
-    case "fet":
-      return "Fet";
-    case "hea":
-      return "Health";
-    case "met":
-      return "Mettle";
-    case "pho":
-      return "Phost";
-    case "sha":
-      return "Shapt";
-    case "tri":
-      return "Trist";
-    case "wis":
-      return "Wist";
-  }
-  return null;
+export function GetSoulById(id: string): Soul | undefined {
+  id = id.replace("z", "x");
+  const soul = Souls.find((s) => s.id == id);
+  return soul ? { ...soul } : undefined;
+}
+
+export function GetElementFromId(id: string): Element {
+  return GetSoulById(id)?.element!;
 }
 
 export function GetSoulByElement(element: Element): Readonly<Soul> {
@@ -89,6 +74,7 @@ export function EvolveSoul(soul: ReadonlySoul, n = 1): ReadonlySoul {
 }
 
 export const Chor: ReadonlySoul = {
+  id: "xcho",
   element: "Chor",
   label: "Chor",
   color: "#EC69B2",
@@ -99,6 +85,7 @@ export const Chor: ReadonlySoul = {
 };
 
 export const Ereb: ReadonlySoul = {
+  id: "xere",
   element: "Ereb",
   label: "Ereb",
   color: "#7A66CC",
@@ -109,6 +96,7 @@ export const Ereb: ReadonlySoul = {
 };
 
 export const Fet: ReadonlySoul = {
+  id: "xfet",
   element: "Fet",
   label: "Fet",
   color: "#5D7ED0",
@@ -119,6 +107,7 @@ export const Fet: ReadonlySoul = {
 };
 
 export const Health: ReadonlySoul = {
+  id: "xhea",
   element: "Health",
   label: "Health",
   color: "#FF4552",
@@ -130,6 +119,7 @@ export const Health: ReadonlySoul = {
 };
 
 export const Mettle: ReadonlySoul = {
+  id: "xmet",
   element: "Mettle",
   label: "Mettle",
   color: "#F7902C",
@@ -140,6 +130,7 @@ export const Mettle: ReadonlySoul = {
 };
 
 export const Phost: ReadonlySoul = {
+  id: "xpho",
   element: "Phost",
   label: "Phost",
   color: "#FFDB47",
@@ -150,6 +141,7 @@ export const Phost: ReadonlySoul = {
 };
 
 export const Shapt: ReadonlySoul = {
+  id: " xsha",
   element: "Shapt",
   label: "Shapt",
   color: "#B7226C",
@@ -160,6 +152,7 @@ export const Shapt: ReadonlySoul = {
 };
 
 export const Trist: ReadonlySoul = {
+  id: "xtri",
   element: "Trist",
   label: "Trist",
   color: "#7BA2BD",
@@ -170,6 +163,7 @@ export const Trist: ReadonlySoul = {
 };
 
 export const Wist: ReadonlySoul = {
+  id: "xwis",
   element: "Wist",
   label: "Wist",
   color: "#A75BD3",

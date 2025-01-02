@@ -46,25 +46,43 @@ export type AspectMap = Partial<{
   [key in Aspect]: number;
 }>;
 
+export function NoPositiveAspects(a: AspectMap) {
+  return PositiveAspects(a).length <= 0;
+}
+
+export function PositiveAspects(a: AspectMap) {
+  return Object.keys(a).filter(
+    (k) => k !== "duration" && Number(a[k as Aspect]) > 0
+  ) as Aspect[];
+}
+
 export function AddAspects(a: AspectMap, b: AspectMap): AspectMap {
   const result: AspectMap = {};
-  for (const key in a) {
-    const aspect = key as Aspect;
-    result[aspect] = a[aspect];
-  }
-  for (const key in b) {
-    const aspect = key as Aspect;
-    result[aspect] = Or0(result[aspect]) + Or0(b[aspect]);
-  }
+  AddAspectsInplace(result, a);
+  AddAspectsInplace(result, b);
+  return result;
+}
+
+export function SubtractAspects(a: AspectMap, b: AspectMap): AspectMap {
+  const result: AspectMap = {};
+  AddAspectsInplace(result, a);
+  SubtractAspectsInplace(result, b);
   return result;
 }
 
 export function AddAspectsInplace(a: AspectMap, b: AspectMap) {
   for (const key in b) {
-    if (key.toLowerCase() == "id") continue;
-    if (key.toLowerCase() == "label") continue;
     const aspect = key as Aspect;
+    if (isNaN(Number(b[aspect]))) continue;
     a[aspect] = Or0(a[aspect]) + Or0(b[aspect]);
+  }
+}
+
+export function SubtractAspectsInplace(a: AspectMap, b: AspectMap) {
+  for (const key in b) {
+    const aspect = key as Aspect;
+    if (isNaN(Number(b[aspect]))) continue;
+    a[aspect] = Or0(a[aspect]) - Or0(b[aspect]);
   }
 }
 

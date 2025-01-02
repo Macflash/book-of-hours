@@ -1,5 +1,3 @@
-import React from "react";
-import { FavMemories } from "../boh/crafting";
 import {
   FindBestByPrinciple,
   PrincipleColor,
@@ -12,6 +10,7 @@ import { GetSkillByEffectiveAgainstId, Skill } from "../boh/skills";
 import { Contaminations } from "../boh/contaminations";
 import { MatchesRequiredAspects } from "../boh/aspects";
 import { GetAllWorkstations } from "../boh/workstation";
+import { FavMemories } from "../boh/memories";
 
 export function ContaminationView({ save }: { save: Save }) {
   const skillMap = new Map<string, Skill[]>(
@@ -34,7 +33,7 @@ export function ContaminationView({ save }: { save: Save }) {
           // OK so the hard part is finding a workstation that we can do this crap at?
           const possibleWorkstations = GetAllWorkstations().filter(
             (ws) =>
-              ws.hints.includes(c.curedWith) &&
+              ws.hints?.includes(c.curedWith) &&
               ws.slots.some((slot) => slot.required["readable"])
           );
           // Also has to accept a book
@@ -73,12 +72,16 @@ export function ContaminationView({ save }: { save: Save }) {
                   );
                 })}
               </div>
-              <div style={{ color: soul.color }}>
-                {soul.label}({soul[c.curedWith]})
-              </div>
-              <div title={GetCraftingHintString(memory.id)}>
-                {memory.label}({memory[c.curedWith]})
-              </div>
+              {soul ? (
+                <div style={{ color: soul.color }}>
+                  {soul.label}({soul[c.curedWith]})
+                </div>
+              ) : null}
+              {memory ? (
+                <div title={GetCraftingHintString(memory.id)}>
+                  {memory.label}({memory[c.curedWith]})
+                </div>
+              ) : null}
             </div>
           );
         })}

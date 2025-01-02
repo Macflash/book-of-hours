@@ -1,5 +1,5 @@
 import { Book, GetBookById } from "./book";
-import { GetItemById, Item } from "./crafting";
+import { Item, GetItemById } from "./items";
 import { GetSkillById, Skill } from "./skills";
 
 export interface Idable {

@@ -18,6 +18,7 @@ function GenerateSkills(): Skill[] {
       ...data.aspects,
       id: data.id,
       label: data.Label,
+      [data.id]: 1,
     });
   }
 

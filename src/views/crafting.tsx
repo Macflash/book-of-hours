@@ -1,6 +1,7 @@
 import React from "react";
 import { Save } from "../boh/save";
 import {
+  CalculateRecipeCost,
   GetRequiredRecipeInputs,
   Recipes,
   ToRecipeString,
@@ -10,9 +11,10 @@ import {
   FindMatchingSlots,
   GetSlotablesFromSave,
 } from "../boh/workstation";
-import { GetItemById } from "../boh/crafting";
 import "../boh/array";
 import { Principles } from "../boh/principles";
+import { GetItemById } from "../boh/items";
+import { FillSlotsByRequiredAspects } from "../boh/crafting";
 
 export function CraftingView({ save }: { save: Save }) {
   const [type, setType] = React.useState<
@@ -21,7 +23,8 @@ export function CraftingView({ save }: { save: Save }) {
   const [search, setSearch] = React.useState("");
   const [target, setTarget] = React.useState("");
 
-  //target && console.log(CalculateRecipeCost(GetRecipeById(target)));
+  const targetRecipe = Recipes.find((r) => r.id == target);
+  targetRecipe && console.log(CalculateRecipeCost(targetRecipe));
 
   const recipes = Recipes.filter(
     (r) =>
@@ -44,9 +47,10 @@ export function CraftingView({ save }: { save: Save }) {
   )
     .filter(
       (recipe) =>
-        recipe.id.includes(search) ||
-        recipe.label.includes(search) ||
-        recipe.result_ids[0].includes(search)
+        !search ||
+        recipe.id?.includes(search) ||
+        recipe.label?.includes(search) ||
+        recipe.result_ids[0]?.includes(search)
     )
     .map((recipe) => {
       const skill = save.skills.find((s) => s.id == recipe.skill_id);
@@ -55,48 +59,57 @@ export function CraftingView({ save }: { save: Save }) {
       return { recipe, skill };
     })
     .noNulls();
+  console.log("recipes", recipes, Recipes);
 
   const slotables = GetSlotablesFromSave(save);
 
-  const combos = recipes
-    .map(({ recipe, skill }) => {
-      const requiredInputs = GetRequiredRecipeInputs(recipe)
-        .map((id) => GetItemById(id))
-        .noNulls();
+  const combos = recipes.map(({ recipe, skill }) => {
+    const requiredInputs = GetRequiredRecipeInputs(recipe)
+      .map((id) => GetItemById(id))
+      .noNulls();
 
-      const workstations = save.workstations.filter(
+    const workstations = save.workstations
+      .filter(
         (ws) =>
           // I think consider can't craft!
           ws.id != "consider" &&
           FindMatchingSlots(ws, skill).length &&
           requiredInputs.all((input) => FindMatchingSlots(ws, input).length > 0)
-      );
-
-      const principle = Principles.find((p) => recipe[p])!;
-      const requiredPrinciple = recipe[principle]!;
-
-      const { bestWorkstation, bestSum, bestSlotMap } =
-        FindBestWorkstationByPrinciple(
-          principle,
-          workstations,
-          slotables,
-          requiredInputs
+      )
+      .map((ws) => {
+        const something = FillSlotsByRequiredAspects(
+          ws.slots,
+          recipe,
+          slotables
         );
+        return something;
+      });
 
-      return {
-        recipe,
-        skill,
-        requiredInputs,
-        workstations,
-        principle,
-        bestWorkstation,
-        bestSum,
-        requiredPrinciple,
-        bestSlotMap,
-      };
-    })
-    .filter(({ bestSum, requiredPrinciple }) => bestSum >= requiredPrinciple);
+    const principle = Principles.find((p) => recipe[p])!;
+    const requiredPrinciple = recipe[principle]!;
 
+    // const { bestWorkstation, bestSum, bestSlotMap } =
+    //   FindBestWorkstationByPrinciple(
+    //     principle,
+    //     workstations,
+    //     slotables,
+    //     requiredInputs
+    //   );
+
+    return {
+      recipe,
+      skill,
+      requiredInputs,
+      workstations,
+      principle,
+      // requiredPrinciple,
+      // bestWorkstation,
+      // bestSum,
+      // bestSlotMap,
+    };
+  });
+  // .filter((x) => x.workstations.length);
+  // .filter(({ bestSum, requiredPrinciple }) => bestSum >= requiredPrinciple);
   console.log("combos", combos);
 
   return (
