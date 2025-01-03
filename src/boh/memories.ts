@@ -7,12 +7,19 @@ export const Memories = GetItemsByAspects({ memory: 1 }) as Memory[];
 console.log("Memories", Memories);
 
 // Get a list of all the memories you either have or can get based on your save data.
-export function GetAvailableMemoriesFromSave(save: Save) {
+export function GetAvailableMemoriesFromSave(
+  save: Save,
+  renewableOnly = false
+) {
   const memories = new Set<string>();
 
   for (const item of save.items) {
+    // Assume most memories are renewable.
+    // Maybe unless they are persistent?
     if (item.memory) memories.add(item.id);
-    if (item.consider_spawn_id) memories.add(item.consider_spawn_id);
+    // Ideally we could filter out items that get DESTROYED when considered.
+    if ((!renewableOnly || !item.fatigues) && item.consider_spawn_id)
+      memories.add(item.consider_spawn_id);
   }
 
   for (const book of save.books) {

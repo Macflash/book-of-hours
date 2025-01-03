@@ -14,6 +14,7 @@ export interface Item extends AspectMap {
 
   /** What id spawns if you consider an item. */
   consider_spawn_id?: string;
+  fatigues?: string;
 }
 
 function GenerateItems() {
@@ -23,7 +24,16 @@ function GenerateItems() {
     if (data.aspects) item = { ...item, ...data.aspects };
     if (data.inherits) {
       const proto = GetPrototype(data.inherits);
-      AddAspectsInplace(item, proto);
+      if (proto.fatigues) console.log("proto fatigues!", proto);
+      AddAspectsInplace(item, proto); // AH!! only does numbers.
+      if (proto.fatigues && !item.fatigues) throw "FUCK";
+    }
+
+    // This item gets destroyed or replaced when used.
+    const fatigues = data.xtriggers?.fatiguing;
+    if (fatigues) {
+      // console.log("fatigues", fatigues);
+      item.fatigues = fatigues;
     }
 
     const spawns = data.xtriggers?.scrutiny?.[0];
@@ -42,11 +52,27 @@ function GetPrototype(id: string) {
     const nested = GetPrototype(data.inherits);
     AddAspectsInplace(proto, nested);
   }
+
+  // This item gets destroyed or replaced when used.
+  const fatigues = data.xtriggers?.fatiguing;
+  if (fatigues) {
+    // console.log("proto fatigues", fatigues);
+    proto.fatigues = fatigues;
+  }
+
   return proto;
 }
 
 export const Items = GenerateItems();
 console.log("Items", Items);
+console.log(
+  "items that fatigue",
+  Items.filter((i) => i.fatigues)
+);
+console.log(
+  "items that don't fatigue",
+  Items.filter((i) => !i.fatigues)
+);
 
 export function GetItemById(id: string, items = Items) {
   return items.find((item) => item.id == id);

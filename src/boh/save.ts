@@ -1,5 +1,5 @@
 import { WorkstationData } from "../data/workstation_data";
-import { AddAspects } from "./aspects";
+import { AddAspectsInplace } from "./aspects";
 import { Book, GetBookById } from "./book";
 import { Item, GetItemById } from "./items";
 import { Or0, PrincipleMap, Principles } from "./principles";
@@ -206,7 +206,7 @@ function ParseSkill({ EntityId, Mutations }: Payload): Readonly<Skill> | null {
   if (EntityId?.indexOf("s.") == 0) {
     const skill = { ...GetSkillById(EntityId) };
     if (!skill) return null;
-    if (Mutations) AddAspects(skill, Mutations);
+    if (Mutations) AddAspectsInplace(skill, Mutations);
     return skill;
     // return EvolveSkill(skill, (Mutations.skill || 0) + 1);
   }

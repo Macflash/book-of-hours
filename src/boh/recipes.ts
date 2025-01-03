@@ -47,8 +47,8 @@ export const Recipes = GenerateRecipes();
 // Literally only recipes with 2 outputs include "larva.hungry"!!
 // Can just filter that one out and make this a SINGLE field.
 console.log(
-  "recipes with outputs",
-  Recipes.filter((r) => r.result_ids.length > 1)
+  "instruemnts",
+  Recipes.filter((r) => r.instrument)
 );
 
 export function GetRecipeById(id: string, recipes = Recipes): Recipe {
@@ -185,8 +185,15 @@ export function CalculateRecipeCost(recipe: Recipe): RecipeCost {
   return inputCost;
 }
 
+// idk this might not be the best way.
 export function IsCraftable(id: string) {
   return GetRecipesByResult(id).some(
     (r) => CalculateRecipeCost(r).duration < Number.MAX_SAFE_INTEGER
+  );
+}
+
+export function Cost(id: string) {
+  return Math.min(
+    ...GetRecipesByResult(id).map((r) => CalculateRecipeCost(r).duration)
   );
 }

@@ -24,11 +24,22 @@ export function AssistanceView({ save }: { save: Save }) {
 
   console.log("assistants", assistants);
 
-  const assistanceMap = ForAllPrinciples((p) =>
+  const maxAssistanceMap = ForAllPrinciples((p) =>
+    FindBestWorkstationByPrinciple(
+      p,
+      assistants as any[], // AH! we aren't including their aspects.
+      GetSlotablesFromSave(save)
+    )
+  );
+
+  const renewables = GetSlotablesFromSave(save, true);
+  console.log("renewables", renewables);
+
+  const renewableAssistanceMap = ForAllPrinciples((p) =>
     FindBestWorkstationByPrinciple(
       p,
       assistants as any[],
-      GetSlotablesFromSave(save).filter((s) => s && !s.device)
+      GetSlotablesFromSave(save, true)
     )
   );
 
@@ -57,7 +68,7 @@ export function AssistanceView({ save }: { save: Save }) {
 
       {/* Assistance you can get */}
       <div>
-        {[...assistanceMap.entries()]
+        {[...renewableAssistanceMap.entries()]
           .sort((a, b) => b[1].bestSum - a[1].bestSum)
           .map(([principle, { bestWorkstation, bestSum, bestSlotMap }]) => {
             const slotables = bestSlotMap

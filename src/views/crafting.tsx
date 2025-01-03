@@ -2,6 +2,7 @@ import React from "react";
 import { Save } from "../boh/save";
 import {
   CalculateRecipeCost,
+  Cost,
   GetRequiredRecipeInputs,
   Recipes,
   ToRecipeString,
@@ -15,6 +16,7 @@ import "../boh/array";
 import { Principles } from "../boh/principles";
 import { GetItemById } from "../boh/items";
 import { FillSlotsByRequiredAspects } from "../boh/crafting";
+import { SubtractAspects } from "../boh/aspects";
 
 export function CraftingView({ save }: { save: Save }) {
   const [type, setType] = React.useState<
@@ -26,25 +28,28 @@ export function CraftingView({ save }: { save: Save }) {
   const targetRecipe = Recipes.find((r) => r.id == target);
   targetRecipe && console.log(CalculateRecipeCost(targetRecipe));
 
-  const recipes = Recipes.filter(
-    (r) =>
-      (type == "memory" &&
-        r.result_ids
-          .map((id) => GetItemById(id))
-          .some((result) => result?.memory)) ||
-      (type == "persistent" &&
-        r.result_ids
-          .map((id) => GetItemById(id))
-          .some((result) => result?.persistent)) ||
-      (type == "item" &&
-        r.result_ids
-          .map((id) => GetItemById(id))
-          .some((result) => !result?.memory)) ||
-      (type == "tool" &&
-        r.result_ids
-          .map((id) => GetItemById(id))
-          .some((result) => result?.tool))
+  const recipes = Recipes.filter((r) =>
+    save.skills.some((s) => s.id == r.skill_id)
   )
+    .filter(
+      (r) =>
+        (type == "memory" &&
+          r.result_ids
+            .map((id) => GetItemById(id))
+            .some((result) => result?.memory)) ||
+        (type == "persistent" &&
+          r.result_ids
+            .map((id) => GetItemById(id))
+            .some((result) => result?.persistent)) ||
+        (type == "item" &&
+          r.result_ids
+            .map((id) => GetItemById(id))
+            .some((result) => !result?.memory)) ||
+        (type == "tool" &&
+          r.result_ids
+            .map((id) => GetItemById(id))
+            .some((result) => result?.tool))
+    )
     .filter(
       (recipe) =>
         !search ||
@@ -59,56 +64,65 @@ export function CraftingView({ save }: { save: Save }) {
       return { recipe, skill };
     })
     .noNulls();
-  console.log("recipes", recipes, Recipes);
+  console.log("recipes", recipes);
 
-  const slotables = GetSlotablesFromSave(save);
+  // could filter this to be just renewable things.
+  const slotables = GetSlotablesFromSave(save).sort(
+    (a, b) => Cost(b.id!) - Cost(a.id!)
+  );
 
-  const combos = recipes.map(({ recipe, skill }) => {
-    const requiredInputs = GetRequiredRecipeInputs(recipe)
-      .map((id) => GetItemById(id))
-      .noNulls();
+  const combos = recipes
+    .map(({ recipe, skill }) => {
+      const requiredInputs = GetRequiredRecipeInputs(recipe)
+        .map((id) => GetItemById(id))
+        .noNulls();
 
-    const workstations = save.workstations
-      .filter(
-        (ws) =>
-          // I think consider can't craft!
-          ws.id != "consider" &&
-          FindMatchingSlots(ws, skill).length &&
-          requiredInputs.all((input) => FindMatchingSlots(ws, input).length > 0)
-      )
-      .map((ws) => {
-        const something = FillSlotsByRequiredAspects(
-          ws.slots,
-          recipe,
-          slotables
-        );
-        return something;
-      });
+      const workstations = save.workstations
+        .filter(
+          (ws) =>
+            // I think consider can't craft!
+            ws.id != "consider" &&
+            FindMatchingSlots(ws, skill).length &&
+            requiredInputs.all(
+              (input) => FindMatchingSlots(ws, input).length > 0
+            )
+        )
+        .map((ws) => {
+          // Some workstations provide some aspects, like "instrument".
+          const neededAspects = SubtractAspects(recipe, ws.aspects);
+          const something = FillSlotsByRequiredAspects(
+            ws.slots,
+            neededAspects,
+            slotables
+          );
+          return something;
+        })
+        .noNulls();
 
-    const principle = Principles.find((p) => recipe[p])!;
-    const requiredPrinciple = recipe[principle]!;
+      const principle = Principles.find((p) => recipe[p])!;
+      const requiredPrinciple = recipe[principle]!;
 
-    // const { bestWorkstation, bestSum, bestSlotMap } =
-    //   FindBestWorkstationByPrinciple(
-    //     principle,
-    //     workstations,
-    //     slotables,
-    //     requiredInputs
-    //   );
+      // const { bestWorkstation, bestSum, bestSlotMap } =
+      //   FindBestWorkstationByPrinciple(
+      //     principle,
+      //     workstations,
+      //     slotables,
+      //     requiredInputs
+      //   );
 
-    return {
-      recipe,
-      skill,
-      requiredInputs,
-      workstations,
-      principle,
-      // requiredPrinciple,
-      // bestWorkstation,
-      // bestSum,
-      // bestSlotMap,
-    };
-  });
-  // .filter((x) => x.workstations.length);
+      return {
+        recipe,
+        skill,
+        requiredInputs,
+        workstations,
+        principle,
+        // requiredPrinciple,
+        // bestWorkstation,
+        // bestSum,
+        // bestSlotMap,
+      };
+    })
+    .filter((x) => x.workstations.length);
   // .filter(({ bestSum, requiredPrinciple }) => bestSum >= requiredPrinciple);
   console.log("combos", combos);
 
@@ -132,25 +146,17 @@ export function CraftingView({ save }: { save: Save }) {
       </div>
       {/* recipes */}
       <div>
-        {combos.map(({ recipe }) => (
-          <div key={recipe.id} onClick={() => setTarget(recipe.id)}>
-            {recipe.label}: {ToRecipeString(recipe)}
+        {combos.map(({ recipe, workstations }) => (
+          <div
+            style={{ border: "1px solid grey", padding: 3, margin: 3 }}
+            key={recipe.id}
+            onClick={() => setTarget(recipe.id)}
+          >
+            {recipe.label}: {ToRecipeString(recipe)}.{" "}
+            {workstations[0].soul?.label}, {workstations[0].memory?.label}
           </div>
         ))}
       </div>
     </div>
   );
-}
-
-// How best to represent the found recipes??
-interface RecipeResult {
-  id: string;
-  label: string;
-
-  waysToMakeIt: RecipeImpl[];
-}
-
-interface RecipeImpl {
-  workstationId: string;
-  slots: {}[];
 }

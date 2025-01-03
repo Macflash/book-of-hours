@@ -3,6 +3,7 @@ import { AddAspects, AspectMap, MatchesRequiredAspects } from "./aspects";
 import { Items } from "./items";
 import { GetAvailableMemoriesFromSave } from "./memories";
 import { FindBestByPrinciple, Or0, Principle } from "./principles";
+import { IsCraftable } from "./recipes";
 import { Save } from "./save";
 import { Skills } from "./skills";
 import { Element, Souls } from "./souls";
@@ -43,15 +44,26 @@ export function GetAllWorkstations() {
   return WorkstationData as Workstation[];
 }
 
-export function GetSlotablesFromSave(save: Save): Slotable[] {
-  return [
+export function GetSlotablesFromSave(
+  save: Save,
+  renewableOnly = false
+): Slotable[] {
+  const items = [
     ...save.souls,
     ...save.skills,
-    ...save.items,
-    ...GetAvailableMemoriesFromSave(save),
+    ...save.items.filter(
+      (item) => !renewableOnly || !item.fatigues //|| IsCraftable(item.id)
+    ),
     // Maybe some other CRAFTABLES?
     // ...save.books, // Not really useful for INPUTS???
-  ].filter((s) => !!s); // Sometimes null was getting in here.
+  ].noNulls(); // Sometimes null was getting in here.
+
+  // Avoid duplicating memories you already have.
+  const memories = GetAvailableMemoriesFromSave(save, renewableOnly)
+    .noNulls()
+    .filter((mem) => !items.some((item) => item?.id == mem?.id));
+
+  return [...items, ...memories].noNulls();
 }
 
 export function GetAllSlotables(): Slotable[] {
@@ -98,7 +110,11 @@ export function FindBestWorkstationByPrinciple(
       slotables
     );
 
-    const sum = SumWorkstationSlots(principle, [...slotmap.values()]);
+    const sum = SumWorkstationSlots(principle, [
+      ...slotmap.values(),
+      workstation as any,
+      workstation.aspects as any,
+    ]);
     if (sum > bestSum) {
       bestWorkstation = workstation;
       bestSum = sum;

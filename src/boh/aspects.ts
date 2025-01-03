@@ -73,8 +73,10 @@ export function SubtractAspects(a: AspectMap, b: AspectMap): AspectMap {
 export function AddAspectsInplace(a: AspectMap, b: AspectMap) {
   for (const key in b) {
     const aspect = key as Aspect;
-    if (isNaN(Number(b[aspect]))) continue;
-    a[aspect] = Or0(a[aspect]) + Or0(b[aspect]);
+    if (isNaN(Number(b[aspect]))) {
+      // If the aspect aint a number, copy it if A doesn't have it.
+      if (!a[aspect] && key == "fatigues") a[aspect] = b[aspect];
+    } else a[aspect] = Or0(a[aspect]) + Or0(b[aspect]);
   }
 }
 
