@@ -4,6 +4,8 @@ import {
   CalculateRecipeCost,
   Cost,
   GetRequiredRecipeInputs,
+  GetWaysToMakeRecipe,
+  Recipe,
   Recipes,
   ToRecipeString,
 } from "../boh/recipes";
@@ -11,6 +13,7 @@ import {
   FindBestWorkstationByPrinciple,
   FindMatchingSlots,
   GetSlotablesFromSave,
+  MatchesSlot,
 } from "../boh/workstation";
 import "../boh/array";
 import { Principles } from "../boh/principles";
@@ -18,12 +21,72 @@ import { GetItemById } from "../boh/items";
 import { FillSlotsByRequiredAspects } from "../boh/crafting";
 import { SubtractAspects } from "../boh/aspects";
 
+const recipeMap = new Map();
+
 export function CraftingView({ save }: { save: Save }) {
   const [type, setType] = React.useState<
     "persistent" | "memory" | "item" | "tool"
   >("persistent");
   const [search, setSearch] = React.useState("");
   const [target, setTarget] = React.useState("");
+
+  const slotables = GetSlotablesFromSave(save);
+
+  let sum = 0;
+  for (const ws of save.workstations.filter((ws) => ws.type !== "bed")) {
+    let wsum = 1;
+    for (const slot of ws.slots) {
+      wsum *= slotables.filter((slotable) =>
+        MatchesSlot(slot, slotable)
+      ).length;
+    }
+    sum += wsum;
+  }
+  console.log("sum!", sum);
+
+  const testrecipes = Recipes.filter((r) => r.result == "music.thunderskin");
+  // const cheerfulRecipes = Recipes.filter((r) => r.result == "music.cheerful");
+  // const tisaneRecipes = Recipes.filter((r) => r.result == "witching.tisane");
+
+  for (const recipe of testrecipes) {
+    if (recipeMap.has(recipe)) {
+      continue;
+    }
+    console.log("getting ways to make", recipe.label);
+    const waystoMake = GetWaysToMakeRecipe(recipe, save);
+
+    console.log("checking costs!");
+    for (const [workstation, slotmaps] of waystoMake) {
+      for (const slotmap of slotmaps) {
+        //check which is cheapest? Or just shortest?
+      }
+    }
+
+    recipeMap.set(recipe, waystoMake);
+    console.log(
+      "Ways to make recipe",
+      recipe,
+      GetWaysToMakeRecipe(recipe, save)
+    );
+  }
+
+  // for (const cheerfulRecipe of cheerfulRecipes) {
+  //   console.log(
+  //     "Ways to make cheerful",
+  //     cheerfulRecipe,
+  //     GetWaysToMakeRecipe(cheerfulRecipe, save)
+  //   );
+  // }
+
+  // for (const fifeRecipe of fifeRecipes) {
+  //   console.log(
+  //     "Ways to make fife",
+  //     fifeRecipe,
+  //     GetWaysToMakeRecipe(fifeRecipe, save)
+  //   );
+  // }
+
+  return <div>Done</div>;
 
   const targetRecipe = Recipes.find((r) => r.id == target);
   targetRecipe && console.log(CalculateRecipeCost(targetRecipe));
@@ -55,9 +118,9 @@ export function CraftingView({ save }: { save: Save }) {
   console.log("recipes", recipes);
 
   // could filter this to be just renewable things.
-  const slotables = GetSlotablesFromSave(save).sort(
-    (a, b) => Cost(b.id!) - Cost(a.id!)
-  );
+  // const slotables = GetSlotablesFromSave(save).sort(
+  //   (a, b) => Cost(b.id!) - Cost(a.id!)
+  // );
 
   const combos = recipes
     .map(({ recipe, skill }) => {

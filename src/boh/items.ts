@@ -24,9 +24,9 @@ function GenerateItems() {
     if (data.aspects) item = { ...item, ...data.aspects };
     if (data.inherits) {
       const proto = GetPrototype(data.inherits);
-      if (proto.fatigues) console.log("proto fatigues!", proto);
+      // if (proto.fatigues) console.log("proto fatigues!", proto);
       AddAspectsInplace(item, proto); // AH!! only does numbers.
-      if (proto.fatigues && !item.fatigues) throw "FUCK";
+      // if (proto.fatigues && !item.fatigues) throw "FUCK";
     }
 
     // This item gets destroyed or replaced when used.

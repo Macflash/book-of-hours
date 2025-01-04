@@ -80,6 +80,23 @@ export function AddAspectsInplace(a: AspectMap, b: AspectMap) {
   }
 }
 
+export function AddASpect(aspect: Aspect, a: AspectMap, b: AspectMap): number {
+  return Or0(a[aspect]) + Or0(b[aspect]);
+}
+
+export function SubtractAspect(
+  aspect: Aspect,
+  a: AspectMap,
+  b: AspectMap
+): number {
+  return Or0(a[aspect]) - Or0(b[aspect]);
+}
+
+export function SortByAspect(aspect: Aspect) {
+  // descending order
+  return (a: AspectMap, b: AspectMap) => SubtractAspect(aspect, b, a);
+}
+
 export function SubtractAspectsInplace(a: AspectMap, b: AspectMap) {
   for (const key in b) {
     const aspect = key as Aspect;
@@ -98,7 +115,9 @@ export function MatchesRequiredAspects(
     const p = provided[aspect];
     if (!r) continue;
     if (!p) continue;
-    if (p >= r) return true;
+    if (p >= r) {
+      return true;
+    }
   }
   return false;
 }

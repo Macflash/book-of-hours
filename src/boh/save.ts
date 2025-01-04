@@ -7,13 +7,16 @@ import { GetRoomById, Room } from "./rooms";
 import { GetSkillById, Skill } from "./skills";
 import { Soul, ReadonlySoul, EvolveSoul, Chor, Ereb } from "./souls";
 import * as Souls from "./souls";
-import { Workstation } from "./workstation";
+import { GetAllWorkstations, Workstation, Workstations } from "./workstation";
 
 export interface Save {
   souls: Soul[];
   skills: Skill[];
   rooms: Room[];
+
   workstations: Workstation[];
+  beds: Workstation[];
+
   items: Item[];
   books: Book[];
 
@@ -78,6 +81,7 @@ export function EmptySave(): Save {
     skills: [],
     rooms: [],
     workstations: [],
+    beds: [],
     items: [],
     books: [],
     madeBefore: new Set(),
@@ -167,7 +171,10 @@ export function ParseSave(saveData: SaveJson) {
     }
 
     const workstation = ParseWorkstation(payload, location);
-    if (workstation) save.workstations.push(workstation);
+    if (workstation) {
+      if (workstation.type == "bed") save.beds.push(workstation);
+      else save.workstations.push(workstation);
+    }
 
     const room = ParseRoom(payload);
     if (room) save.rooms.push(room);
@@ -194,7 +201,7 @@ function ParseWorkstation(
 ): Workstation | null {
   if (!VerbId) return null;
   // "VerbId": "library.desk.reading.consider",
-  const ws = WorkstationData.find((w) => w.id === VerbId) as Workstation;
+  const ws = Workstations.find((w) => w.id === VerbId) as Workstation;
   if (!ws) return null;
 
   if (location) ws.location = location;

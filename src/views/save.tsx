@@ -1,6 +1,7 @@
 import { Save } from "../boh/save";
 
 export function SaveView({ save }: { save: Save }) {
+  console.log("Save", save);
   return (
     <div>
       Your save:

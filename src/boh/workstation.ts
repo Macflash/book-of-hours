@@ -1,5 +1,10 @@
 import { WorkstationData } from "../data/workstation_data";
-import { AddAspects, AspectMap, MatchesRequiredAspects } from "./aspects";
+import {
+  AddAspects,
+  AddAspectsInplace,
+  AspectMap,
+  MatchesRequiredAspects,
+} from "./aspects";
 import { Items } from "./items";
 import { GetAvailableMemoriesFromSave } from "./memories";
 import { FindBestByPrinciple, Or0, Principle } from "./principles";
@@ -11,6 +16,7 @@ import { Element, Souls } from "./souls";
 export interface Workstation {
   id: string;
   label: string;
+  type: "desk" | "bed" | "other";
   location?: string;
 
   aspects: AspectMap;
@@ -41,8 +47,19 @@ export interface Slotable extends AspectMap {
 }
 
 export function GetAllWorkstations() {
-  return WorkstationData as Workstation[];
+  const workstations = WorkstationData.map((ws) => ({
+    ...ws,
+    type: ws.id.includes("library.bed")
+      ? "bed"
+      : ws.id.includes("library.desk")
+      ? "desk"
+      : "other",
+  })) as Workstation[];
+
+  return workstations;
 }
+
+export const Workstations = GetAllWorkstations();
 
 export function GetSlotablesFromSave(
   save: Save,
@@ -193,7 +210,7 @@ export function FindMatchingSlots(
 
 export function SumSlotAspects(slotables: Slotable[]): AspectMap {
   const sum = {} as AspectMap;
-  for (const slotable of slotables) AddAspects(sum, slotable);
+  for (const slotable of slotables) AddAspectsInplace(sum, slotable);
   return sum;
 }
 

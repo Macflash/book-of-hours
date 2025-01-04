@@ -3,7 +3,11 @@ import {
   AddAspects,
   AspectMap,
   GetAspectsWithPrefix,
+  MatchesRequiredAspects,
+  NoPositiveAspects,
   PositiveAspects,
+  SortByAspect,
+  SubtractAspect,
   SubtractAspects,
   SubtractAspectsInplace,
 } from "./aspects";
@@ -12,7 +16,13 @@ import { GetItemsByConsiderSpawnId, GetItemById } from "./items";
 import { Principles } from "./principles";
 import { ParseLocationString, Save } from "./save";
 import { GetSkillById, Skill } from "./skills";
-import { MatchesSlot, Slot, Slotable, Workstation } from "./workstation";
+import {
+  GetSlotablesFromSave,
+  MatchesSlot,
+  Slot,
+  Slotable,
+  Workstation,
+} from "./workstation";
 
 export interface Recipe {
   id: string;
@@ -28,7 +38,7 @@ export interface Recipe {
 function GenerateRecipes(): Recipe[] {
   const recipes: Recipe[] = [];
   for (const data of RecipeData) {
-    const skill = GetAspectsWithPrefix(data.reqs, "s.")[0];
+    const skill = "s." + GetAspectsWithPrefix(data.reqs, "s.")[0];
     const result = PositiveAspects(data.effects as AspectMap)[0];
 
     const recipe: Recipe = {
@@ -197,36 +207,101 @@ export function Cost(id: string) {
   );
 }
 
+type SlotMap = Map<Slot, Slotable>;
+type WorkstationMap = Map<Workstation, SlotMap[]>;
+
 // Get EVERY relevant combo that can make the recipe.
 // Then sort them by cost and what you have available?
-export function GetWaysToMakeRecipe(recipe: Recipe, save: Save) {
+export function GetWaysToMakeRecipe(
+  recipe: Recipe,
+  save: Save
+): WorkstationMap {
+  // DERP!
   const skill = save.skills.find((s) => s.id == recipe.skill);
-  if (!skill) return [];
+  if (!skill) return new Map();
+  // console.log("has skill!", skill);
 
   const aspects = PositiveAspects(recipe.reqs);
   // I guess we don't need the principle really.
   const principle = Principles.find((p) => aspects.includes(p))!;
 
-  const results: RecipeSolution[] = [];
+  const workstationMap: WorkstationMap = new Map();
   for (const workstation of save.workstations) {
+    if (workstationMap.size > 5) return workstationMap; // That's probably enough.
+
+    // console.log("workstation", workstation);
     const remainingAspects = SubtractAspects(recipe.reqs, workstation.aspects);
     const skillSlot = workstation.slots.find((slot) =>
       MatchesSlot(slot, skill)
     );
     if (!skillSlot) continue;
+    // console.log("workstation has slot", skillSlot);
     SubtractAspectsInplace(remainingAspects, skill);
+    const slotmaps = GetWaysToFillSlots(
+      remainingAspects,
+      workstation.slots.filter((s) => s !== skillSlot),
+      GetSlotablesFromSave(save).filter((s) => s.id !== recipe.result)
+    ).map((sub) => sub.set(skillSlot, skill));
+
+    if (slotmaps.length) workstationMap.set(workstation, slotmaps);
   }
 
-  return results;
-}
-
-interface RecipeSolution {
-  workstation: Workstation;
-  slotmap: Map<Slot, Slotable>;
+  return workstationMap;
 }
 
 function GetWaysToFillSlots(
   requiredAspects: AspectMap,
   slots: Slot[],
   slotables: Slotable[]
-) {}
+): SlotMap[] {
+  if (NoPositiveAspects(requiredAspects)) {
+    // console.log("Success!");
+    return [new Map()];
+  }
+  if (!slots.length) return [];
+  const matchingSlotables = slotables.filter(
+    (slotable) =>
+      MatchesRequiredAspects(requiredAspects, slotable) &&
+      slots.some((slot) => MatchesSlot(slot, slotable))
+  );
+  // console.log("matching", matchingSlotables.length);
+  if (!matchingSlotables.length) return [];
+
+  const aspects = PositiveAspects(requiredAspects);
+
+  const results: SlotMap[] = [];
+  // so for each slot, we could try the top N best items for each aspect?
+  for (const aspect of aspects) {
+    // take the top like.. 5 or so best items for the aspect
+    const aspectSlotables = matchingSlotables
+      .filter((slotable) => slotable[aspect])
+      .sort(SortByAspect(aspect))
+      .filter((_, i) => i < 10);
+
+    for (const slotable of aspectSlotables) {
+      for (const slot of slots) {
+        // This is totally arbitrary, but seems to work.
+        // lol unless it is impossible, in which case it will try EVERY combo!!
+        // which is still STUPIDLY enormous.
+        if (results.length > 10) return results;
+        if (!MatchesSlot(slot, slotable)) continue;
+
+        const subresults = GetWaysToFillSlots(
+          SubtractAspects(requiredAspects, slotable),
+          slots.filter((s) => s !== slot),
+          slotables.filter((s) => s != slotable)
+        );
+
+        // Just merge them!
+        for (const subresult of subresults) {
+          subresult.set(slot, slotable);
+          results.push(subresult);
+        }
+
+        // console.log("subresults", subresults.length, results.length);
+      }
+    }
+  }
+
+  return results;
+}
