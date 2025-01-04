@@ -32,6 +32,7 @@ export type Aspect =
   | "fatigued"
   | "readable"
   | "blank"
+  | "skill.chandlery"
   // More stuff
   | "thing"
   | "remains"

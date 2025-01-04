@@ -17,7 +17,7 @@ export function GetAvailableMemoriesFromSave(
     // Assume most memories are renewable.
     // Maybe unless they are persistent?
     if (item.memory) memories.add(item.id);
-    // Ideally we could filter out items that get DESTROYED when considered.
+    // Filter out items that get DESTROYED when considered if we want to.
     if ((!renewableOnly || !item.fatigues) && item.consider_spawn_id)
       memories.add(item.consider_spawn_id);
   }
@@ -29,7 +29,7 @@ export function GetAvailableMemoriesFromSave(
 
   // TODO: what about crafting a memory from a skill?
 
-  return [...memories].map((id) => GetItemById(id) as Memory);
+  return [...memories].map((id) => GetItemById(id) as Memory).noNulls();
 }
 
 /** @deprecated Use save data instead */

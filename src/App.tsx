@@ -26,6 +26,12 @@ import {
   Slotable,
 } from "./boh/workstation";
 import { GetAvailableMemoriesFromSave } from "./boh/memories";
+import {
+  AddAspectsInplace,
+  Aspect,
+  AspectMap,
+  PositiveAspects,
+} from "./boh/aspects";
 
 type View =
   | "load"
@@ -37,8 +43,6 @@ type View =
   | "workstation"
   | "evolve"
   | "contamination";
-
-console.log(AspectKey(Chor));
 
 function App() {
   // const recipes = new Set(Recipes.map((r) => r.result));
@@ -86,56 +90,6 @@ function App() {
   }
 
   if (view == "save") {
-    const { souls, skills } = save;
-    const memories = GetAvailableMemoriesFromSave(save);
-
-    // kind of GENERICALLY add them into the map.
-    for (const soul of souls) {
-      for (const skill of skills) {
-        AddToMap([soul, skill]);
-
-        // for (const memory of memories) {
-        //   AddToMap([soul, skill, memory]);
-        // }
-      }
-    }
-
-    console.log("DPMap basic", DPMap.size + "", DPMap);
-
-    // Go through workstations and add more detailed stufF!
-    for (const ws of save.workstations) {
-      const workstationAsSlotable: Slotable = {
-        id: ws.id,
-        label: ws.label,
-        ...ws.aspects,
-      };
-      const { slots } = ws;
-      const soulSlot = slots.find((s) => s.id == "a")!;
-      const skillSlot = slots.find((s) => s.id == "s")!;
-      const otherSlots = slots.filter((s) => s != soulSlot && s != skillSlot);
-      // 31 perms, but actually soul and skill ALWAYS must be set.
-      // Only 7 perms with soul and skill always set!
-      const slotPerms = permutations(otherSlots);
-      for (const soul of souls.filter((s) => MatchesSlot(soulSlot, s))) {
-        for (const skill of skills.filter((s) => MatchesSlot(skillSlot, s))) {
-          AddToMap([workstationAsSlotable, soul, skill]);
-
-          for (const otherSlots of slotPerms) {
-            // OK, just fill ALL slots.
-          }
-        }
-      }
-    }
-
-    console.log("DPMap advanced", DPMap.size, DPMap);
-
-    const recipesInMap = Recipes.map((recipe) => ({
-      recipe,
-      slots: DPMap.get(AspectKey(recipe.reqs)),
-    })).filter(({ slots }) => slots?.length);
-
-    console.log("recipesInMap", recipesInMap);
-
     body = <SaveView save={save} />;
   }
 

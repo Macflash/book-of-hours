@@ -64,15 +64,15 @@ function GetPrototype(id: string) {
 }
 
 export const Items = GenerateItems();
-console.log("Items", Items);
-console.log(
-  "items that fatigue",
-  Items.filter((i) => i.fatigues)
-);
-console.log(
-  "items that don't fatigue",
-  Items.filter((i) => !i.fatigues)
-);
+// console.log("Items", Items);
+// console.log(
+//   "items that fatigue",
+//   Items.filter((i) => i.fatigues)
+// );
+// console.log(
+//   "items that don't fatigue",
+//   Items.filter((i) => !i.fatigues)
+// );
 
 export function GetItemById(id: string, items = Items) {
   return items.find((item) => item.id == id);

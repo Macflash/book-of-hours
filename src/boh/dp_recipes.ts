@@ -1,19 +1,37 @@
 // OH snaps is this a dynamic programming problem or WHAT!
 
-import { AspectMap, PositiveAspects } from "./aspects";
+import {
+  AddAspectsInplace,
+  Aspect,
+  AspectMap,
+  PositiveAspects,
+} from "./aspects";
 import { Principle, Principles } from "./principles";
+import { Recipes } from "./recipes";
 import { Souls } from "./souls";
 import { Slotable, SumSlotAspects } from "./workstation";
 
-function ignore(key: string) {
-  return (
-    key != "skill" &&
-    key != "level" &&
-    !key.startsWith("w.") &&
-    !key.startsWith("wisdom.") &&
-    !key.startsWith("a.") &&
-    !key.startsWith("boost.")
-  );
+const allRecipeSum: AspectMap = {};
+for (const recipe of Recipes) {
+  AddAspectsInplace(allRecipeSum, recipe.reqs);
+}
+
+const allRecipeAspects = new Set<Aspect>(PositiveAspects(allRecipeSum));
+console.log("All recipe aspects", allRecipeAspects);
+
+function ignore(key: Aspect) {
+  return allRecipeAspects.has(key);
+  // Legacy manual method.
+  //   return (
+  //     key != "skill" &&
+  //     key != "level" &&
+  //     // !key.startsWith("effective.") && // Would want this for some recipes though!!
+  //     !key.startsWith("w.") &&
+  //     !key.startsWith("difficulty.") &&
+  //     !key.startsWith("wisdom.") &&
+  //     !key.startsWith("a.") &&
+  //     !key.startsWith("boost.")
+  //   );
 }
 
 // Creates permu
@@ -76,15 +94,38 @@ export function PermutationKeys(a: AspectMap): string[] {
 
 export const DPMap = new Map<string, Slotable[]>();
 
+function WithoutAspect(a: AspectMap, aspect: Aspect): AspectMap {
+  const b = { ...a };
+  delete b[aspect];
+  return b;
+}
+
+function WithoutAspectPrefix(a: AspectMap, prefix: string): AspectMap {
+  const aspect = Object.keys(a).find((s) => s.startsWith(prefix)) as Aspect;
+  return WithoutAspect(a, aspect);
+}
+
 export function AddToMap(slotables: Slotable[]) {
   const aspectsum = SumSlotAspects(slotables);
-  //   const key = AspectKey(aspectsum);
-  //   if (!DPMap.has(key)) DPMap.set(key, slotables);
 
-  const principleKeys = PrincipleKeys(aspectsum);
-  for (const pkey of principleKeys) {
-    if (!DPMap.has(pkey)) DPMap.set(pkey, slotables);
+  // Separate out chandlery.
+  if (aspectsum["skill.chandlery"]) {
+    const skillsum = WithoutAspect(aspectsum, "skill.chandlery");
+    AddKeysToMap(PrincipleKeys(skillsum), slotables);
+
+    const chandsum = WithoutAspectPrefix(aspectsum, "s.");
+    AddKeysToMap(PrincipleKeys(chandsum), slotables);
+    return;
   }
+
+  // TODO: Separate out effective contamination skills.
+  // e.g. "effective." Not used in regular recipes, but useful for curing!
+  // Also LANGUAGEs for reading are needed!
+
+  AddKeysToMap(PrincipleKeys(aspectsum), slotables);
+
+  // Remove some of the other apects to make them more general?
+  AddKeysToMap(PrincipleKeys(WithoutAspect(aspectsum, "memory")), slotables);
 
   //   // This explodes in size.
   //   const keys = PermutationKeys(aspectsum);
@@ -92,4 +133,10 @@ export function AddToMap(slotables: Slotable[]) {
   //   for (const pkey of keys) {
   //     if (!DPMap.has(pkey)) DPMap.set(pkey, slotables);
   //   }
+}
+
+function AddKeysToMap(keys: string[], slotables: Slotable[]) {
+  for (const key of keys) {
+    if (!DPMap.has(key)) DPMap.set(key, slotables);
+  }
 }

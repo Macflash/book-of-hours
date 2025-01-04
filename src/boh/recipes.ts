@@ -58,10 +58,10 @@ function GenerateRecipes(): Recipe[] {
 export const Recipes = GenerateRecipes();
 // Literally only recipes with 2 outputs include "larva.hungry"!!
 // Can just filter that one out and make this a SINGLE field.
-console.log(
-  "instruemnts",
-  Recipes.filter((r) => r.reqs.instrument)
-);
+// console.log(
+//   "instruemnts",
+//   Recipes.filter((r) => r.reqs.instrument)
+// );
 
 export function GetRecipeById(id: string, recipes = Recipes): Recipe {
   const recipe = recipes.find((r) => r.id === id);
