@@ -13,7 +13,7 @@ import { GetSkillById } from "./skills";
 import { MatchesSlot, Slot, Slotable } from "./workstation";
 
 function GenerateCraftableItems() {
-  const recipes = new Set(Recipes.map((r) => r.result_ids[0]));
+  const recipes = new Set(Recipes.map((r) => r.result));
   return Items.filter((item) => recipes.has(item.id));
 }
 

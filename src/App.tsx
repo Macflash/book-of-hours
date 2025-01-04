@@ -30,7 +30,7 @@ type View =
   | "contamination";
 
 function App() {
-  const recipes = new Set(Recipes.map((r) => r.result_ids[0]));
+  const recipes = new Set(Recipes.map((r) => r.result));
   console.log("recipes", recipes);
 
   const costs = Items.map((item) => {

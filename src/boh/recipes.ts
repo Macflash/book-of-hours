@@ -1,41 +1,43 @@
 import { RecipeData } from "../data/recipe_data";
-import { AddAspects, AspectMap } from "./aspects";
+import {
+  AddAspects,
+  AspectMap,
+  GetAspectsWithPrefix,
+  PositiveAspects,
+  SubtractAspects,
+  SubtractAspectsInplace,
+} from "./aspects";
 import { FindBooksThatSpawnId } from "./book";
 import { GetItemsByConsiderSpawnId, GetItemById } from "./items";
 import { Principles } from "./principles";
 import { ParseLocationString, Save } from "./save";
 import { GetSkillById, Skill } from "./skills";
+import { MatchesSlot, Slot, Slotable, Workstation } from "./workstation";
 
-export interface Recipe extends AspectMap {
+export interface Recipe {
   id: string;
   label: string;
   duration: number;
 
-  /** Skill required to make the recipe */
-  skill_id: string;
+  skill: string;
+  result: string;
 
-  /** Ids of the result of the recipe */
-  result_ids: string[];
+  reqs: AspectMap;
 }
 
 function GenerateRecipes(): Recipe[] {
   const recipes: Recipe[] = [];
   for (const data of RecipeData) {
-    let skill_id = "";
-    for (const key of Object.keys(data.reqs)) {
-      if (key.startsWith("s.")) skill_id = key;
-    }
+    const skill = GetAspectsWithPrefix(data.reqs, "s.")[0];
+    const result = PositiveAspects(data.effects as AspectMap)[0];
 
     const recipe: Recipe = {
-      ...data.reqs,
+      ...data,
       id: data.id,
       label: data.Label!,
-      skill_id,
       duration: data.warmup,
-      result_ids: Object.keys(data.effects).filter(
-        // I hate TS sometimes.
-        (k) => Number((data.effects as any)[k as any]) > 0
-      ),
+      skill,
+      result,
     };
 
     recipes.push(recipe);
@@ -48,7 +50,7 @@ export const Recipes = GenerateRecipes();
 // Can just filter that one out and make this a SINGLE field.
 console.log(
   "instruemnts",
-  Recipes.filter((r) => r.instrument)
+  Recipes.filter((r) => r.reqs.instrument)
 );
 
 export function GetRecipeById(id: string, recipes = Recipes): Recipe {
@@ -57,31 +59,28 @@ export function GetRecipeById(id: string, recipes = Recipes): Recipe {
   return recipe;
 }
 
-export function GetRecipesBySkill(
-  skill_id: string,
-  recipes = Recipes
-): Recipe[] {
-  return recipes.filter((r) => r.skill_id === skill_id);
+export function GetRecipesBySkill(skill: string, recipes = Recipes): Recipe[] {
+  return recipes.filter((r) => r.skill === skill);
 }
 
 export function GetRecipesByResult(
-  result_id: string,
+  result: string,
   recipes = Recipes
 ): Recipe[] {
-  return recipes.filter((r) => r.result_ids.includes(result_id));
+  return recipes.filter((r) => r.result == result);
 }
 
 export function FilterRecipesBySkills(skills: Skill[], recipes = Recipes) {
   return recipes.filter((recipe) => {
-    skills.some((skill) => skill.id == recipe.skill_id);
+    skills.some((skill) => skill.id == recipe.skill);
   });
 }
 
 export function ToRecipeString(recipe: Recipe): string {
-  return `${GetSkillById(recipe.skill_id).label}: ${Principles.filter(
-    (p) => recipe[p]
+  return `${GetSkillById(recipe.skill).label}: ${Principles.filter(
+    (p) => recipe.reqs[p]
   )
-    .map((p) => `${p} ${recipe[p]}`)
+    .map((p) => `${p} ${recipe.reqs[p]}`)
     .join(", ")}`;
 }
 
@@ -158,12 +157,12 @@ export function CalculateRecipeCost(recipe: Recipe): RecipeCost {
   if (existingCost) return { ...existingCost };
 
   // console.log("Checking cost for " + recipe.id, recipe.duration);
+  let inputCost: RecipeCost = { ...recipe.reqs, duration: recipe.duration };
   const requiredInputs = GetRequiredRecipeInputs(recipe);
-  if (!requiredInputs.length) return { ...recipe };
+  if (!requiredInputs.length) return inputCost;
 
   // console.log(recipe.id + " requires", requiredInputs);
 
-  let inputCost: RecipeCost = { ...recipe };
   for (const input of requiredInputs) {
     const inputRecipes = GetRecipesByResult(input);
     let minRecipeCost: RecipeCost = { duration: Number.MAX_SAFE_INTEGER };
@@ -197,3 +196,37 @@ export function Cost(id: string) {
     ...GetRecipesByResult(id).map((r) => CalculateRecipeCost(r).duration)
   );
 }
+
+// Get EVERY relevant combo that can make the recipe.
+// Then sort them by cost and what you have available?
+export function GetWaysToMakeRecipe(recipe: Recipe, save: Save) {
+  const skill = save.skills.find((s) => s.id == recipe.skill);
+  if (!skill) return [];
+
+  const aspects = PositiveAspects(recipe.reqs);
+  // I guess we don't need the principle really.
+  const principle = Principles.find((p) => aspects.includes(p))!;
+
+  const results: RecipeSolution[] = [];
+  for (const workstation of save.workstations) {
+    const remainingAspects = SubtractAspects(recipe.reqs, workstation.aspects);
+    const skillSlot = workstation.slots.find((slot) =>
+      MatchesSlot(slot, skill)
+    );
+    if (!skillSlot) continue;
+    SubtractAspectsInplace(remainingAspects, skill);
+  }
+
+  return results;
+}
+
+interface RecipeSolution {
+  workstation: Workstation;
+  slotmap: Map<Slot, Slotable>;
+}
+
+function GetWaysToFillSlots(
+  requiredAspects: AspectMap,
+  slots: Slot[],
+  slotables: Slotable[]
+) {}

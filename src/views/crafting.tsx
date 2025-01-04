@@ -29,36 +29,24 @@ export function CraftingView({ save }: { save: Save }) {
   targetRecipe && console.log(CalculateRecipeCost(targetRecipe));
 
   const recipes = Recipes.filter((r) =>
-    save.skills.some((s) => s.id == r.skill_id)
+    save.skills.some((s) => s.id == r.skill)
   )
     .filter(
       (r) =>
-        (type == "memory" &&
-          r.result_ids
-            .map((id) => GetItemById(id))
-            .some((result) => result?.memory)) ||
-        (type == "persistent" &&
-          r.result_ids
-            .map((id) => GetItemById(id))
-            .some((result) => result?.persistent)) ||
-        (type == "item" &&
-          r.result_ids
-            .map((id) => GetItemById(id))
-            .some((result) => !result?.memory)) ||
-        (type == "tool" &&
-          r.result_ids
-            .map((id) => GetItemById(id))
-            .some((result) => result?.tool))
+        (type == "memory" && GetItemById(r.result)?.memory) ||
+        (type == "persistent" && GetItemById(r.result)?.persistent) ||
+        (type == "item" && GetItemById(r.result)?.memory) ||
+        (type == "tool" && GetItemById(r.result)?.tool)
     )
     .filter(
       (recipe) =>
         !search ||
         recipe.id?.includes(search) ||
         recipe.label?.includes(search) ||
-        recipe.result_ids[0]?.includes(search)
+        recipe.result?.includes(search)
     )
     .map((recipe) => {
-      const skill = save.skills.find((s) => s.id == recipe.skill_id);
+      const skill = save.skills.find((s) => s.id == recipe.skill);
       if (!skill) return null;
 
       return { recipe, skill };
@@ -89,7 +77,7 @@ export function CraftingView({ save }: { save: Save }) {
         )
         .map((ws) => {
           // Some workstations provide some aspects, like "instrument".
-          const neededAspects = SubtractAspects(recipe, ws.aspects);
+          const neededAspects = SubtractAspects(recipe.reqs, ws.aspects);
           const something = FillSlotsByRequiredAspects(
             ws.slots,
             neededAspects,
@@ -99,8 +87,8 @@ export function CraftingView({ save }: { save: Save }) {
         })
         .noNulls();
 
-      const principle = Principles.find((p) => recipe[p])!;
-      const requiredPrinciple = recipe[principle]!;
+      const principle = Principles.find((p) => recipe.reqs[p])!;
+      const requiredPrinciple = recipe.reqs[principle]!;
 
       // const { bestWorkstation, bestSum, bestSlotMap } =
       //   FindBestWorkstationByPrinciple(
