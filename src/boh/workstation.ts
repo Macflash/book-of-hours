@@ -2,6 +2,7 @@ import { WorkstationData } from "../data/workstation_data";
 import {
   AddAspects,
   AddAspectsInplace,
+  AddPrinciplesInplace,
   AspectMap,
   MatchesRequiredAspects,
 } from "./aspects";
@@ -210,7 +211,10 @@ export function FindMatchingSlots(
 
 export function SumSlotAspects(slotables: Slotable[]): AspectMap {
   const sum = {} as AspectMap;
-  for (const slotable of slotables) AddAspectsInplace(sum, slotable);
+  for (const slotable of slotables) {
+    // SUM principles, take MAX of aspects.
+    AddPrinciplesInplace(sum, slotable);
+  }
   return sum;
 }
 
@@ -221,4 +225,21 @@ export function SumWorkstationSlots(
   let sum = 0;
   for (const slotable of slotables) sum += Or0(slotable?.[principle]);
   return sum;
+}
+
+export function GetWorkstationSlots(workstation: Workstation) {
+  const { slots } = workstation;
+  const soul = slots.find((s) => s.id == "a")!;
+  const skill = slots.find((s) => s.id == "s")!;
+  const memory = slots.find((s) => s.id == "m")!;
+  const others = slots.filter((s) => s != soul && s != skill && s != memory);
+  return { soul, skill, memory, others };
+}
+
+export function WorkstationAsSlotable(ws: Workstation): Slotable {
+  return {
+    id: ws.id,
+    label: ws.label,
+    ...ws.aspects,
+  };
 }

@@ -29,7 +29,10 @@ export function GetAvailableMemoriesFromSave(
 
   // TODO: what about crafting a memory from a skill?
 
-  return [...memories].map((id) => GetItemById(id) as Memory).noNulls();
+  return [...memories]
+    .unique()
+    .map((id) => GetItemById(id) as Memory)
+    .noNulls();
 }
 
 /** @deprecated Use save data instead */

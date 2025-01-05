@@ -1,4 +1,4 @@
-import { Or0, Principle } from "./principles";
+import { Or0, Principle, Principles } from "./principles";
 
 export type Aspect =
   | Principle
@@ -28,6 +28,9 @@ export type Aspect =
   | "skill"
   | "tool"
   | "record.phonograph"
+  | "comfort"
+  | "wallart"
+  | "fixed"
   | "film"
   | "fatigued"
   | "readable"
@@ -81,7 +84,23 @@ export function AddAspectsInplace(a: AspectMap, b: AspectMap) {
   }
 }
 
-export function AddASpect(aspect: Aspect, a: AspectMap, b: AspectMap): number {
+export function AddPrinciplesInplace(a: AspectMap, b: AspectMap) {
+  for (const key in b) {
+    const aspect = key as Aspect;
+    if (isNaN(Number(b[aspect]))) {
+      // If the aspect aint a number, copy it if A doesn't have it.
+      if (!a[aspect] && key == "fatigues") a[aspect] = b[aspect];
+    } else {
+      if (Principles.includes(aspect as Principle)) {
+        a[aspect] = Or0(a[aspect]) + Or0(b[aspect]);
+      } else {
+        a[aspect] = Math.max(Or0(a[aspect]), Or0(b[aspect]));
+      }
+    }
+  }
+}
+
+export function AddAspect(aspect: Aspect, a: AspectMap, b: AspectMap): number {
   return Or0(a[aspect]) + Or0(b[aspect]);
 }
 

@@ -5,11 +5,23 @@ import {
   Aspect,
   AspectMap,
   PositiveAspects,
+  SortByAspect,
 } from "./aspects";
-import { Principle, Principles } from "./principles";
+import { Item } from "./items";
+import { GetAvailableMemoriesFromSave } from "./memories";
+import { Principle, Principles, SumPrinciples } from "./principles";
 import { Recipes } from "./recipes";
+import { Save } from "./save";
 import { Souls } from "./souls";
-import { Slotable, SumSlotAspects } from "./workstation";
+import {
+  FindMatchingSlots,
+  GetSlotablesFromSave,
+  GetWorkstationSlots,
+  MatchesSlot,
+  Slotable,
+  SumSlotAspects,
+  WorkstationAsSlotable,
+} from "./workstation";
 
 const allRecipeSum: AspectMap = {};
 for (const recipe of Recipes) {
@@ -63,8 +75,9 @@ export function AspectKey(a: AspectMap): string {
 }
 
 export function PrincipleKeys(a: AspectMap): string[] {
+  // I think we only want 1!!! aspect at a time. E.G. try to make it resemble the recipes that it COULD fufill.
+  // Recipe would only have wood:1, NEVER wood:2 or wood: 1, tool: 1
   const principles = Principles.filter((p) => a[p] && a[p] > 0);
-
   const aspects = PositiveAspects(a)
     .filter(ignore)
     .map((key) => ({ key, val: a[key]! }));
@@ -76,6 +89,28 @@ export function PrincipleKeys(a: AspectMap): string[] {
       .map(({ key, val }) => key + ":" + val)
       .join()
   );
+}
+
+// Ideally we would also fill in LOWER values in the map. e.g. Moth:6 is still valid for Moth:5, or 4, etc.
+export function PrincipleKeysAndBelow(a: AspectMap): string[] {
+  const keys: string[] = [];
+  const principles = Principles.filter((p) => a[p] && a[p] > 0);
+  const aspects = PositiveAspects(a)
+    .filter(ignore)
+    .filter((a) => !Principles.includes(a as Principle))
+    .map((key) => ({ key, val: a[key]! }));
+
+  for (const principle of principles) {
+    for (let pval = a[principle]!; pval > 0; pval--) {
+      keys.push(
+        [{ key: principle, val: pval }, ...aspects]
+          .sort((a, b) => b.val - a.val)
+          .map(({ key, val }) => key + ":" + val)
+          .join()
+      );
+    }
+  }
+  return keys;
 }
 
 export function PermutationKeys(a: AspectMap): string[] {
@@ -110,22 +145,27 @@ export function AddToMap(slotables: Slotable[]) {
 
   // Separate out chandlery.
   if (aspectsum["skill.chandlery"]) {
-    const skillsum = WithoutAspect(aspectsum, "skill.chandlery");
-    AddKeysToMap(PrincipleKeys(skillsum), slotables);
+    // TODO!
+    delete aspectsum["skill.chandlery"];
+    // const skillsum = WithoutAspect(aspectsum, "skill.chandlery");
+    // AddKeysToMap(PrincipleKeys(skillsum), slotables);
 
-    const chandsum = WithoutAspectPrefix(aspectsum, "s.");
-    AddKeysToMap(PrincipleKeys(chandsum), slotables);
-    return;
+    // const chandsum = WithoutAspectPrefix(aspectsum, "s.");
+    // AddKeysToMap(PrincipleKeys(chandsum), slotables);
+    // return;
   }
 
   // TODO: Separate out effective contamination skills.
   // e.g. "effective." Not used in regular recipes, but useful for curing!
   // Also LANGUAGEs for reading are needed!
 
-  AddKeysToMap(PrincipleKeys(aspectsum), slotables);
+  AddKeysToMap(PrincipleKeysAndBelow(aspectsum), slotables);
 
   // Remove some of the other apects to make them more general?
-  AddKeysToMap(PrincipleKeys(WithoutAspect(aspectsum, "memory")), slotables);
+  AddKeysToMap(
+    PrincipleKeysAndBelow(WithoutAspect(aspectsum, "memory")),
+    slotables
+  );
 
   //   // This explodes in size.
   //   const keys = PermutationKeys(aspectsum);
@@ -139,4 +179,268 @@ function AddKeysToMap(keys: string[], slotables: Slotable[]) {
   for (const key of keys) {
     if (!DPMap.has(key)) DPMap.set(key, slotables);
   }
+}
+
+// exhaustively. And I mean EXhausting!
+let maxDepth = 0;
+export function PopulateDPMapFromSave(save: Save, depth = 2) {
+  // Don't recalc!
+  if (depth <= maxDepth) return;
+  maxDepth = depth;
+  console.log("populating", depth);
+  const { souls, skills } = save;
+  const memories = GetAvailableMemoriesFromSave(save, true);
+  const slotables = GetSlotablesFromSave(save, true); // This might not be right.
+
+  // Go through workstations and add more detailed stufF!
+  for (const ws of save.workstations) {
+    const workstationAsSlotable = WorkstationAsSlotable(ws);
+    const { slots } = ws;
+    const soulSlot = slots.find((s) => s.id == "a")!;
+    const skillSlot = slots.find((s) => s.id == "s")!;
+    const memorySlot = slots.find((s) => s.id == "m")!;
+    const otherSlots = slots.filter(
+      (s) => s != soulSlot && s != skillSlot && s != memorySlot
+    );
+    // 31 perms, but actually soul and skill ALWAYS must be set.
+    // Only 7 perms with soul and skill always set!
+    for (const soul of souls.filter((s) => MatchesSlot(soulSlot, s))) {
+      for (const skill of skills.filter((s) => MatchesSlot(skillSlot, s))) {
+        AddToMap([workstationAsSlotable, soul, skill]);
+
+        if (depth < 3) continue;
+        for (const memory of memories.filter((m) =>
+          MatchesSlot(memorySlot, m)
+        )) {
+          AddToMap([workstationAsSlotable, soul, skill, memory]);
+
+          if (depth < 4) continue;
+          for (const otherSlot of otherSlots) {
+            const matchingSlotables = slotables.filter((slotable) =>
+              MatchesSlot(otherSlot, slotable)
+            );
+            for (const slotable1 of matchingSlotables) {
+              if (
+                slotable1 == memory ||
+                slotable1 == skill ||
+                slotable1 == soul
+              )
+                continue;
+              AddToMap([workstationAsSlotable, soul, skill, memory, slotable1]);
+
+              if (depth < 5) continue;
+              // DEPTH 5 just is WAY too slow!!
+              // TODO: final slot kinda?
+              for (const lastSlot of otherSlots) {
+                if (otherSlot == lastSlot) continue;
+                if (otherSlot == otherSlots[1]) continue;
+                const matchingSlotables2 = slotables.filter((slotable) =>
+                  MatchesSlot(lastSlot, slotable)
+                );
+                for (const slotable2 of matchingSlotables2) {
+                  if (
+                    slotable2 == slotable1 ||
+                    slotable2 == memory ||
+                    slotable2 == skill ||
+                    slotable2 == soul
+                  )
+                    continue;
+                  AddToMap([
+                    workstationAsSlotable,
+                    soul,
+                    skill,
+                    memory,
+                    slotable1,
+                    slotable2,
+                  ]);
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+
+  console.log("Populated", depth, DPMap);
+  return DPMap;
+}
+
+let lastSave: Save;
+export function PopulateDpMapByRecipes(save: Save) {
+  if (save == lastSave) return;
+  lastSave = save;
+  console.log("Populating...");
+
+  // tools and comforts for now.
+  const tools = UniqueByAspects(save.items.filter((i) => i.tool));
+  const comforts = UniqueByAspects(save.items.filter((i) => i.comfort));
+  const wallart = UniqueByAspects(save.items.filter((i) => i.wallart));
+  // Let's ignore these for now!
+  // const others = save.items.filter(
+  //   (i) => !i.fatigues && !i.tool && !i.comfort && !i.wallart && !i.fixed
+  // );
+  console.log("tools", tools);
+  console.log("comforts", comforts);
+  console.log("wallart", wallart);
+  // console.log("others", others);
+
+  const items = [...tools, ...comforts, ...wallart];
+  console.log("items", items, save.items.length);
+
+  // Again... this doesn't include CRAFTABLE memories. e.g. cheerful ditty, etc.
+  // Ideally we do all prentice recipes and include successful outputs as inputs for later crafting?
+  const memories = GetAvailableMemoriesFromSave(save, true);
+  console.log("memories", memories);
+
+  // Used for the last slots in the workstations, which could take a lot of things.
+  const allSlotables: Slotable[] = [...items, ...memories, ...save.souls];
+
+  // OK! for each recipe, we want to only care about the aspects it needs.
+  const recipesToTry = Recipes.filter((recipe) =>
+    save.skills.find((s) => s.id == recipe.skill)
+  ).map((recipe) => {
+    const skill = save.skills.find((s) => s.id == recipe.skill)!;
+    const principle = Principles.find((p) => recipe.reqs[p])!;
+    const otherReqs = PositiveAspects(recipe.reqs).filter(
+      (aspect) =>
+        !aspect.startsWith("s.") && aspect != "ability" && aspect != principle
+    );
+    if (otherReqs.length > 1) throw `2 reqs! ${otherReqs.join()}`;
+    return {
+      recipe,
+      skill,
+      principle,
+      principleAmount: recipe.reqs[principle]!,
+      otherReq: otherReqs[0],
+    };
+  });
+  console.log("recipesToTry", recipesToTry, Recipes.length);
+
+  // Prentice don't require other aspects.
+  const prentice = recipesToTry.filter((r) => r.principleAmount == 5);
+  // All scholar and keeper recipes require other aspects.
+  const scholar = recipesToTry.filter((r) => r.principleAmount == 10);
+  const keeper = recipesToTry.filter((r) => r.principleAmount == 15);
+  console.log("prentice", prentice);
+  console.log("scholar", scholar);
+  console.log("keeper", keeper);
+
+  const recipeResults = scholar
+    .map(({ recipe, skill, principle, otherReq, principleAmount }) => {
+      function meetsReqs(used: Slotable[]) {
+        const sum = SumSlotAspects(used);
+        if (otherReq && !sum[otherReq]) return false;
+        return sum[principle]! >= principleAmount;
+      }
+
+      console.log(recipe.id);
+      if (otherReq) console.log("othereq", otherReq);
+      const workstations = save.workstations.filter((ws) =>
+        FindMatchingSlots(ws, skill)
+      );
+      if (!workstations.length) return null;
+      console.log("workstations", workstations);
+
+      // Basically just use the FIRST one you can from the souls.
+      const orderedSouls = save.souls.sort(SortByAspect(principle));
+
+      // Restrict to memories and items that match the principle OR another aspect.
+      const orderedMemories = memories
+        .filter((m) => m[principle] || m[otherReq])
+        .filter((m) => m.id != recipe.result)
+        .sort(SortByAspect(principle));
+      const orderedItems = items
+        .filter((i) => i[principle] || i[otherReq])
+        .filter((i) => i.id != recipe.result)
+        .sort(SortByAspect(principle));
+      console.log("ordered", orderedMemories, orderedItems);
+
+      // AIGHT lets do the loop again.
+      // HMM this does depth first, we might want BREADTH first TBH.
+      // if we do more map based stuff we can go step by step for ALL workstations and prune as we go.
+      for (const workstation of workstations) {
+        const wsSlot = WorkstationAsSlotable(workstation);
+        const slots = GetWorkstationSlots(workstation);
+        const bestSoul = orderedSouls.find((soul) =>
+          MatchesSlot(slots.soul, soul)
+        );
+        if (!bestSoul) continue;
+
+        const usedInSlots: Slotable[] = [wsSlot, skill, bestSoul];
+        AddToMap(usedInSlots);
+        if (meetsReqs(usedInSlots)) return { recipe, usedInSlots };
+
+        const bestMemory = orderedMemories.find((m) =>
+          MatchesSlot(slots.memory, m)
+        );
+        if (bestMemory) {
+          usedInSlots.push(bestMemory);
+          AddToMap(usedInSlots);
+          if (meetsReqs(usedInSlots)) return { recipe, usedInSlots };
+        }
+
+        // still got 2 slots left!
+        const otherReqFufilled =
+          !otherReq || SumSlotAspects(usedInSlots)[otherReq];
+        for (const otherSlot of slots.others) {
+          const fitsInslot = allSlotables
+            .filter((s) => MatchesSlot(otherSlot, s) && s.id != recipe.result)
+            .notIn(usedInSlots);
+          // try to match the otherreq if needed
+          const matchesOtherReq = fitsInslot
+            .filter((s) => otherReqFufilled || s[otherReq])
+            .sort(SortByAspect(principle));
+          if (!matchesOtherReq.length) continue;
+          // console.log("matchesOtherReq", matchesOtherReq);
+          // bro why try them all? just use the best one and move on.
+          // for (const match of matchesOtherReq) {
+          //   const usedInSlots1 = [...usedInSlots, match];
+          //   if (meetsReqs(usedInSlots1))
+          //     return { recipe, usedInSlots: usedInSlots1 };
+          // }
+
+          const bestMatch = matchesOtherReq[0]!;
+          const usedInSlots1 = [...usedInSlots, bestMatch];
+          if (meetsReqs(usedInSlots1))
+            return { recipe, usedInSlots: usedInSlots1 };
+
+          const lastSlot = slots.others.find((s) => s != otherSlot)!;
+          console.log("last slot!", lastSlot);
+          const fitsInLastSlot = allSlotables
+            .filter((s) => MatchesSlot(lastSlot, s) && s.id != recipe.result)
+            .notIn(usedInSlots1)
+            .sort(SortByAspect(principle));
+          if (fitsInLastSlot.length) {
+            // console.log("fitsInLastSlot", fitsInLastSlot);
+            const usedInSlots2 = [...usedInSlots1, fitsInLastSlot[0]];
+            if (meetsReqs(usedInSlots2))
+              return { recipe, usedInSlots: usedInSlots2 };
+          }
+        }
+      }
+    })
+    .noNulls()
+    .sort((a, b) => a.usedInSlots.length - b.usedInSlots.length);
+
+  console.log("recipe results", recipeResults, recipesToTry.length);
+  console.log("DPMap", DPMap);
+
+  const recipesInMap = Recipes.map((recipe) => ({
+    recipe,
+    slots: DPMap.get(AspectKey(recipe.reqs)),
+  })).filter(({ slots }) => slots?.length);
+
+  const recipesYouCanMake = recipesInMap.map((x) => x.recipe.result).unique();
+  console.log("recipesInMap", recipesYouCanMake, recipesInMap);
+}
+
+function UniqueByAspects<T extends AspectMap>(items: T[]): T[] {
+  const itemAspectMap = new Map<string, T>();
+  for (const item of items) {
+    const keys = PrincipleKeys(item);
+    for (const key of keys)
+      if (!itemAspectMap.has(key)) itemAspectMap.set(key, item);
+  }
+  return [...itemAspectMap.values()].unique();
 }

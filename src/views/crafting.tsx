@@ -2,15 +2,12 @@ import React from "react";
 import { Save } from "../boh/save";
 import {
   CalculateRecipeCost,
-  Cost,
   GetRequiredRecipeInputs,
   GetWaysToMakeRecipe,
-  Recipe,
   Recipes,
   ToRecipeString,
 } from "../boh/recipes";
 import {
-  FindBestWorkstationByPrinciple,
   FindMatchingSlots,
   GetSlotablesFromSave,
   MatchesSlot,
@@ -21,100 +18,45 @@ import { Principles } from "../boh/principles";
 import { GetItemById } from "../boh/items";
 import { FillSlotsByRequiredAspects } from "../boh/crafting";
 import { SubtractAspects } from "../boh/aspects";
-import { permutations, AddToMap, DPMap, AspectKey } from "../boh/dp_recipes";
+import {
+  AddToMap,
+  DPMap,
+  AspectKey,
+  PopulateDPMapFromSave,
+  PopulateDpMapByRecipes,
+} from "../boh/dp_recipes";
 import { GetAvailableMemoriesFromSave } from "../boh/memories";
 
 const recipeMap = new Map();
-
 export function CraftingView({ save }: { save: Save }) {
-  const { souls, skills } = save;
+  const items = save.items.filter((i) => !i.memory && !i.fatigues);
   const memories = GetAvailableMemoriesFromSave(save, true);
-  const slotables = GetSlotablesFromSave(save, true); // This might not be right.
+  const otherStuff = [...items, ...memories];
 
-  // Go through workstations and add more detailed stufF!
-  for (const ws of save.workstations) {
-    const workstationAsSlotable: Slotable = {
-      id: ws.id,
-      label: ws.label,
-      ...ws.aspects,
-    };
-    const { slots } = ws;
-    const soulSlot = slots.find((s) => s.id == "a")!;
-    const skillSlot = slots.find((s) => s.id == "s")!;
-    const memorySlot = slots.find((s) => s.id == "m")!;
-    const otherSlots = slots.filter(
-      (s) => s != soulSlot && s != skillSlot && s != memorySlot
-    );
-    // 31 perms, but actually soul and skill ALWAYS must be set.
-    // Only 7 perms with soul and skill always set!
-    for (const soul of souls.filter((s) => MatchesSlot(soulSlot, s))) {
-      for (const skill of skills.filter((s) => MatchesSlot(skillSlot, s))) {
-        AddToMap([workstationAsSlotable, soul, skill]);
-        for (const memory of memories.filter((m) =>
-          MatchesSlot(memorySlot, m)
-        )) {
-          AddToMap([workstationAsSlotable, soul, skill, memory]);
+  PopulateDpMapByRecipes(save);
 
-          for (const otherSlot of otherSlots) {
-            const matchingSlotables = slotables.filter((slotable) =>
-              MatchesSlot(otherSlot, slotable)
-            );
-            for (const slotable1 of matchingSlotables) {
-              if (
-                slotable1 == memory ||
-                slotable1 == skill ||
-                slotable1 == soul
-              )
-                continue;
-              AddToMap([workstationAsSlotable, soul, skill, memory, slotable1]);
+  return <div>huh</div>;
 
-              // TODO: final slot kinda?
-              for (const lastSlot of otherSlots) {
-                if (otherSlot == lastSlot) continue;
-                if (otherSlot == otherSlots[1]) continue;
-                const matchingSlotables2 = slotables.filter((slotable) =>
-                  MatchesSlot(lastSlot, slotable)
-                );
-                for (const slotable2 of matchingSlotables2) {
-                  if (
-                    slotable2 == slotable1 ||
-                    slotable2 == memory ||
-                    slotable2 == skill ||
-                    slotable2 == soul
-                  )
-                    continue;
-                  AddToMap([
-                    workstationAsSlotable,
-                    soul,
-                    skill,
-                    memory,
-                    slotable1,
-                    slotable2,
-                  ]);
-                }
-              }
-            }
-          }
-        }
-      }
-    }
-  }
-
-  console.log("DPMap advanced", DPMap.size, DPMap);
+  // const [depth, setMaxDepth] = React.useState(4);
+  // React.useEffect(() => {
+  //   if (depth > 5) return;
+  //   PopulateDPMapFromSave(save, depth);
+  //   // setMaxDepth(depth + 1);
+  // }, [save]);
 
   const recipesInMap = Recipes.map((recipe) => ({
     recipe,
     slots: DPMap.get(AspectKey(recipe.reqs)),
   })).filter(({ slots }) => slots?.length);
 
-  console.log("recipesInMap", recipesInMap);
-
   const recipesYouCanMake = new Set(recipesInMap.map((x) => x.recipe.result));
+  console.log("recipesInMap", recipesYouCanMake, recipesInMap);
 
   return (
     <div>
+      <div>Depth {depth}</div>
       {[...recipesYouCanMake].map((r) => (
-        <div>{r}</div>
+        <div key={r}>{r}</div>
       ))}
     </div>
   );
@@ -146,9 +88,8 @@ export function CraftingViewOLD({ save }: { save: Save }) {
   // const tisaneRecipes = Recipes.filter((r) => r.result == "witching.tisane");
 
   for (const recipe of testrecipes) {
-    if (recipeMap.has(recipe)) {
-      continue;
-    }
+    if (recipeMap.has(recipe)) continue;
+
     console.log("getting ways to make", recipe.label);
     const waystoMake = GetWaysToMakeRecipe(recipe, save);
 

@@ -4,6 +4,8 @@ declare global {
   interface Array<T> {
     noNulls(): Array<Exclude<T, null | undefined>>;
     all(callback: (x: T) => boolean): boolean;
+    unique(): Array<T>;
+    notIn(other: T[]): Array<T>;
   }
 }
 
@@ -19,5 +21,22 @@ if (!Array.prototype.all) {
     callback: (t: T) => boolean
   ): boolean {
     return !this.some((t) => !callback(t));
+  };
+}
+
+if (!Array.prototype.unique) {
+  Array.prototype.unique = function <T>(this: T[]): T[] {
+    const set = new Set();
+    return this.filter((x) => {
+      if (set.has(x)) return false;
+      set.add(x);
+      return true;
+    });
+  };
+}
+
+if (!Array.prototype.notIn) {
+  Array.prototype.notIn = function <T>(this: T[], other: T[]): T[] {
+    return this.filter((t) => !other.includes(t));
   };
 }
