@@ -18,6 +18,7 @@ import {
   GetSlotablesFromSave,
   GetWorkstationSlots,
   MatchesSlot,
+  Slot,
   Slotable,
   SumSlotAspects,
   WorkstationAsSlotable,
@@ -326,7 +327,7 @@ export function PopulateDpMapByRecipes(save: Save) {
   console.log("scholar", scholar);
   console.log("keeper", keeper);
 
-  const recipeResults = scholar
+  const recipeResults = recipesToTry
     .map(({ recipe, skill, principle, otherReq, principleAmount }) => {
       function meetsReqs(used: Slotable[]) {
         const sum = SumSlotAspects(used);
@@ -344,87 +345,147 @@ export function PopulateDpMapByRecipes(save: Save) {
 
       // Basically just use the FIRST one you can from the souls.
       const orderedSouls = save.souls.sort(SortByAspect(principle));
+      const workstationsWithSoulAndSkill = workstations
+        .map((workstation) => {
+          const slots = GetWorkstationSlots(workstation);
+          const bestSoul = orderedSouls.find((soul) =>
+            MatchesSlot(slots.soul, soul)
+          );
+          if (!bestSoul) return null;
+
+          const usedSoFar: Slotable[] = [
+            WorkstationAsSlotable(workstation),
+            skill,
+            bestSoul,
+          ];
+          AddToMap(usedSoFar);
+
+          return {
+            usedSoFar,
+            memorySlot: slots.memory,
+            otherSlots: slots.others,
+            meetsReqs: meetsReqs(usedSoFar),
+          };
+        })
+        .noNulls();
+
+      const solutions1 = workstationsWithSoulAndSkill
+        .filter(({ meetsReqs }) => meetsReqs)
+        .map(({ usedSoFar }) => usedSoFar)
+        .noNulls();
+      if (solutions1.length) return { recipe, solutions: solutions1 };
 
       // Restrict to memories and items that match the principle OR another aspect.
       const orderedMemories = memories
         .filter((m) => m[principle] || m[otherReq])
         .filter((m) => m.id != recipe.result)
         .sort(SortByAspect(principle));
+      const withMemory = workstationsWithSoulAndSkill.map(
+        ({ usedSoFar, memorySlot, otherSlots }) => {
+          const bestMemory = orderedMemories.find((m) =>
+            MatchesSlot(memorySlot, m)
+          );
+          if (bestMemory) {
+            usedSoFar.push(bestMemory);
+            AddToMap(usedSoFar);
+          }
+
+          return { usedSoFar, otherSlots, meetsReqs: meetsReqs(usedSoFar) };
+        }
+      );
+
+      const solutions2 = withMemory
+        .filter(({ meetsReqs }) => meetsReqs)
+        .map(({ usedSoFar }) => usedSoFar)
+        .noNulls();
+      if (solutions2.length) return { recipe, solutions: solutions2 };
+
       const orderedItems = items
         .filter((i) => i[principle] || i[otherReq])
         .filter((i) => i.id != recipe.result)
         .sort(SortByAspect(principle));
       console.log("ordered", orderedMemories, orderedItems);
 
-      // AIGHT lets do the loop again.
-      // HMM this does depth first, we might want BREADTH first TBH.
-      // if we do more map based stuff we can go step by step for ALL workstations and prune as we go.
-      for (const workstation of workstations) {
-        const wsSlot = WorkstationAsSlotable(workstation);
-        const slots = GetWorkstationSlots(workstation);
-        const bestSoul = orderedSouls.find((soul) =>
-          MatchesSlot(slots.soul, soul)
-        );
-        if (!bestSoul) continue;
-
-        const usedInSlots: Slotable[] = [wsSlot, skill, bestSoul];
-        AddToMap(usedInSlots);
-        if (meetsReqs(usedInSlots)) return { recipe, usedInSlots };
-
-        const bestMemory = orderedMemories.find((m) =>
-          MatchesSlot(slots.memory, m)
-        );
-        if (bestMemory) {
-          usedInSlots.push(bestMemory);
-          AddToMap(usedInSlots);
-          if (meetsReqs(usedInSlots)) return { recipe, usedInSlots };
-        }
-
-        // still got 2 slots left!
+      function doSlot(usedSoFar: Slotable[], slotToUse: Slot, lastSlot?: Slot) {
         const otherReqFufilled =
-          !otherReq || SumSlotAspects(usedInSlots)[otherReq];
-        for (const otherSlot of slots.others) {
-          const fitsInslot = allSlotables
-            .filter((s) => MatchesSlot(otherSlot, s) && s.id != recipe.result)
-            .notIn(usedInSlots);
-          // try to match the otherreq if needed
-          const matchesOtherReq = fitsInslot
-            .filter((s) => otherReqFufilled || s[otherReq])
-            .sort(SortByAspect(principle));
-          if (!matchesOtherReq.length) continue;
-          // console.log("matchesOtherReq", matchesOtherReq);
-          // bro why try them all? just use the best one and move on.
-          // for (const match of matchesOtherReq) {
-          //   const usedInSlots1 = [...usedInSlots, match];
-          //   if (meetsReqs(usedInSlots1))
-          //     return { recipe, usedInSlots: usedInSlots1 };
-          // }
+          !otherReq || SumSlotAspects(usedSoFar)[otherReq];
+        const fitsInslot = allSlotables
+          .filter((s) => MatchesSlot(slotToUse, s) && s.id != recipe.result)
+          .notIn(usedSoFar);
 
-          const bestMatch = matchesOtherReq[0]!;
-          const usedInSlots1 = [...usedInSlots, bestMatch];
-          if (meetsReqs(usedInSlots1))
-            return { recipe, usedInSlots: usedInSlots1 };
+        // try to match the otherreq if needed
+        const matchesOtherReq = fitsInslot
+          .filter((s) => otherReqFufilled || s[otherReq])
+          .sort(SortByAspect(principle));
+        if (!matchesOtherReq.length) return null;
 
-          const lastSlot = slots.others.find((s) => s != otherSlot)!;
-          console.log("last slot!", lastSlot);
-          const fitsInLastSlot = allSlotables
-            .filter((s) => MatchesSlot(lastSlot, s) && s.id != recipe.result)
-            .notIn(usedInSlots1)
-            .sort(SortByAspect(principle));
-          if (fitsInLastSlot.length) {
-            // console.log("fitsInLastSlot", fitsInLastSlot);
-            const usedInSlots2 = [...usedInSlots1, fitsInLastSlot[0]];
-            if (meetsReqs(usedInSlots2))
-              return { recipe, usedInSlots: usedInSlots2 };
-          }
-        }
+        const bestMatch = matchesOtherReq[0]!;
+        const newUsedSoFar = [...usedSoFar, bestMatch];
+        return {
+          usedSoFar: newUsedSoFar,
+          lastSlot,
+          meetsReqs: meetsReqs(newUsedSoFar),
+        };
       }
+
+      const withSlot1 = withMemory
+        .map(({ usedSoFar, otherSlots }) =>
+          doSlot(usedSoFar, otherSlots[0], otherSlots[1])
+        )
+        .noNulls();
+
+      const solutions3 = withSlot1
+        .filter(({ meetsReqs }) => meetsReqs)
+        .map(({ usedSoFar }) => usedSoFar);
+      if (solutions3.length) return { recipe, solutions: solutions3 };
+
+      const withSlot2 = withMemory
+        .map(({ usedSoFar, otherSlots }) =>
+          doSlot(usedSoFar, otherSlots[1], otherSlots[0])
+        )
+        .noNulls();
+      const solutions4 = withSlot2
+        .filter(({ meetsReqs }) => meetsReqs)
+        .map(({ usedSoFar }) => usedSoFar);
+      if (solutions4.length) return { recipe, solutions: solutions4 };
+
+      const allSlots = [...withSlot1, ...withSlot2]
+        .map(({ usedSoFar, lastSlot }) => doSlot(usedSoFar, lastSlot!))
+        .noNulls();
+      const solutions5 = allSlots
+        .filter(({ meetsReqs }) => meetsReqs)
+        .map(({ usedSoFar }) => usedSoFar);
+      if (solutions5.length) return { recipe, solutions: solutions5 };
+
+      // No solutions i guess.
+      return null;
     })
-    .noNulls()
-    .sort((a, b) => a.usedInSlots.length - b.usedInSlots.length);
+    .noNulls();
+
+  // const lastSlot = slots.others.find((s) => s != otherSlot)!;
+  // console.log("last slot!", lastSlot);
+  // const fitsInLastSlot = allSlotables
+  //   .filter((s) => MatchesSlot(lastSlot, s) && s.id != recipe.result)
+  //   .notIn(usedInSlots1)
+  //   .sort(SortByAspect(principle));
+  // if (fitsInLastSlot.length) {
+  //   // console.log("fitsInLastSlot", fitsInLastSlot);
+  //   const usedInSlots2 = [...usedInSlots1, fitsInLastSlot[0]];
+  //   if (meetsReqs(usedInSlots2))
+  //     return { recipe, usedInSlots: usedInSlots2 };
+  // }
 
   console.log("recipe results", recipeResults, recipesToTry.length);
   console.log("DPMap", DPMap);
+
+  const bestResults = recipeResults
+    .map(({ recipe, solutions }) => ({
+      recipe,
+      solutions,
+      firstSolution: solutions[0],
+    }))
+    .sort((a, b) => a.firstSolution.length - b.firstSolution.length);
+  console.log("best results", bestResults);
 
   const recipesInMap = Recipes.map((recipe) => ({
     recipe,
