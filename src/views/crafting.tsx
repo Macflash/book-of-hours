@@ -34,17 +34,13 @@ import {
   PrincipleSpan,
 } from "../components/principleList";
 
-const recipeMap = new Map();
 export function CraftingView({ save }: { save: Save }) {
-  const items = save.items.filter((i) => !i.memory && !i.fatigues);
-  const memories = GetAvailableMemoriesFromSave(save, true);
-  const otherStuff = [...items, ...memories];
-
   const recipeResult = PopulateDpMapByRecipes(save);
   const resultMap = recipeResult.map((r) => r.recipe.result).unique();
 
   return (
     <div>
+      <div>Crafting ({resultMap.length})</div>
       {resultMap.map((resultId) => {
         const result = GetItemById(resultId)!;
         const recipes = recipeResult

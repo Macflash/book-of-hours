@@ -10,8 +10,9 @@ import {
 import { Item } from "./items";
 import { GetAvailableMemoriesFromSave } from "./memories";
 import { Principle, Principles, SumPrinciples } from "./principles";
-import { Recipes } from "./recipes";
+import { Recipe, Recipes } from "./recipes";
 import { Save } from "./save";
+import { Skill } from "./skills";
 import { Souls } from "./souls";
 import {
   FindMatchingSlots,
@@ -267,9 +268,25 @@ export function PopulateDPMapFromSave(save: Save, depth = 2) {
   return DPMap;
 }
 
-let lastSave: Save;
-let lastResult;
-export function PopulateDpMapByRecipes(save: Save) {
+interface RecipeSolution {
+  firstSolution: Slotable[];
+  solutions: Slotable[][];
+  recipe: Recipe;
+  skill: Skill;
+  principle: Principle;
+  principleAmount: number;
+  otherReq: Aspect;
+}
+
+let lastSave: Save | null = null;
+let lastResult: RecipeSolution[] = [];
+
+export function PopulateDpMapByRecipes(save: Save): RecipeSolution[] {
+  if (lastSave == save) {
+    console.log("Cached");
+    return lastResult;
+  }
+  const start = Date.now();
   console.log("Populating...");
 
   // tools and comforts for now.
@@ -540,6 +557,9 @@ export function PopulateDpMapByRecipes(save: Save) {
     .sort((a, b) => a.firstSolution.length - b.firstSolution.length);
   console.log("best results", bestResults);
 
+  lastSave = save;
+  lastResult = bestResults;
+  console.log("done", Date.now() - start);
   return bestResults;
 }
 
