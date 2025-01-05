@@ -1,4 +1,5 @@
-import { AspectMap } from "../boh/aspects";
+import { Aspect, AspectMap, PositiveAspects } from "../boh/aspects";
+import { Item } from "../boh/items";
 import {
   Principle,
   PrincipleColor,
@@ -19,29 +20,40 @@ export interface IPrinciplable extends PrincipleMap {
 export function Principlables({
   principlables,
   principle,
+  aspect,
   save,
 }: {
   principlables: IPrinciplable[];
   principle?: Principle;
+  aspect?: Aspect;
   save?: Save;
 }) {
-  return principlables
-    .filter((s) => !principle || s?.[principle])
-    .map((s, i) => (
-      <span key={i}>
-        {i > 0 ? ", " : ""}
-        <Principlable principlable={s} principle={principle} save={save} />
-      </span>
-    ));
+  return (
+    principlables
+      // .filter((s) => !principle || s?.[principle])
+      .map((s, i) => (
+        <span key={i}>
+          {i > 0 ? ", " : ""}
+          <Principlable
+            principlable={s}
+            principle={principle}
+            save={save}
+            aspect={aspect}
+          />
+        </span>
+      ))
+  );
 }
 
 export function Principlable({
   principlable,
   principle,
+  aspect,
   save,
 }: {
   principlable: IPrinciplable;
   principle?: Principle;
+  aspect?: Aspect;
   save?: Save;
 }) {
   const tooltip =
@@ -50,10 +62,13 @@ export function Principlable({
       : undefined;
 
   let color = principlable.color;
-  if (save?.items.some((i) => i.id == principlable.id)) color = "lightgreen";
-  const aspectable = principlable as AspectMap;
+  const aspectable = principlable as Item;
   // TODO: this is meant to cover all things that will be DESTROYED/CONSUMED when used.
-  if (aspectable.device || aspectable.beverage) color = "orange";
+  if (aspectable.fatigues && aspectable.thing) color = "antiquewhite";
+  if (!aspectable.fatigues && aspectable.thing) color = "aquamarine";
+  if (aspectable.memory) color = "lightblue";
+  if (aspectable.persistent) color = "aquamarine";
+  const alreadyHave = save?.items.some((i) => i.id == principlable.id);
 
   return (
     <span title={tooltip}>
@@ -63,6 +78,10 @@ export function Principlable({
           ({principlable[principle]})
         </span>
       ) : null}
+      {aspect && principlable[aspect as Principle] ? (
+        <span style={{ paddingLeft: 3 }}>({aspect})</span>
+      ) : null}
+      {alreadyHave ? " (owned)" : null}
     </span>
   );
 }
@@ -100,6 +119,26 @@ export function PrincipleSpan({
     >
       {principle}: {value}
       {last ? "" : ", "}
+    </span>
+  );
+}
+
+export function AspectList(map: AspectMap) {
+  const aspects = PositiveAspects(map).notIn(Principles as Aspect[]);
+  return (
+    <span style={{ fontSize: "1rem" }}>
+      <PrincipleList {...map} />{" "}
+      {aspects
+        .filter(
+          (a) =>
+            !a.startsWith("boost.") &&
+            !a.startsWith("s.") &&
+            a != "ability" &&
+            a != (map as Item).id
+        )
+        .sort((a, b) => (map[b] || 0) - (map[a] || 0))
+        .map((p, i, arr) => p)
+        .join(", ")}
     </span>
   );
 }

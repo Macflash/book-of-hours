@@ -117,6 +117,11 @@ export function SortByAspect(aspect: Aspect) {
   return (a: AspectMap, b: AspectMap) => SubtractAspect(aspect, b, a);
 }
 
+export function SortByAspectAscending(aspect: Aspect) {
+  // ascending order
+  return (a: AspectMap, b: AspectMap) => SubtractAspect(aspect, a, b);
+}
+
 export function SubtractAspectsInplace(a: AspectMap, b: AspectMap) {
   for (const key in b) {
     const aspect = key as Aspect;

@@ -268,9 +268,8 @@ export function PopulateDPMapFromSave(save: Save, depth = 2) {
 }
 
 let lastSave: Save;
+let lastResult;
 export function PopulateDpMapByRecipes(save: Save) {
-  if (save == lastSave) return;
-  lastSave = save;
   console.log("Populating...");
 
   // tools and comforts for now.
@@ -278,13 +277,13 @@ export function PopulateDpMapByRecipes(save: Save) {
   const comforts = UniqueByAspects(save.items.filter((i) => i.comfort));
   const wallart = UniqueByAspects(save.items.filter((i) => i.wallart));
   // Let's ignore these for now!
-  // const others = save.items.filter(
-  //   (i) => !i.fatigues && !i.tool && !i.comfort && !i.wallart && !i.fixed
-  // );
+  const others = save.items.filter(
+    (i) => !i.tool && !i.comfort && !i.wallart && !i.fixed
+  ) as Slotable[];
   console.log("tools", tools);
   console.log("comforts", comforts);
   console.log("wallart", wallart);
-  // console.log("others", others);
+  console.log("others", others);
 
   const items = [...tools, ...comforts, ...wallart];
   console.log("items", items, save.items.length);
@@ -327,10 +326,17 @@ export function PopulateDpMapByRecipes(save: Save) {
   console.log("scholar", scholar);
   console.log("keeper", keeper);
 
-  const recipeResults = recipesToTry
-    .map(({ recipe, skill, principle, otherReq, principleAmount }) => {
+  const recipeResults = [...prentice, ...scholar, ...keeper]
+    .map((recipeData) => {
+      const { recipe, skill, principle, otherReq, principleAmount } =
+        recipeData;
+
       function meetsReqs(used: Slotable[]) {
         const sum = SumSlotAspects(used);
+        return sumMeetsReqs(sum);
+      }
+
+      function sumMeetsReqs(sum: AspectMap) {
         if (otherReq && !sum[otherReq]) return false;
         return sum[principle]! >= principleAmount;
       }
@@ -348,6 +354,8 @@ export function PopulateDpMapByRecipes(save: Save) {
       const workstationsWithSoulAndSkill = workstations
         .map((workstation) => {
           const slots = GetWorkstationSlots(workstation);
+          if (!MatchesSlot(slots.skill, skill)) return null;
+
           const bestSoul = orderedSouls.find((soul) =>
             MatchesSlot(slots.soul, soul)
           );
@@ -360,11 +368,13 @@ export function PopulateDpMapByRecipes(save: Save) {
           ];
           AddToMap(usedSoFar);
 
+          const sumSoFar = SumSlotAspects(usedSoFar);
           return {
             usedSoFar,
             memorySlot: slots.memory,
             otherSlots: slots.others,
-            meetsReqs: meetsReqs(usedSoFar),
+            sumSoFar,
+            meetsReqs: sumMeetsReqs(sumSoFar),
           };
         })
         .noNulls();
@@ -373,7 +383,7 @@ export function PopulateDpMapByRecipes(save: Save) {
         .filter(({ meetsReqs }) => meetsReqs)
         .map(({ usedSoFar }) => usedSoFar)
         .noNulls();
-      if (solutions1.length) return { recipe, solutions: solutions1 };
+      if (solutions1.length) return { ...recipeData, solutions: solutions1 };
 
       // Restrict to memories and items that match the principle OR another aspect.
       const orderedMemories = memories
@@ -382,6 +392,20 @@ export function PopulateDpMapByRecipes(save: Save) {
         .sort(SortByAspect(principle));
       const withMemory = workstationsWithSoulAndSkill.map(
         ({ usedSoFar, memorySlot, otherSlots }) => {
+          const barelyMeetsReqs = orderedMemories.findIndex(
+            (m) => MatchesSlot(memorySlot, m) && meetsReqs([...usedSoFar, m])
+          );
+          if (barelyMeetsReqs > 1) {
+            const goodEnough = orderedMemories[barelyMeetsReqs - 1];
+            if (goodEnough) {
+              // console.log("good enough!", goodEnough);
+              usedSoFar.push(goodEnough);
+              AddToMap(usedSoFar);
+              const sumSoFar = SumSlotAspects(usedSoFar);
+              return { usedSoFar, sumSoFar, meetsReqs: true, otherSlots: [] };
+            }
+          }
+
           const bestMemory = orderedMemories.find((m) =>
             MatchesSlot(memorySlot, m)
           );
@@ -390,7 +414,13 @@ export function PopulateDpMapByRecipes(save: Save) {
             AddToMap(usedSoFar);
           }
 
-          return { usedSoFar, otherSlots, meetsReqs: meetsReqs(usedSoFar) };
+          const sumSoFar = SumSlotAspects(usedSoFar);
+          return {
+            usedSoFar,
+            sumSoFar,
+            meetsReqs: sumMeetsReqs(sumSoFar),
+            otherSlots,
+          };
         }
       );
 
@@ -398,7 +428,7 @@ export function PopulateDpMapByRecipes(save: Save) {
         .filter(({ meetsReqs }) => meetsReqs)
         .map(({ usedSoFar }) => usedSoFar)
         .noNulls();
-      if (solutions2.length) return { recipe, solutions: solutions2 };
+      if (solutions2.length) return { ...recipeData, solutions: solutions2 };
 
       const orderedItems = items
         .filter((i) => i[principle] || i[otherReq])
@@ -413,18 +443,35 @@ export function PopulateDpMapByRecipes(save: Save) {
           .filter((s) => MatchesSlot(slotToUse, s) && s.id != recipe.result)
           .notIn(usedSoFar);
 
+        // if (recipe.result == "mazarine.fife") debugger;
+
         // try to match the otherreq if needed
         const matchesOtherReq = fitsInslot
           .filter((s) => otherReqFufilled || s[otherReq])
           .sort(SortByAspect(principle));
-        if (!matchesOtherReq.length) return null;
+        let bestMatch = matchesOtherReq[0];
+        if (!bestMatch) {
+          // nothing matches the req... try the secret items!
+          const specialItems = others
+            .notIn(usedSoFar)
+            .filter((i) => i.id !== recipe.result)
+            .filter(
+              (i) =>
+                (otherReqFufilled || i[otherReq]) && MatchesSlot(slotToUse, i)
+            )
+            .sort(SortByAspect(principle));
+          if (!specialItems.length) return null;
+          // console.log("AHA!", specialItems);
+          bestMatch = specialItems[0];
+        }
 
-        const bestMatch = matchesOtherReq[0]!;
         const newUsedSoFar = [...usedSoFar, bestMatch];
+        const sumSoFar = SumSlotAspects(newUsedSoFar);
         return {
           usedSoFar: newUsedSoFar,
+          sumSoFar,
+          meetsReqs: sumMeetsReqs(sumSoFar),
           lastSlot,
-          meetsReqs: meetsReqs(newUsedSoFar),
         };
       }
 
@@ -437,7 +484,7 @@ export function PopulateDpMapByRecipes(save: Save) {
       const solutions3 = withSlot1
         .filter(({ meetsReqs }) => meetsReqs)
         .map(({ usedSoFar }) => usedSoFar);
-      if (solutions3.length) return { recipe, solutions: solutions3 };
+      if (solutions3.length) return { ...recipeData, solutions: solutions3 };
 
       const withSlot2 = withMemory
         .map(({ usedSoFar, otherSlots }) =>
@@ -447,7 +494,7 @@ export function PopulateDpMapByRecipes(save: Save) {
       const solutions4 = withSlot2
         .filter(({ meetsReqs }) => meetsReqs)
         .map(({ usedSoFar }) => usedSoFar);
-      if (solutions4.length) return { recipe, solutions: solutions4 };
+      if (solutions4.length) return { ...recipeData, solutions: solutions4 };
 
       const allSlots = [...withSlot1, ...withSlot2]
         .map(({ usedSoFar, lastSlot }) => doSlot(usedSoFar, lastSlot!))
@@ -455,9 +502,16 @@ export function PopulateDpMapByRecipes(save: Save) {
       const solutions5 = allSlots
         .filter(({ meetsReqs }) => meetsReqs)
         .map(({ usedSoFar }) => usedSoFar);
-      if (solutions5.length) return { recipe, solutions: solutions5 };
+      if (solutions5.length) return { ...recipeData, solutions: solutions5 };
 
       // No solutions i guess.
+      if (allSlots.length)
+        console.log(
+          "Didn't find anything...",
+          recipe.id,
+          recipe.reqs,
+          allSlots
+        );
       return null;
     })
     .noNulls();
@@ -479,21 +533,14 @@ export function PopulateDpMapByRecipes(save: Save) {
   console.log("DPMap", DPMap);
 
   const bestResults = recipeResults
-    .map(({ recipe, solutions }) => ({
-      recipe,
-      solutions,
-      firstSolution: solutions[0],
+    .map((data) => ({
+      ...data,
+      firstSolution: data.solutions[0],
     }))
     .sort((a, b) => a.firstSolution.length - b.firstSolution.length);
   console.log("best results", bestResults);
 
-  const recipesInMap = Recipes.map((recipe) => ({
-    recipe,
-    slots: DPMap.get(AspectKey(recipe.reqs)),
-  })).filter(({ slots }) => slots?.length);
-
-  const recipesYouCanMake = recipesInMap.map((x) => x.recipe.result).unique();
-  console.log("recipesInMap", recipesYouCanMake, recipesInMap);
+  return bestResults;
 }
 
 function UniqueByAspects<T extends AspectMap>(items: T[]): T[] {
