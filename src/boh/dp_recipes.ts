@@ -290,14 +290,16 @@ export function PopulateDpMapByRecipes(save: Save): RecipeSolution[] {
   console.log("Populating...");
 
   // tools and comforts for now.
-  const tools = UniqueByAspects(save.items.filter((i) => i.tool));
+  // Hmm! this doesn't let you use a tool twice if you have two.
+  const tools = save.items.filter((i) => i.tool);
+  const uniqueTools = UniqueByAspects(tools);
   const comforts = UniqueByAspects(save.items.filter((i) => i.comfort));
   const wallart = UniqueByAspects(save.items.filter((i) => i.wallart));
   // Let's ignore these for now!
   const others = save.items.filter(
     (i) => !i.tool && !i.comfort && !i.wallart && !i.fixed
   ) as Slotable[];
-  console.log("tools", tools);
+  console.log("tools", tools, uniqueTools);
   console.log("comforts", comforts);
   console.log("wallart", wallart);
   console.log("others", others);

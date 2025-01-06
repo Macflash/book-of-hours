@@ -76,7 +76,7 @@ export function ReadingView({ save }: { save: Save }) {
   return (
     <div>
       <div style={{ border: "1px solid grey", padding: 3, margin: 3 }}>
-        Skills you have:{" "}
+        Skills you get from reading:{" "}
         {[...skillsYouHave, ...skillsYouDont].map(
           ({ skill, existingSkill, books }) => (
             <div
@@ -87,7 +87,7 @@ export function ReadingView({ save }: { save: Save }) {
               {existingSkill?.skill
                 ? ` (${existingSkill.skill})`
                 : " (new)"}{" "}
-              <PrincipleList {...(existingSkill || skill)} />
+              <AspectList {...(existingSkill || skill)} />
               <div>
                 {books.map((b) => (
                   <div key={b.id}>

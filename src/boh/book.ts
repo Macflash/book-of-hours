@@ -6,6 +6,7 @@ export interface Book extends AspectMap {
   label: string;
   location?: string;
 
+  contaminated?: boolean;
   mastered?: boolean;
   language?: string;
   mastering: { id: string; level: number };

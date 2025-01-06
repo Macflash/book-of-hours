@@ -19,6 +19,7 @@ export function ContaminationView({ save }: { save: Save }) {
       GetSkillByEffectiveAgainstId(c.curedBy, save.skills),
     ])
   );
+  console.log("Contaminations", skillMap);
 
   return (
     <div>
@@ -37,7 +38,7 @@ export function ContaminationView({ save }: { save: Save }) {
               ws.slots.some((slot) => slot.required["readable"])
           );
           // Also has to accept a book
-          console.log(possibleWorkstations);
+          console.log("possibleWorkstations", possibleWorkstations);
 
           return (
             <div

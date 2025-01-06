@@ -1,4 +1,5 @@
 import { Aspect, AspectMap, PositiveAspects } from "../boh/aspects";
+import { Book } from "../boh/book";
 import { Item } from "../boh/items";
 import {
   Principle,
@@ -68,7 +69,8 @@ export function Principlable({
   if (!aspectable.fatigues && aspectable.thing) color = "aquamarine";
   if (aspectable.memory) color = "lightblue";
   if (aspectable.persistent) color = "aquamarine";
-  const alreadyHave = save?.items.some((i) => i.id == principlable.id);
+  if ((aspectable as Book).contaminated) color = "darkorange";
+  const alreadyHave = save?.items.filter((i) => i.id == principlable.id).length;
 
   return (
     <span title={tooltip}>
@@ -81,7 +83,7 @@ export function Principlable({
       {aspect && principlable[aspect as Principle] ? (
         <span style={{ paddingLeft: 3 }}>({aspect})</span>
       ) : null}
-      {alreadyHave ? " (owned)" : null}
+      {alreadyHave ? ` (own: ${alreadyHave})` : null}
     </span>
   );
 }

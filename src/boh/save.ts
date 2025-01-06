@@ -137,6 +137,10 @@ export function ParseSave(saveData: SaveJson) {
     for (const token of sphere.Tokens) {
       const path = token.Location?.AtSpherePath?.Path;
       if (path?.includes("christmasslot")) continue;
+      if (path?.includes("~/purchases")) {
+        console.log("skipping", path, token.Payload);
+        continue;
+      }
       if (token.Payload) parsePayload(token.Payload, path);
     }
   }
@@ -151,12 +155,10 @@ export function ParseSave(saveData: SaveJson) {
 
   function parsePayload(payload: Payload, location?: string) {
     save.souls.push(...ParseSoul(payload));
+    save.items.push(...ParseItem(payload, location));
 
     const book = ParseBook(payload, location);
     if (book) save.books.push(book);
-
-    const item = ParseItem(payload, location);
-    if (item) save.items.push(item);
 
     const skill = ParseSkill(payload);
     if (skill) {
@@ -232,10 +234,12 @@ function ParseBook(
   if (!book) return null;
 
   if (Mutations) {
+    AddAspectsInplace(book, Mutations);
     for (const key in Mutations) {
       if (key.startsWith("mastery.") && (Mutations as any)[key]) {
         book.mastered = true;
       }
+      if (key.startsWith("contamination.")) book.contaminated = true;
     }
   }
 
@@ -244,18 +248,25 @@ function ParseBook(
   return book;
 }
 
+function Duplicate<T>(t: T, quantity = 1) {
+  const dupes: T[] = [];
+  for (let i = 0; i < quantity; i++) dupes.push({ ...t });
+  // if (quantity > 1 && dupes[0] == dupes[1]) throw "WTF";
+  return dupes;
+}
+
 function ParseItem(
-  { EntityId }: Payload,
+  { EntityId, Quantity }: Payload,
   location?: string
-): Readonly<Item> | null {
-  if (!EntityId) return null;
+): Array<Readonly<Item>> {
+  if (!EntityId) return [];
 
   const item = GetItemById(EntityId);
-  if (!item) return null;
+  if (!item) return [];
 
   if (location) item.location = location;
 
-  return item;
+  return Duplicate(item, Quantity);
 }
 
 function ParseSoul({ EntityId, Quantity }: Payload): ReadonlySoul[] {
@@ -268,10 +279,7 @@ function ParseSoul({ EntityId, Quantity }: Payload): ReadonlySoul[] {
 
   soul = EvolveSoul(soul, level ? Number(level) : 1);
 
-  const souls: ReadonlySoul[] = [];
-  for (let i = 0; i < Quantity; i++) souls.push({ ...soul });
-
-  return souls;
+  return Duplicate(soul, Quantity);
 }
 
 function ParseRoom({

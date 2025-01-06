@@ -19,7 +19,11 @@ export interface Item extends AspectMap {
 
 function GenerateItems() {
   return ItemData.map((data) => {
-    let item: Item = { id: data.ID, label: data.Label };
+    let item: Item = {
+      id: data.ID || data.id!,
+      label: data.Label || data.label!,
+      ...data,
+    };
     item[item.id as Aspect] = 1; // Bootstrap the id as if it was an aspect.
     if (data.aspects) item = { ...item, ...data.aspects };
     if (data.inherits) {
