@@ -1,4 +1,5 @@
 import { AspectMap } from "./aspects";
+import { Principle } from "./principles";
 
 export interface Book extends AspectMap {
   id: string;

@@ -6,11 +6,17 @@ import {
   Or0,
 } from "../boh/principles";
 import { Save } from "../boh/save";
+import { GetSkillById } from "../boh/skills";
 import {
   FindBestWorkstationByPrinciple,
   GetSlotablesFromSave,
 } from "../boh/workstation";
-import { Principlable, Principlables } from "../components/principleList";
+import {
+  AspectList,
+  Principlable,
+  Principlables,
+  PrincipleList,
+} from "../components/principleList";
 
 export function ReadingView({ save }: { save: Save }) {
   const desks = save.workstations.filter((w) =>
@@ -47,8 +53,52 @@ export function ReadingView({ save }: { save: Save }) {
   );
   console.log("books you can master", booksToMaster);
 
+  const skillsYouCouldGet = booksToMaster
+    .map((b) => b.mastering.id.replace("x.", "s."))
+    .unique()
+    .map((s) => {
+      const existingSkill = save.skills.find((skill) => skill.id == s);
+      const skill = GetSkillById(s)!;
+      const books = booksToMaster.filter(
+        (b) => b.mastering.id.replace("x.", "s.") == s
+      );
+      return { existingSkill, skill, books };
+    });
+
+  const skillsYouHave = skillsYouCouldGet.filter(
+    ({ existingSkill }) => existingSkill
+  );
+  const skillsYouDont = skillsYouCouldGet.notIn(skillsYouHave);
+  console.log("skillsYouCouldGet", skillsYouCouldGet);
+  console.log("skillsYouHave", skillsYouHave);
+  console.log("skillsYouDont", skillsYouDont);
+
   return (
     <div>
+      <div style={{ border: "1px solid grey", padding: 3, margin: 3 }}>
+        Skills you have:{" "}
+        {[...skillsYouHave, ...skillsYouDont].map(
+          ({ skill, existingSkill, books }) => (
+            <div
+              key={skill.id}
+              style={{ border: "1px solid grey", padding: 3, margin: 3 }}
+            >
+              {skill?.label}
+              {existingSkill?.skill
+                ? ` (${existingSkill.skill})`
+                : " (new)"}{" "}
+              <PrincipleList {...(existingSkill || skill)} />
+              <div>
+                {books.map((b) => (
+                  <div key={b.id}>
+                    {b.label} <PrincipleList {...b} /> +{b.mastering.level}
+                  </div>
+                ))}
+              </div>
+            </div>
+          )
+        )}
+      </div>
       <div>{!booksToMaster.length ? "Can't read anything right now" : ""}</div>
       <div>
         {[...workstationPrincipleMap.entries()]
