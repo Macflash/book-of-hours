@@ -49,6 +49,16 @@ export function SumPrinciples(
   return AddOr0(...(principledThings || []).map((p) => p?.[principle]));
 }
 
+export function PrincipleSum(map: PrincipleMap) {
+  let sum = 0;
+  for (const p of Principles) sum += Or0(map[p]);
+  return sum;
+}
+
+export function MinusOr0(a: number | undefined, b: number | undefined): number {
+  return Or0(a) - Or0(b);
+}
+
 export function AddOr0(...ns: (number | undefined)[]): number {
   let sum = 0;
   for (const n of ns) sum += Or0(n);
@@ -57,6 +67,12 @@ export function AddOr0(...ns: (number | undefined)[]): number {
 
 export function Or0(n: number | undefined) {
   return n ?? 0;
+}
+
+export function BestPrinciple(map: PrincipleMap) {
+  return Principles.map((p) => ({ p, val: Or0(map[p]) })).sortAsc(
+    (x) => x.val
+  )[0];
 }
 
 export function FindBestByPrinciple<T extends PrincipleMap>(

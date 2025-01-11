@@ -7,6 +7,7 @@ import { GetRoomById, Room } from "./rooms";
 import { GetSkillById, Skill } from "./skills";
 import { Soul, ReadonlySoul, EvolveSoul, Chor, Ereb } from "./souls";
 import * as Souls from "./souls";
+import { TreeNode } from "./tree";
 import { GetAllWorkstations, Workstation, Workstations } from "./workstation";
 
 export interface Save {
@@ -19,6 +20,8 @@ export interface Save {
 
   items: Item[];
   books: Book[];
+
+  tree: TreeNode[];
 
   madeBefore: Set<string>; //TODO: this isn't quite right unique elements, or recipes ambitt'd
 }
@@ -82,6 +85,7 @@ export function EmptySave(): Save {
     rooms: [],
     workstations: [],
     beds: [],
+    tree: [],
     items: [],
     books: [],
     madeBefore: new Set(),
@@ -118,18 +122,12 @@ export function ParseLocationString(location: string | undefined) {
 }
 
 export function ParseSave(saveData: SaveJson) {
-  const ccc = saveData?.CharacterCreationCommands?.[0];
   const save: Save = EmptySave();
-  save.madeBefore = new Set<string>([
-    ...(ccc?.AmbittableRecipesUnlocked || []),
-    ...(ccc?.UniqueElementsManifested || []),
-  ]);
-  // TODO: this doesn't give the values you'd expect?
-  // console.log(
-  //   "Made before",
-  //   save.madeBefore,
-  //   saveData.CharacterCreationCommands
-  // );
+  // const ccc = saveData?.CharacterCreationCommands?.[0];
+  // save.madeBefore = new Set<string>([
+  //   ...(ccc?.AmbittableRecipesUnlocked || []),
+  //   ...(ccc?.UniqueElementsManifested || []),
+  // ]);
 
   const spheres = saveData.RootPopulationCommand.Spheres;
 
@@ -160,14 +158,25 @@ export function ParseSave(saveData: SaveJson) {
     const book = ParseBook(payload, location);
     if (book) save.books.push(book);
 
+    const treeNode = ParseTree(payload);
+    if (treeNode) save.tree.push(treeNode);
+
     const skill = ParseSkill(payload);
     if (skill) {
+      (skill as any).location = location;
+      // Either in hand, a slot somewhere (when being used)
+      // or in ~/wisdomtreenodes!wt.hus.3/commitment
+      // hence why this is duplicated for some skills.
+      // console.log("skill location", location);
       const index = save.skills.findIndex((s) => s.id == skill.id);
       const existing = save.skills[index];
       if (!existing) {
+        // console.log("original skill", location);
         save.skills.push(skill);
-      } else if (Or0(skill.skill) > Or0(existing.skill)) {
-        // console.log("replacing skill", skill);
+      } else if (Or0(skill.skill) >= Or0(existing.skill)) {
+        // we should merge them??
+        // This is order dependent but hand seems to be last, so it seems to work... mostly?
+        // console.log("replacing skill", location, (existing as any).location);
         save.skills[index] = skill;
       }
     }
@@ -188,14 +197,37 @@ export function ParseSave(saveData: SaveJson) {
     }
   }
 
-  for (const sphere of spheres) {
-    parseSphere(sphere);
-  }
-
+  for (const sphere of spheres) parseSphere(sphere);
   return save;
 }
 
-const PATH_SOUL = "~/hand.abilities";
+function ParseTree(payload: Payload): TreeNode | null {
+  const {
+    Id,
+    IsSealed, // not visible
+    IsShrouded, // able to be unlocked
+    Dominions,
+  } = payload;
+  // I don't think this thing matters.
+  if (Id == "wt.memorylocus") return null;
+  if (Id.startsWith("wt.")) {
+    if (IsSealed) return null; // Don't worry about it!
+    const [type, levelStr] = Id.replace("wt.", "").split(".");
+    const skillLevel = Number(levelStr);
+    const treeNode: TreeNode = {
+      id: Id,
+      type,
+      unlocked: !IsSealed && !IsShrouded,
+      skillLevel,
+    };
+    console.log("tree!", treeNode, Dominions);
+    // dominions has 2 entries.
+    // first is for unlocking, e.g. has required, essential, forbidden,
+
+    return treeNode;
+  }
+  return null;
+}
 
 function ParseWorkstation(
   { VerbId }: Payload,

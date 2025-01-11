@@ -6,6 +6,9 @@ declare global {
     all(callback: (x: T) => boolean): boolean;
     unique(): Array<T>;
     notIn(other: T[]): Array<T>;
+    ifEmpty<J>(ifEmpty: J): Array<T> | J;
+    sortAsc(cb: (t: T) => number): Array<T>;
+    sortDesc(cb: (t: T) => number): Array<T>;
   }
 }
 
@@ -38,5 +41,28 @@ if (!Array.prototype.unique) {
 if (!Array.prototype.notIn) {
   Array.prototype.notIn = function <T>(this: T[], other: T[]): T[] {
     return this.filter((t) => !other.includes(t));
+  };
+}
+
+if (!Array.prototype.ifEmpty) {
+  Array.prototype.ifEmpty = function <T, J>(this: T[], other: J): T[] | J {
+    return this.length > 0 ? this : other;
+  };
+}
+
+if (!Array.prototype.sortAsc) {
+  Array.prototype.sortAsc = function <T>(this: T[], cb: (t: T) => number): T[] {
+    return this.sort((a, b) => cb(a) - cb(b));
+  };
+}
+
+if (!Array.prototype.sortDesc) {
+  const defaultcb = (x: any) => x;
+  Array.prototype.sortDesc = function <T>(
+    this: T[],
+    cb: (t: T) => number
+  ): T[] {
+    cb ||= defaultcb;
+    return this.sort((a, b) => cb(b) - cb(a));
   };
 }

@@ -2,6 +2,8 @@ import { Aspect, AspectMap, PositiveAspects } from "../boh/aspects";
 import { Book } from "../boh/book";
 import { Item } from "../boh/items";
 import {
+  AddOr0,
+  MinusOr0,
   Principle,
   PrincipleColor,
   PrincipleMap,
@@ -21,39 +23,44 @@ export interface IPrinciplable extends PrincipleMap {
 export function Principlables({
   principlables,
   principle,
+  allPrinciples,
+  hideIfNoPrinciple,
   aspect,
   save,
 }: {
   principlables: IPrinciplable[];
   principle?: Principle;
+  allPrinciples?: boolean;
+  hideIfNoPrinciple?: boolean;
   aspect?: Aspect;
   save?: Save;
 }) {
-  return (
-    principlables
-      // .filter((s) => !principle || s?.[principle])
-      .map((s, i) => (
-        <span key={i}>
-          {i > 0 ? ", " : ""}
-          <Principlable
-            principlable={s}
-            principle={principle}
-            save={save}
-            aspect={aspect}
-          />
-        </span>
-      ))
-  );
+  return principlables
+    .filter((s) => !hideIfNoPrinciple || !principle || s?.[principle])
+    .map((s, i) => (
+      <span key={i}>
+        {i > 0 ? ", " : ""}
+        <Principlable
+          principlable={s}
+          allPrinciples={allPrinciples}
+          principle={principle}
+          save={save}
+          aspect={aspect}
+        />
+      </span>
+    ));
 }
 
 export function Principlable({
   principlable,
   principle,
+  allPrinciples,
   aspect,
   save,
 }: {
   principlable: IPrinciplable;
   principle?: Principle;
+  allPrinciples?: boolean;
   aspect?: Aspect;
   save?: Save;
 }) {
@@ -75,17 +82,38 @@ export function Principlable({
   return (
     <span title={tooltip}>
       <span style={{ color }}>{principlable.label}</span>
-      {principle && principlable[principle] ? (
-        <span style={{ color: PrincipleColor(principle), paddingLeft: 3 }}>
-          ({principlable[principle]})
-        </span>
-      ) : null}
+      <PrincipleValue principle={principle} principlable={principlable} />
+      {allPrinciples
+        ? [...Principles]
+            .sort((a, b) => MinusOr0(principlable[b], principlable[a]))
+            .map((p) => (
+              <PrincipleValue
+                key={p}
+                principle={p}
+                principlable={principlable}
+              />
+            ))
+        : null}
       {aspect && principlable[aspect as Principle] ? (
         <span style={{ paddingLeft: 3 }}>({aspect})</span>
       ) : null}
       {alreadyHave ? ` (own: ${alreadyHave})` : null}
     </span>
   );
+}
+
+export function PrincipleValue({
+  principle,
+  principlable,
+}: {
+  principle?: Principle;
+  principlable: PrincipleMap;
+}) {
+  return principle && principlable[principle] ? (
+    <span style={{ color: PrincipleColor(principle), paddingLeft: 3 }}>
+      ({principlable[principle]})
+    </span>
+  ) : null;
 }
 
 export function PrincipleList(map: PrincipleMap) {

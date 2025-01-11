@@ -108,6 +108,7 @@ export const Assistants: ReadonlyArray<Readonly<Assistant>> = [
     fee: 12,
     moon: 2,
     sky: 1,
+    season: "winter",
     slots: withSlot(),
   },
   {
@@ -153,6 +154,7 @@ export const Assistants: ReadonlyArray<Readonly<Assistant>> = [
     rose: 4,
     nectar: 4,
     fee: 24,
+    unusual: true,
     slots: withSlot(),
   },
   {

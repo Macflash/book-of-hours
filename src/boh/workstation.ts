@@ -17,10 +17,10 @@ import { Element, Souls } from "./souls";
 export interface Workstation {
   id: string;
   label: string;
-  type: "desk" | "bed" | "other";
+  type?: "desk" | "bed";
   location?: string;
 
-  aspects: AspectMap;
+  aspects?: AspectMap;
 
   slots: Slot[];
   hints?: Principle[]; // Not really that useful TBH.
@@ -97,6 +97,12 @@ export function MatchesSlot(
   return MatchesRequiredAspects(required, slotable);
 }
 
+export interface BestWorkstation {
+  bestWorkstation: Workstation | null;
+  bestSum: number;
+  bestSlotMap: Map<Slot, Slotable>;
+}
+
 // TODO!!!
 // This will use DUPLICATES of things that are unique.
 // E.G. Can only use a memory ONCE.
@@ -104,9 +110,8 @@ export function MatchesSlot(
 export function FindBestWorkstationByPrinciple(
   principle: Principle,
   workstations = GetAllWorkstations(),
-  slotables = GetAllSlotables(),
-  requiredSlotables: Slotable[] = []
-) {
+  slotables = GetAllSlotables()
+): BestWorkstation {
   //   const workstationMap = new Map<string, Map<string, Slotable>>();
   let bestWorkstation: Workstation | null = null;
   let bestSum = 0;

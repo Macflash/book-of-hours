@@ -1,47 +1,35 @@
 import React from "react";
 import { GetAssistants } from "../boh/assistance";
-import { PrincipleColor, ForAllPrinciples } from "../boh/principles";
+import { PrincipleColor, ForAllPrinciples, Principle } from "../boh/principles";
 import { Save } from "../boh/save";
-import { Season } from "../boh/seasons";
 import { Principlable, Principlables } from "../components/principleList";
 import {
+  BestWorkstation,
   FindBestWorkstationByPrinciple,
   GetSlotablesFromSave,
 } from "../boh/workstation";
 
 export function AssistanceView({ save }: { save: Save }) {
-  const [season, setSeason] = React.useState<Season | undefined | "unusual">(
-    undefined
-  );
-
   // TODO: So this finds the MAX you can do, but we actually want...
   // the MINIMUM that is good enough?
 
-  const assistants = GetAssistants(
-    season == "unusual" ? "none" : season,
-    season == "unusual" || season == undefined
-  );
+  const allAssistants = GetAssistants();
+  const alwaysAssistants = GetAssistants("none", false);
 
-  console.log("assistants", assistants);
+  console.log("assistants", allAssistants, alwaysAssistants);
 
-  const maxAssistanceMap = ForAllPrinciples((p) =>
-    FindBestWorkstationByPrinciple(
+  const renewableSlotables = GetSlotablesFromSave(save, true);
+  const allSlotables = GetSlotablesFromSave(save, false);
+
+  const assistanceMap = ForAllPrinciples((p) => ({
+    max: FindBestWorkstationByPrinciple(p, allAssistants, allSlotables),
+    mid: FindBestWorkstationByPrinciple(p, alwaysAssistants, allSlotables),
+    min: FindBestWorkstationByPrinciple(
       p,
-      assistants as any[], // AH! we aren't including their aspects.
-      GetSlotablesFromSave(save)
-    )
-  );
-
-  const renewables = GetSlotablesFromSave(save, true);
-  console.log("renewables", renewables);
-
-  const renewableAssistanceMap = ForAllPrinciples((p) =>
-    FindBestWorkstationByPrinciple(
-      p,
-      assistants as any[],
-      GetSlotablesFromSave(save, true)
-    )
-  );
+      alwaysAssistants,
+      renewableSlotables
+    ),
+  }));
 
   // list rooms that need to be unlocked
   const roomsToOpen = save.rooms.filter((r) => r.shrouded && !r.sealed);
@@ -49,28 +37,22 @@ export function AssistanceView({ save }: { save: Save }) {
 
   return (
     <div>
-      <div>
-        <select
-          value={season}
-          onChange={(ev) => {
-            setSeason(ev.target.value as Season);
-          }}
-        >
-          <option value="">Any</option>
-          <option value="none">none</option>
-          <option value="unusual">unusual</option>
-          <option value="spring">spring</option>
-          <option value="summer">summer</option>
-          <option value="autumn">autumn</option>
-          <option value="winter">winter</option>
-        </select>
-      </div>
-
       {/* Assistance you can get */}
       <div>
-        {[...renewableAssistanceMap.entries()]
-          .sort((a, b) => b[1].bestSum - a[1].bestSum)
-          .map(([principle, { bestWorkstation, bestSum, bestSlotMap }]) => {
+        {[...assistanceMap.entries()]
+          .flatMap(
+            ([principle, { max, mid, min }]) =>
+              [
+                [principle, max],
+                [principle, mid],
+                [principle, min],
+              ] as [Principle, BestWorkstation][]
+          )
+          .filter(([principle, { bestSum }]) =>
+            roomsToOpen.find((r) => r[principle] && bestSum >= r[principle])
+          )
+          .sort((a, b) => a[1].bestSum - b[1].bestSum)
+          .map(([principle, { bestWorkstation, bestSum, bestSlotMap }], i) => {
             const slotables = bestSlotMap
               .values()
               .toArray()
@@ -80,7 +62,7 @@ export function AssistanceView({ save }: { save: Save }) {
             );
             return (
               <div
-                key={principle}
+                key={i}
                 style={{
                   flex: 1,
                   padding: 5,

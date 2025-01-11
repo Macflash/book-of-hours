@@ -141,7 +141,7 @@ export const Phost: ReadonlySoul = {
 };
 
 export const Shapt: ReadonlySoul = {
-  id: " xsha",
+  id: "xsha",
   element: "Shapt",
   label: "Shapt",
   color: "#B7226C",

@@ -1,9 +1,11 @@
 import { Aspect, GetAspectsWithPrefix } from "../boh/aspects";
 import { Items } from "../boh/items";
+import { GetAvailableMemoriesFromSave } from "../boh/memories";
 import { Or0 } from "../boh/principles";
 import { Save } from "../boh/save";
 import { Element, GetElementFromId, GetSoulByElement } from "../boh/souls";
 import { FindMatchingSlots } from "../boh/workstation";
+import { Principlable, Principlables } from "../components/principleList";
 
 export function EvolveView({ save }: { save: Save }) {
   const committedSkills = save.skills.filter((s) => s["wisdom.committed"]);
@@ -55,7 +57,7 @@ export function EvolveView({ save }: { save: Save }) {
       const matchingWorkstations = evolveWorkstations
         .filter(
           // Filter for matching wisdom evolve via.
-          (ws) => ws.aspects[("e." + wisdom) as Aspect]
+          (ws) => ws.aspects?.[("e." + wisdom) as Aspect]
         )
         .map((ws) => {
           // Filter for skill slot
@@ -82,6 +84,7 @@ export function EvolveView({ save }: { save: Save }) {
 
   // TODO: Could also use EVOLVE VIA memories.
 
+  const availableMemories = GetAvailableMemoriesFromSave(save);
   const evolveViaMemories = Items.filter(
     (i) => GetAspectsWithPrefix(i, "e.").length
   );
@@ -96,6 +99,7 @@ export function EvolveView({ save }: { save: Save }) {
           const evolveViaSlots = evolveViaMemories.filter(
             (e) => e[("e." + wisdom) as Aspect] && FindMatchingSlots(ws, e)
           );
+
           return { ws, skillSlots, soulSlots, evolveViaSlots };
         })
         .filter(
@@ -124,49 +128,79 @@ export function EvolveView({ save }: { save: Save }) {
         {evolveSkills.map(({ skill, attuned, wisdom }) => {
           return (
             <div key={skill.id}>
-              {skill.label} ({attuned} & {wisdom})
+              <Principlable principlable={skill} /> ({attuned} & {wisdom})
             </div>
           );
         })}
       </div>
       <div style={{ border: "1px solid grey", padding: 3, margin: 3 }}>
         <div>Souls with copies:</div>
-        {soulsWithCopies.map((element) => {
-          const arr = soulMap.get(element)!;
-          return arr.map((count, level) =>
-            count >= 2 ? (
-              <div key={element + level}>
-                {pluses(level)}
-                {element} ({count})
-              </div>
-            ) : null
-          );
-        })}
+        {soulsWithCopies
+          .map((element) => {
+            const arr = soulMap.get(element)!;
+            return arr.map((count, level) =>
+              count >= 2 ? (
+                <div key={element + level}>
+                  {pluses(level)}
+                  {element} ({count})
+                </div>
+              ) : null
+            );
+          })
+          .ifEmpty("N/A")}
       </div>
 
-      <div>
-        {combos.map(({ skill, soul, matchingWorkstations }, i) => (
-          <div key={i}>
-            Evolve {soul.label} with {skill.label} at{" "}
-            {matchingWorkstations.map(({ ws }) => ws.label).join(", ")}
-          </div>
-        ))}
+      <div style={{ border: "1px solid grey", padding: 3, margin: 3 }}>
+        <div>Direct evolve: </div>
+        {combos
+          .sort((a, b) => a.soul.label.localeCompare(b.soul.label))
+          .map(({ skill, soul, matchingWorkstations }, i) => (
+            <div
+              key={i}
+              style={{
+                border: `2px solid ${soul.color}`,
+                padding: 3,
+                margin: 3,
+              }}
+            >
+              Evolve <Principlable principlable={soul} /> with{" "}
+              <Principlable principlable={skill} /> at{" "}
+              <Principlables
+                principlables={matchingWorkstations.map(({ ws }) => ws)}
+                save={save}
+              />
+            </div>
+          ))
+          .ifEmpty("N/A")}
       </div>
 
-      <div>
-        {evolveViaCombos.map(({ skill, soul, matchingWorkstations }, i) => (
-          <div key={i}>
-            Evolve {soul.label} with {skill.label} at{" "}
-            {matchingWorkstations
-              .map(
-                ({ ws, evolveViaSlots }) =>
-                  `${ws.label} (can use ${[...evolveViaSlots.values()]
-                    .map((v) => v.label)
-                    .join(", ")})`
-              )
-              .join(", ")}
-          </div>
-        ))}
+      <div style={{ border: "1px solid grey", padding: 3, margin: 3 }}>
+        <div>Using evolve via:</div>
+        {evolveViaCombos
+          .sort((a, b) => a.soul.label.localeCompare(b.soul.label))
+          .map(({ skill, soul, matchingWorkstations }, i) => (
+            <div
+              key={i}
+              style={{
+                border: `2px solid ${soul.color}`,
+                padding: 3,
+                margin: 3,
+              }}
+            >
+              Evolve <Principlable principlable={soul} /> with{" "}
+              <Principlable principlable={skill} /> at{" "}
+              {matchingWorkstations.map(({ ws, evolveViaSlots }) => (
+                <div>
+                  <Principlable principlable={ws} save={save} /> using{" "}
+                  <Principlables
+                    principlables={[...evolveViaSlots.values()]}
+                    save={save}
+                  />
+                </div>
+              ))}
+            </div>
+          ))
+          .ifEmpty("N/A")}
       </div>
     </div>
   );

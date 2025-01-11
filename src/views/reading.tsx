@@ -65,9 +65,9 @@ export function ReadingView({ save }: { save: Save }) {
       return { existingSkill, skill, books };
     });
 
-  const skillsYouHave = skillsYouCouldGet.filter(
-    ({ existingSkill }) => existingSkill
-  );
+  const skillsYouHave = skillsYouCouldGet
+    .filter(({ existingSkill }) => existingSkill)
+    .sort((a, b) => Or0(b.existingSkill?.skill) - Or0(a.existingSkill?.skill));
   const skillsYouDont = skillsYouCouldGet.notIn(skillsYouHave);
   console.log("skillsYouCouldGet", skillsYouCouldGet);
   console.log("skillsYouHave", skillsYouHave);
