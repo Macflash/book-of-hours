@@ -9,8 +9,7 @@ export interface Idable {
 export type Findable = string | Idable;
 
 export function GetFindableId(findable: Findable): string {
-  const id = (findable as Idable).id || (findable as string);
-  return id;
+  return (findable as Idable).id || (findable as string);
 }
 
 interface FindableResult {
