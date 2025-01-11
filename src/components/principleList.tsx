@@ -154,7 +154,9 @@ export function PrincipleSpan({
 }
 
 export function AspectList(map: AspectMap) {
-  const aspects = PositiveAspects(map).notIn(Principles as Aspect[]);
+  const aspects = PositiveAspects(map)
+    .map(({ aspect }) => aspect)
+    .notIn(Principles as Aspect[]);
   return (
     <span style={{ fontSize: "1rem" }}>
       <PrincipleList {...map} />{" "}

@@ -7,9 +7,7 @@ import {
   SubtractAspects,
 } from "./aspects";
 import { Items } from "./items";
-import { Or0, Principles } from "./principles";
 import { Recipes } from "./recipes";
-import { GetSkillById } from "./skills";
 import { MatchesSlot, Slot, Slotable } from "./workstation";
 
 function GenerateCraftableItems() {
@@ -25,13 +23,12 @@ export function FillSlotsByRequiredAspects(
   slotables: Slotable[]
 ) {
   const aspects = PositiveAspects(requiredAspects);
-  const skillId = aspects.find((a) => a.startsWith("s."))!;
+  const skillId = aspects.find(({ aspect }) => aspect.startsWith("s."))!.aspect;
   const skill = slotables.find((s) => s.id == skillId);
   if (!skill) return null;
 
-  const principle = Principles.find((p) => aspects.includes(p))!;
   const aspectMap = new Map<Aspect, Slotable[]>();
-  for (const aspect of aspects) {
+  for (const { aspect } of aspects) {
     const matching = slotables.filter((s) => (s[aspect] || 0) > 0);
     aspectMap.set(aspect, matching);
     if (!matching.length) {

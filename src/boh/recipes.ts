@@ -39,7 +39,7 @@ function GenerateRecipes(): Recipe[] {
   const recipes: Recipe[] = [];
   for (const data of RecipeData) {
     const skill = "s." + GetAspectsWithPrefix(data.reqs, "s.")[0];
-    const result = PositiveAspects(data.effects as AspectMap)[0];
+    const result = PositiveAspects(data.effects as AspectMap)[0].aspect;
 
     const recipe: Recipe = {
       ...data,
@@ -221,16 +221,15 @@ export function GetWaysToMakeRecipe(
   if (!skill) return new Map();
   // console.log("has skill!", skill);
 
-  const aspects = PositiveAspects(recipe.reqs);
-  // I guess we don't need the principle really.
-  const principle = Principles.find((p) => aspects.includes(p))!;
-
   const workstationMap: WorkstationMap = new Map();
   for (const workstation of save.workstations) {
     if (workstationMap.size > 5) return workstationMap; // That's probably enough.
 
     // console.log("workstation", workstation);
-    const remainingAspects = SubtractAspects(recipe.reqs, workstation.aspects);
+    const remainingAspects = SubtractAspects(
+      recipe.reqs,
+      workstation.aspects || {}
+    );
     const skillSlot = workstation.slots.find((slot) =>
       MatchesSlot(slot, skill)
     );
@@ -267,11 +266,10 @@ function GetWaysToFillSlots(
   // console.log("matching", matchingSlotables.length);
   if (!matchingSlotables.length) return [];
 
-  const aspects = PositiveAspects(requiredAspects);
-
   const results: SlotMap[] = [];
   // so for each slot, we could try the top N best items for each aspect?
-  for (const aspect of aspects) {
+  const aspects = PositiveAspects(requiredAspects);
+  for (const { aspect } of aspects) {
     // take the top like.. 5 or so best items for the aspect
     const aspectSlotables = matchingSlotables
       .filter((slotable) => slotable[aspect])

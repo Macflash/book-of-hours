@@ -50,14 +50,40 @@ export type AspectMap = Partial<{
   [key in Aspect]: number;
 }>;
 
-export function NoPositiveAspects(a: AspectMap) {
-  return PositiveAspects(a).length <= 0;
+export interface Aspectable {
+  id: string;
+  label: string;
+  location?: string;
+  aspects: AspectMap;
 }
 
-export function PositiveAspects(a: AspectMap) {
-  return Object.keys(a).filter(
-    (k) => k !== "duration" && Number(a[k as Aspect]) > 0
-  ) as Aspect[];
+export type HasAspects = AspectMap | Aspectable;
+
+export function Aspects(a: HasAspects): AspectMap {
+  return (a as Aspectable).aspects || a;
+}
+
+export interface AspectValue {
+  aspect: Aspect;
+  value: number;
+}
+
+export function AspectKeys(a: HasAspects): AspectValue[] {
+  const aspects = Aspects(a);
+  return (Object.keys(aspects) as Aspect[])
+    .map((aspect) => ({
+      aspect,
+      value: aspects[aspect],
+    }))
+    .filter(({ value }) => value) as AspectValue[];
+}
+
+export function PositiveAspects(a: HasAspects): AspectValue[] {
+  return AspectKeys(a).filter(({ value }) => value > 0);
+}
+
+export function NoPositiveAspects(a: HasAspects): boolean {
+  return PositiveAspects(a).length <= 0;
 }
 
 export function AddAspects(a: AspectMap, b: AspectMap): AspectMap {

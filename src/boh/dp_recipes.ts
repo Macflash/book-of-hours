@@ -4,6 +4,7 @@ import {
   AddAspectsInplace,
   Aspect,
   AspectMap,
+  AspectValue,
   PositiveAspects,
   SortByAspect,
 } from "./aspects";
@@ -30,22 +31,21 @@ for (const recipe of Recipes) {
   AddAspectsInplace(allRecipeSum, recipe.reqs);
 }
 
-const allRecipeAspects = new Set<Aspect>(PositiveAspects(allRecipeSum));
+const allRecipeAspects = new Set<Aspect>(
+  PositiveAspects(allRecipeSum).map(({ aspect }) => aspect)
+);
 console.log("All recipe aspects", allRecipeAspects);
 
-function ignore(key: Aspect) {
-  return allRecipeAspects.has(key);
-  // Legacy manual method.
-  //   return (
-  //     key != "skill" &&
-  //     key != "level" &&
-  //     // !key.startsWith("effective.") && // Would want this for some recipes though!!
-  //     !key.startsWith("w.") &&
-  //     !key.startsWith("difficulty.") &&
-  //     !key.startsWith("wisdom.") &&
-  //     !key.startsWith("a.") &&
-  //     !key.startsWith("boost.")
-  //   );
+function ignore({ aspect }: AspectValue) {
+  return allRecipeAspects.has(aspect);
+}
+
+function aspectKey({ aspect, value }: AspectValue): string {
+  return aspect + ":" + value;
+}
+
+function sortAspectValueDesc(a: AspectValue, b: AspectValue): number {
+  return b.value - a.value;
 }
 
 // Creates permu
@@ -70,9 +70,8 @@ export function permutations<T>(t: T[]): T[][] {
 export function AspectKey(a: AspectMap): string {
   return PositiveAspects(a)
     .filter(ignore)
-    .map((key) => ({ key, val: a[key]! }))
-    .sort((a, b) => b.val - a.val)
-    .map(({ key, val }) => key + ":" + val)
+    .sort(sortAspectValueDesc)
+    .map(aspectKey)
     .join();
 }
 
@@ -80,15 +79,15 @@ export function PrincipleKeys(a: AspectMap): string[] {
   // I think we only want 1!!! aspect at a time. E.G. try to make it resemble the recipes that it COULD fufill.
   // Recipe would only have wood:1, NEVER wood:2 or wood: 1, tool: 1
   const principles = Principles.filter((p) => a[p] && a[p] > 0);
-  const aspects = PositiveAspects(a)
-    .filter(ignore)
-    .map((key) => ({ key, val: a[key]! }));
+  const aspects = PositiveAspects(a).filter(ignore);
 
   return principles.map((p) =>
     aspects
-      .filter(({ key }) => !Principles.includes(key as Principle) || key == p)
-      .sort((a, b) => b.val - a.val)
-      .map(({ key, val }) => key + ":" + val)
+      .filter(
+        ({ aspect }) => !Principles.includes(aspect as Principle) || aspect == p
+      )
+      .sort(sortAspectValueDesc)
+      .map(aspectKey)
       .join()
   );
 }
@@ -99,15 +98,14 @@ export function PrincipleKeysAndBelow(a: AspectMap): string[] {
   const principles = Principles.filter((p) => a[p] && a[p] > 0);
   const aspects = PositiveAspects(a)
     .filter(ignore)
-    .filter((a) => !Principles.includes(a as Principle))
-    .map((key) => ({ key, val: a[key]! }));
+    .filter(({ aspect }) => !Principles.includes(aspect as Principle));
 
   for (const principle of principles) {
     for (let pval = a[principle]!; pval > 0; pval--) {
       keys.push(
-        [{ key: principle, val: pval }, ...aspects]
-          .sort((a, b) => b.val - a.val)
-          .map(({ key, val }) => key + ":" + val)
+        [{ aspect: principle, value: pval }, ...aspects]
+          .sort(sortAspectValueDesc)
+          .map(aspectKey)
           .join()
       );
     }
@@ -121,7 +119,7 @@ export function PermutationKeys(a: AspectMap): string[] {
   return perms
     .map((aspectKeys) => {
       let aspectMap: AspectMap = {};
-      for (const aspect of aspectKeys) {
+      for (const { aspect } of aspectKeys) {
         aspectMap[aspect] = a[aspect];
       }
       return aspectMap;
@@ -322,7 +320,7 @@ export function PopulateDpMapByRecipes(save: Save): RecipeSolution[] {
     const skill = save.skills.find((s) => s.id == recipe.skill)!;
     const principle = Principles.find((p) => recipe.reqs[p])!;
     const otherReqs = PositiveAspects(recipe.reqs).filter(
-      (aspect) =>
+      ({ aspect }) =>
         !aspect.startsWith("s.") && aspect != "ability" && aspect != principle
     );
     if (otherReqs.length > 1) throw `2 reqs! ${otherReqs.join()}`;
@@ -331,7 +329,7 @@ export function PopulateDpMapByRecipes(save: Save): RecipeSolution[] {
       skill,
       principle,
       principleAmount: recipe.reqs[principle]!,
-      otherReq: otherReqs[0],
+      otherReq: otherReqs[0].aspect,
     };
   });
   console.log("recipesToTry", recipesToTry, Recipes.length);

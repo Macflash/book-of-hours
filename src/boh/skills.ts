@@ -1,5 +1,5 @@
 import { SkillData } from "../data/skill_data";
-import { AspectMap, PositiveAspects } from "./aspects";
+import { AspectMap } from "./aspects";
 import { Or0, PrincipleColor, Principles } from "./principles";
 
 export interface Skill extends AspectMap {
