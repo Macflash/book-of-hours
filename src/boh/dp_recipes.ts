@@ -329,7 +329,7 @@ export function PopulateDpMapByRecipes(save: Save): RecipeSolution[] {
       skill,
       principle,
       principleAmount: recipe.reqs[principle]!,
-      otherReq: otherReqs[0].aspect,
+      otherReq: otherReqs[0]?.aspect,
     };
   });
   console.log("recipesToTry", recipesToTry, Recipes.length);
