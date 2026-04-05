@@ -29,6 +29,7 @@ export type Aspect =
   | "tool"
   | "record.phonograph"
   | "comfort"
+  | "intoxicating"
   | "wallart"
   | "fixed"
   | "film"

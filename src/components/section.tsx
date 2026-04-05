@@ -5,7 +5,7 @@ const margin = 3;
 const padding = 3;
 
 interface SectionProps {
-  title?: string;
+  title?: string | ReactNode;
   color?: string;
   principle?: Principle;
   children?: ReactNode;

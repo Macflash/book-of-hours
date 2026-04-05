@@ -266,7 +266,7 @@ export function PopulateDPMapFromSave(save: Save, depth = 2) {
   return DPMap;
 }
 
-interface RecipeSolution {
+export interface RecipeSolution {
   firstSolution: Slotable[];
   solutions: Slotable[][];
   recipe: Recipe;

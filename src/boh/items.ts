@@ -25,7 +25,10 @@ function GenerateItems() {
       ...data,
     };
     item[item.id as Aspect] = 1; // Bootstrap the id as if it was an aspect.
-    if (data.aspects) item = { ...item, ...data.aspects };
+    if (data.aspects) {
+      item = { ...item, ...data.aspects };
+      delete (item as any).aspects;
+    }
     if (data.inherits) {
       const proto = GetPrototype(data.inherits);
       // if (proto.fatigues) console.log("proto fatigues!", proto);

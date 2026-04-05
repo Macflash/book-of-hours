@@ -4,6 +4,7 @@ import { Item } from "../boh/items";
 import {
   AddOr0,
   MinusOr0,
+  Or0,
   Principle,
   PrincipleColor,
   PrincipleMap,
@@ -64,6 +65,7 @@ export function Principlable({
   aspect?: Aspect;
   save?: Save;
 }) {
+  if (!principlable) return null;
   const tooltip =
     save && principlable
       ? GetCraftingHintString(principlable, save)
@@ -76,6 +78,9 @@ export function Principlable({
   if (!aspectable.fatigues && aspectable.thing) color = "aquamarine";
   if (aspectable.memory) color = "lightblue";
   if (aspectable.persistent) color = "aquamarine";
+  if (aspectable.numen) color = "chartreuse";
+  if ((aspectable as Book).reading?.id?.startsWith("numen."))
+    color = "chartreuse";
   if ((aspectable as Book).contaminated) color = "darkorange";
   const alreadyHave = save?.items.filter((i) => i.id == principlable.id).length;
 
@@ -126,7 +131,7 @@ export function PrincipleList(map: PrincipleMap) {
             principle: p,
             value: map[p],
             last: i == arr.length - 1,
-          })
+          }),
         )}
     </>
   );
@@ -157,6 +162,7 @@ export function AspectList(map: AspectMap) {
   const aspects = PositiveAspects(map)
     .map(({ aspect }) => aspect)
     .notIn(Principles as Aspect[]);
+  console.log("aspects", aspects);
   return (
     <span style={{ fontSize: "1rem" }}>
       <PrincipleList {...map} />{" "}
@@ -166,9 +172,9 @@ export function AspectList(map: AspectMap) {
             !a.startsWith("boost.") &&
             !a.startsWith("s.") &&
             a != "ability" &&
-            a != (map as Item).id
+            a != (map as Item).id,
         )
-        .sort((a, b) => (map[b] || 0) - (map[a] || 0))
+        .sort((a, b) => Or0(map[b]) - Or0(map[a]))
         .map((p, i, arr) => p)
         .join(", ")}
     </span>
