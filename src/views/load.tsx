@@ -21,6 +21,7 @@ export function readFile(file = previousFile): Promise<Save> {
 export function LoadFile({ setSave }: { setSave: (newSave: Save) => void }) {
   return (
     <input
+      style={{ color: "white" }}
       type="file"
       accept=".json"
       placeholder="%AppData%\..\LocalLow\Weather Factory\Book of Hours\AUTOSAVE.json"
