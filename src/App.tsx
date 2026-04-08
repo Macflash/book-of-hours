@@ -1,7 +1,7 @@
 import React from "react";
 import "./App.css";
 import { EmptySave, Save } from "./boh/save";
-import { LoadView } from "./views/load";
+import { LoadFile, LoadView, readFile } from "./views/load";
 import { AssistanceView } from "./views/assistance";
 import { CraftingView } from "./views/crafting";
 import { ReadingView } from "./views/reading";
@@ -125,6 +125,7 @@ function App() {
             <option value="workstation">Workstation</option>
             <option value="contamination">Contamination</option>
           </select>
+          <LoadFile setSave={setSave} />
         </div>
       ) : null}
       <header className="App-header">{body}</header>
