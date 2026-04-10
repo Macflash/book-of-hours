@@ -1,5 +1,5 @@
 import React from "react";
-import { Principle, Principles } from "../boh/principles";
+import { Principle, PrincipleColor, Principles } from "../boh/principles";
 import { Save } from "../boh/save";
 import { PrincipleList } from "../components/principleList";
 import {
@@ -15,7 +15,7 @@ import { Memories, Memory, FavMemories } from "../boh/memories";
 export function LessonView({ save }: { save: Save }) {
   const [principles, setPrinciples] = React.useState<Set<Principle>>(new Set());
   const [manualSelected, setSelectedMems] = React.useState<Set<string>>(
-    new Set()
+    new Set(),
   );
 
   const selectedMemories = new Set(manualSelected);
@@ -50,7 +50,7 @@ export function LessonView({ save }: { save: Save }) {
     matchingMemories.map((m) => [
       m.id,
       GetRecipesByResult(m.id, FilterRecipesBySkills(save.skills)),
-    ])
+    ]),
   );
   console.log("Matching recipes", recipeMap);
 
@@ -58,12 +58,12 @@ export function LessonView({ save }: { save: Save }) {
     matchingMemories.map((m) => [
       m.id,
       GetItemsByConsiderSpawnId(m.id, save.items),
-    ])
+    ]),
   );
   console.log("Things to consider", considerMap);
 
   const bookMap = new Map<string, Book[]>(
-    matchingMemories.map((m) => [m.id, FindBooksThatSpawnId(m.id, save.books)])
+    matchingMemories.map((m) => [m.id, FindBooksThatSpawnId(m.id, save.books)]),
   );
 
   const memoriesYouCanGet = matchingMemories.filter(
@@ -71,7 +71,7 @@ export function LessonView({ save }: { save: Save }) {
       selectedMemories.has(id) ||
       recipeMap.get(id)?.length ||
       considerMap.get(id)?.length ||
-      bookMap.get(id)?.length
+      bookMap.get(id)?.length,
   );
 
   // Group memories
@@ -86,52 +86,67 @@ export function LessonView({ save }: { save: Save }) {
         {selectedMemories.size ? ` (${selectedMemories.size} selected)` : null}
       </div>
       {/* Search */}
-      <div>
+      <div style={{ display: "flex", flexDirection: "row", gap: 20 }}>
         <select
+          size={13}
+          style={{
+            flex: "none",
+            overflow: "hidden",
+            height: "fit-content",
+          }}
           multiple
           value={[...principles]}
           onChange={(ev) => {
             setSelectedMems(new Set());
             setPrinciples(
               new Set(
-                [...ev.target.selectedOptions].map((s) => s.value as Principle)
-              )
+                [...ev.target.selectedOptions].map((s) => s.value as Principle),
+              ),
             );
           }}
         >
           {Principles.map((p) => (
-            <option key={p} value={p}>
+            <option
+              key={p}
+              value={p}
+              style={{
+                color: PrincipleColor(p),
+                background: "#282c34",
+                fontSize: 16,
+                padding: "0 10px",
+              }}
+            >
               {p}
             </option>
           ))}
         </select>
-      </div>
-      {/* Show memories */}
-      <div>
-        <MemoryList
-          title="Memories"
-          memories={regular}
-          save={save}
-          madeBefore={save.madeBefore}
-          selectedMemories={selectedMemories}
-          toggle={toggleMem}
-        />
-        <MemoryList
-          title="Persistent"
-          memories={persistent}
-          save={save}
-          madeBefore={save.madeBefore}
-          selectedMemories={selectedMemories}
-          toggle={toggleMem}
-        />
-        <MemoryList
-          title="Numen"
-          memories={numen}
-          save={save}
-          madeBefore={save.madeBefore}
-          selectedMemories={selectedMemories}
-          toggle={toggleMem}
-        />
+        {/* Show memories */}
+        <div>
+          <MemoryList
+            title="Memories"
+            memories={regular}
+            save={save}
+            madeBefore={save.madeBefore}
+            selectedMemories={selectedMemories}
+            toggle={toggleMem}
+          />
+          <MemoryList
+            title="Persistent"
+            memories={persistent}
+            save={save}
+            madeBefore={save.madeBefore}
+            selectedMemories={selectedMemories}
+            toggle={toggleMem}
+          />
+          <MemoryList
+            title="Numen"
+            memories={numen}
+            save={save}
+            madeBefore={save.madeBefore}
+            selectedMemories={selectedMemories}
+            toggle={toggleMem}
+          />
+        </div>
       </div>
     </div>
   );
@@ -174,8 +189,8 @@ function MemoryList({
                   color: FavMemories.some((f) => f.id == m.id)
                     ? "gold"
                     : madeBefore?.has(m.id)
-                    ? "green"
-                    : undefined,
+                      ? "green"
+                      : undefined,
                 }}
               >
                 {m.label}
