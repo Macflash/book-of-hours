@@ -86,13 +86,15 @@ export function LessonView({ save }: { save: Save }) {
         {selectedMemories.size ? ` (${selectedMemories.size} selected)` : null}
       </div>
       {/* Search */}
-      <div style={{ display: "flex", flexDirection: "row", gap: 20 }}>
+      <div style={{ display: "flex", flexDirection: "row" }}>
         <select
           size={13}
           style={{
             flex: "none",
             overflow: "hidden",
             height: "fit-content",
+            background: "#282c34",
+            margin: 5,
           }}
           multiple
           value={[...principles]}
@@ -110,10 +112,10 @@ export function LessonView({ save }: { save: Save }) {
               key={p}
               value={p}
               style={{
+                background: "rgba(0,0,0,.2)",
                 color: PrincipleColor(p),
-                background: "#282c34",
                 fontSize: 16,
-                padding: "0 10px",
+                padding: "5px 10px",
               }}
             >
               {p}
