@@ -17,8 +17,6 @@ export function AssistanceView({ save }: { save: Save }) {
   // TODO: So this finds the MAX you can do, but we actually want...
   // the MINIMUM that is good enough?
 
-  const allAssistants = GetAssistants();
-  const alwaysAssistants = GetAssistants("none", false);
   const [selected, setSelected] = React.useState<Assistant[]>([]);
 
   return (
@@ -26,23 +24,7 @@ export function AssistanceView({ save }: { save: Save }) {
       {/* Assistant selection */}
       <div style={{ display: "flex", flexDirection: "column" }}>
         <AssistantSelect
-          title="Regular"
-          assistants={alwaysAssistants}
-          save={save}
-          selected={selected}
-          setSelected={setSelected}
-        />
-        <AssistantSelect
-          title="Seasonal"
-          assistants={allAssistants.filter(({ season }) => !!season)}
-          save={save}
-          selected={selected}
-          setSelected={setSelected}
-        />
-        <AssistantSelect
-          title="Unusual"
-          assistants={allAssistants.filter(({ unusual }) => !!unusual)}
-          save={save}
+          assistants={GetAssistants()}
           selected={selected}
           setSelected={setSelected}
         />
@@ -57,62 +39,79 @@ export function AssistanceView({ save }: { save: Save }) {
 
 function AssistantSelect({
   assistants,
-  save,
-  title,
   selected,
   setSelected,
 }: {
   assistants: Assistant[];
-  save: Save;
-  title: string;
   selected: Assistant[];
   setSelected: (newSelected: Assistant[]) => void;
 }) {
-  const otherSelected = selected.filter((s) => !assistants.includes(s));
   return (
-    <div>
-      <div style={{ margin: 5 }}>
-        {title}
-        <button
-          style={{ margin: 5 }}
-          onClick={() => {
-            setSelected(otherSelected);
+    <select
+      size={assistants.length + 4}
+      style={{
+        flex: "none",
+        height: "fit-content",
+        overflow: "hidden",
+        margin: 5,
+      }}
+      multiple
+      value={selected.map((s) => s.id)}
+      onChange={({ target: { selectedOptions } }) => {
+        setSelected(
+          [...selectedOptions].map(
+            (o) => assistants.find((a) => a.id === o.value)!,
+          ),
+        );
+      }}
+    >
+      <AssistantGroup
+        label="Regular"
+        assistants={assistants.filter((a) => !a.unusual && !a.season)}
+      />
+      <AssistantGroup
+        label="Seasonal"
+        assistants={assistants.filter(({ season }) => !!season)}
+      />
+      <AssistantGroup
+        label="Unusual"
+        assistants={assistants.filter(({ unusual }) => !!unusual)}
+      />
+    </select>
+  );
+}
+
+function AssistantGroup({
+  assistants,
+  label,
+}: {
+  assistants: Assistant[];
+  label: string;
+}) {
+  return (
+    <optgroup
+      label={label}
+      style={{
+        fontSize: 18,
+        fontWeight: "bold",
+        margin: "10px 5px",
+        borderBottom: "1px solid grey",
+      }}
+    >
+      {assistants.map((a) => (
+        <option
+          key={a.id}
+          value={a.id}
+          style={{
+            fontSize: 16,
+            padding: "5px 10px",
           }}
         >
-          X
-        </button>
-      </div>
-      <select
-        size={assistants.length}
-        style={{
-          flex: "none",
-          height: "fit-content",
-          overflow: "hidden",
-          margin: 5,
-        }}
-        multiple
-        value={selected.map((s) => s.id)}
-        onChange={({ target: { selectedOptions } }) => {
-          const mySelected = [...selectedOptions].map(
-            (o) => assistants.find((a) => a.id === o.value)!,
-          );
-          setSelected([...otherSelected, ...mySelected]);
-        }}
-      >
-        {assistants.map((a) => (
-          <option
-            key={a.id}
-            value={a.id}
-            style={{
-              fontSize: 16,
-              padding: "5px 10px",
-            }}
-          >
-            {a.label}
-          </option>
-        ))}
-      </select>
-    </div>
+          {a.season ? `${a.season}: ` : ""}
+          {a.label}
+        </option>
+      ))}
+    </optgroup>
   );
 }
 

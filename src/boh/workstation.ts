@@ -244,8 +244,9 @@ export function GetWorkstationSlots(workstation: Workstation) {
 
 export function WorkstationAsSlotable(ws: Workstation): Slotable {
   return {
-    id: ws.id,
-    label: ws.label,
+    // id: ws.id,
+    // label: ws.label,
+    ...ws, // if it already had aspects?
     ...ws.aspects,
   };
 }

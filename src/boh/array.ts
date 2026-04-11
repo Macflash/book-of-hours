@@ -5,6 +5,7 @@ declare global {
     noNulls(): Array<Exclude<T, null | undefined>>;
     all(callback: (x: T) => boolean): boolean;
     unique(): Array<T>;
+    uniqueBy(key: keyof T): Array<T>;
     notIn(other: T[]): Array<T>;
     ifEmpty<J>(ifEmpty: J): Array<T> | J;
     sortAsc(cb: (t: T) => number): Array<T>;
@@ -21,7 +22,7 @@ if (!Array.prototype.noNulls) {
 if (!Array.prototype.all) {
   Array.prototype.all = function <T>(
     this: T[],
-    callback: (t: T) => boolean
+    callback: (t: T) => boolean,
   ): boolean {
     return !this.some((t) => !callback(t));
   };
@@ -38,6 +39,19 @@ if (!Array.prototype.unique) {
   };
 }
 
+if (!Array.prototype.uniqueBy) {
+  Array.prototype.uniqueBy = function <T, K extends keyof T>(
+    this: T[],
+    key: K,
+  ): T[] {
+    const set = new Set<T[K]>();
+    return this.filter((x) => {
+      if (set.has(x[key])) return false;
+      set.add(x[key]);
+      return true;
+    });
+  };
+}
 if (!Array.prototype.notIn) {
   Array.prototype.notIn = function <T>(this: T[], other: T[]): T[] {
     return this.filter((t) => !other.includes(t));
@@ -60,7 +74,7 @@ if (!Array.prototype.sortDesc) {
   const defaultcb = (x: any) => x;
   Array.prototype.sortDesc = function <T>(
     this: T[],
-    cb: (t: T) => number
+    cb: (t: T) => number,
   ): T[] {
     cb ||= defaultcb;
     return this.sort((a, b) => cb(b) - cb(a));

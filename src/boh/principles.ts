@@ -71,13 +71,13 @@ export function Or0(n: number | undefined) {
 
 export function BestPrinciple(map: PrincipleMap) {
   return Principles.map((p) => ({ p, val: Or0(map[p]) })).sortAsc(
-    (x) => x.val
+    (x) => x.val,
   )[0];
 }
 
 export function FindBestByPrinciple<T extends PrincipleMap>(
   principle: Principle,
-  things: readonly T[]
+  things: readonly T[],
 ): T | null {
   let bestThing: T | null = null;
   let bestValue = 0;
@@ -110,11 +110,17 @@ export function MapPrinciples(principleMap: PrincipleMap) {
 }
 
 export function ForAllPrinciples<TResult>(
-  cb: (p: Principle) => TResult
+  cb: (p: Principle) => TResult,
 ): Map<Principle, NoInfer<TResult>> {
   const resultMap = new Map<Principle, TResult>();
   for (const p of Principles) {
     resultMap.set(p, cb(p));
   }
   return resultMap;
+}
+
+export function ToPrincipleString(map: PrincipleMap): string {
+  return Principles.filter((p) => map[p])
+    .map((p) => `${p}: ${Or0(map[p])}`)
+    .join(", ");
 }

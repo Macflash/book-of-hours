@@ -134,7 +134,7 @@ export function AddAspect(aspect: Aspect, a: AspectMap, b: AspectMap): number {
 export function SubtractAspect(
   aspect: Aspect,
   a: AspectMap,
-  b: AspectMap
+  b: AspectMap,
 ): number {
   return Or0(a[aspect]) - Or0(b[aspect]);
 }
@@ -159,7 +159,7 @@ export function SubtractAspectsInplace(a: AspectMap, b: AspectMap) {
 
 export function MatchesRequiredAspects(
   required: AspectMap,
-  provided: AspectMap
+  provided: AspectMap,
 ) {
   for (const key in required) {
     const aspect = key as Aspect;
@@ -179,4 +179,10 @@ export function GetAspectsWithPrefix(aspectable: AspectMap, prefix: string) {
   return Object.keys(aspectable)
     .filter((k) => k.startsWith(prefix) && aspectable[k as Aspect])
     .map((k) => k.substring(prefix.length));
+}
+
+export function AspectMapString(aspectMap: AspectMap): string {
+  return Object.entries(aspectMap)
+    .map(([key, value]) => `${key}: ${value}`)
+    .join(", ");
 }

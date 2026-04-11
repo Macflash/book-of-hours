@@ -8,30 +8,65 @@ import {
   Slotable,
   SumSlotAspects,
   Workstation,
+  WorkstationAsSlotable,
 } from "../boh/workstation";
-import { PrincipleList } from "../components/principleList";
+import { GetAssistants } from "../boh/assistance";
+import { Principle, PrincipleColor, Principles } from "../boh/principles";
+import { AspectMap } from "../boh/aspects";
+import { AspectList, PrincipleList } from "../components/principleList";
 
 export function WorkstationView({ save }: { save: Save }) {
+  const allWorkstations = [
+    Consider as Workstation,
+    ...(GetAssistants() as Workstation[]),
+    ...save.workstations,
+  ];
+
   const [workstation, setWorkstation] = React.useState(Consider as Workstation);
   const [slotmap, setSlotmap] = React.useState(new Map<Slot, Slotable>());
-
   const slotables = GetSlotablesFromSave(save);
 
-  const aspects = SumSlotAspects(slotmap.values().toArray());
-  console.log("aspects", aspects);
+  const aspects = SumSlotAspects([
+    WorkstationAsSlotable(workstation),
+    ...slotmap.values().toArray(),
+  ]);
+
+  const [principle, setPrinciple] = React.useState<Principle | "all">("all");
 
   return (
     <div>
-      <div style={{ border: "1px solid grey", margin: 3, padding: 3 }}>
-        Workstation{" "}
-        <select value={workstation.id}>
-          {save.workstations.map((ws) => (
-            <option value={ws.id} key={ws.id}>
-              {ws.label}
-            </option>
-          ))}
-        </select>
+      <div
+        style={{
+          border: "1px solid grey",
+          margin: 3,
+          padding: 3,
+          display: "flex",
+          gap: 10,
+        }}
+      >
+        <div>
+          <div>Principle</div>
+          <PrincipleSelect
+            aspects={aspects}
+            selected={principle as Principle}
+            setSelected={setPrinciple}
+          />
+        </div>
+
+        <div>
+          <div>Workstation</div>
+          <WorkstationSelect
+            principle={principle as Principle}
+            workstations={save.workstations}
+            selected={workstation.id}
+            setSelected={(id) => {
+              setWorkstation(allWorkstations.find((w) => w.id == id)!);
+              setSlotmap(new Map());
+            }}
+          />
+        </div>
       </div>
+
       <div style={{ border: "1px solid grey", margin: 3, padding: 3 }}>
         Slots
         {workstation.slots.map((slot) => (
@@ -49,22 +84,116 @@ export function WorkstationView({ save }: { save: Save }) {
             >
               <option value="empty">Empty</option>
               {slotables
-                .filter((slotable) => MatchesSlot(slot, slotable))
+                .uniqueBy("id")
+                .filter(
+                  (slotable) =>
+                    MatchesSlot(slot, slotable) &&
+                    (principle == "all" || slotable[principle as Principle]),
+                )
+                .sortDesc((slotable) => slotable[principle as Principle] || 0)
                 .map((slotable, i) => (
                   <option value={slotable.id} key={i}>
                     {slotable.label}
+                    {slotable[principle as Principle]
+                      ? ` (${slotable[principle as Principle]})`
+                      : ""}
                   </option>
                 ))}
             </select>
           </div>
         ))}
       </div>
-      <div>
-        Aspects
-        <div>
-          <PrincipleList {...aspects} />
-        </div>
-      </div>
+      <PrincipleList {...aspects} />
     </div>
+  );
+}
+
+function PrincipleSelect({
+  selected,
+  setSelected,
+  aspects,
+}: {
+  selected: Principle;
+  setSelected: (p: Principle) => void;
+  aspects: AspectMap;
+}) {
+  return (
+    <select
+      style={{
+        background: "#222",
+        color: PrincipleColor(selected) || "white",
+      }}
+      value={selected}
+      onChange={({ target: { value } }) => {
+        setSelected(value as Principle);
+      }}
+    >
+      <option value="all">All Principles</option>
+      {Principles.map((p) => (
+        <option
+          key={p}
+          value={p}
+          style={{
+            background: "#222",
+            color: PrincipleColor(p),
+            fontSize: 16,
+            padding: "5px 10px",
+          }}
+        >
+          {p} {aspects[p] ? `(${aspects[p]})` : ""}
+        </option>
+      ))}
+    </select>
+  );
+}
+
+function WorkstationSelect({
+  selected,
+  setSelected,
+  workstations,
+  principle,
+}: {
+  selected: string;
+  setSelected: (id: string) => void;
+  workstations: Workstation[];
+  principle: Principle;
+}) {
+  return (
+    <select
+      value={selected}
+      onChange={({ target: { value } }) => {
+        setSelected(value);
+      }}
+    >
+      {[Consider].map((ws) => (
+        <option value={ws.id} key={ws.id}>
+          {ws.label}
+        </option>
+      ))}
+      <optgroup label="Assistants">
+        {GetAssistants()
+          .filter((ws) => (principle as string) == "all" || ws[principle])
+          .map((ws) => (
+            <option value={ws.id} key={ws.id}>
+              {ws.label}
+              {ws[principle] ? ` (${ws[principle]})` : ""}
+            </option>
+          ))}
+      </optgroup>
+      <optgroup label="Workstations">
+        {workstations
+          .filter(
+            (ws) =>
+              (principle as string) == "all" ||
+              !ws.hints ||
+              ws.hints.indexOf(principle) >= 0,
+          )
+          .map((ws) => (
+            <option value={ws.id} key={ws.id}>
+              {ws.label}
+            </option>
+          ))}
+      </optgroup>
+    </select>
   );
 }
