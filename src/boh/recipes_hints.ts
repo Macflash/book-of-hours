@@ -73,9 +73,9 @@ export function GetCraftingHintString(
 
   let result = "";
   if (location) result += `Located in ${location}\n`;
-  if (recipeString) result += `Craft:\n${recipeString}\n`;
-  if (considerString) result += `Consider:\n${considerString}\n`;
   if (readingString) result += `Read:\n${readingString}\n`;
+  if (recipeString) result += `Craft:\n${recipeString}\n`;
+  if (considerString) result += `Consider:\n${considerString}\n`; // Would be nice to KNOW if this destroys it or not!!
   return result;
 }
 
