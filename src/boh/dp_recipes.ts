@@ -33,7 +33,7 @@ for (const recipe of Recipes) {
 const allRecipeAspects = new Set<Aspect>(
   PositiveAspects(allRecipeSum).map(({ aspect }) => aspect),
 );
-console.log("All recipe aspects", allRecipeAspects);
+// console.log("All recipe aspects", allRecipeAspects);
 
 function ignore({ aspect }: AspectValue) {
   return allRecipeAspects.has(aspect);
@@ -194,13 +194,16 @@ export interface RecipeSolution {
 let lastSave: Save | null = null;
 let lastResult: RecipeSolution[] = [];
 
-export function PopulateDpMapByRecipes(save: Save): RecipeSolution[] {
+export function PopulateDpMapByRecipes(
+  save: Save,
+  log = false,
+): RecipeSolution[] {
   if (lastSave == save) {
-    console.log("Cached");
+    log || console.log("Cached");
     return lastResult;
   }
   const start = Date.now();
-  console.log("Populating...");
+  log || console.log("Populating...");
 
   // tools and comforts for now.
   // Hmm! this doesn't let you use a tool twice if you have two.
@@ -212,18 +215,18 @@ export function PopulateDpMapByRecipes(save: Save): RecipeSolution[] {
   const others = save.items.filter(
     (i) => !i.tool && !i.comfort && !i.wallart && !i.fixed,
   ) as Slotable[];
-  console.log("tools", tools, uniqueTools);
-  console.log("comforts", comforts);
-  console.log("wallart", wallart);
-  console.log("others", others);
+  log || console.log("tools", tools, uniqueTools);
+  log || console.log("comforts", comforts);
+  log || console.log("wallart", wallart);
+  log || console.log("others", others);
 
   const items = [...tools, ...comforts, ...wallart];
-  console.log("items", items, save.items.length);
+  log || console.log("items", items, save.items.length);
 
   // Again... this doesn't include CRAFTABLE memories. e.g. cheerful ditty, etc.
   // Ideally we do all prentice recipes and include successful outputs as inputs for later crafting?
   const memories = GetAvailableMemoriesFromSave(save, true);
-  console.log("memories", memories);
+  log || console.log("memories", memories);
 
   // Used for the last slots in the workstations, which could take a lot of things.
   const allSlotables: Slotable[] = [...items, ...memories, ...save.souls];
@@ -247,16 +250,16 @@ export function PopulateDpMapByRecipes(save: Save): RecipeSolution[] {
       otherReq: otherReqs[0]?.aspect,
     };
   });
-  console.log("recipesToTry", recipesToTry, Recipes.length);
+  log || console.log("recipesToTry", recipesToTry, Recipes.length);
 
   // Prentice don't require other aspects.
   const prentice = recipesToTry.filter((r) => r.principleAmount == 5);
   // All scholar and keeper recipes require other aspects.
   const scholar = recipesToTry.filter((r) => r.principleAmount == 10);
   const keeper = recipesToTry.filter((r) => r.principleAmount == 15);
-  console.log("prentice", prentice);
-  console.log("scholar", scholar);
-  console.log("keeper", keeper);
+  log || console.log("prentice", prentice);
+  log || console.log("scholar", scholar);
+  log || console.log("keeper", keeper);
 
   const recipeResults = [...prentice, ...scholar, ...keeper]
     .map((recipeData) => {
@@ -273,13 +276,13 @@ export function PopulateDpMapByRecipes(save: Save): RecipeSolution[] {
         return sum[principle]! >= principleAmount;
       }
 
-      console.log(recipe.id);
-      if (otherReq) console.log("othereq", otherReq);
+      log || console.log(recipe.id);
+      if (otherReq) log || console.log("othereq", otherReq);
       const workstations = save.workstations.filter((ws) =>
         FindMatchingSlots(ws, skill),
       );
       if (!workstations.length) return null;
-      console.log("workstations", workstations);
+      log || console.log("workstations", workstations);
 
       // Basically just use the FIRST one you can from the souls.
       const orderedSouls = save.souls.sort(SortByAspect(principle));
@@ -366,7 +369,7 @@ export function PopulateDpMapByRecipes(save: Save): RecipeSolution[] {
         .filter((i) => i[principle] || i[otherReq])
         .filter((i) => i.id != recipe.result)
         .sort(SortByAspect(principle));
-      console.log("ordered", orderedMemories, orderedItems);
+      log || console.log("ordered", orderedMemories, orderedItems);
 
       function doSlot(usedSoFar: Slotable[], slotToUse: Slot, lastSlot?: Slot) {
         const otherReqFufilled =
@@ -438,12 +441,13 @@ export function PopulateDpMapByRecipes(save: Save): RecipeSolution[] {
 
       // No solutions i guess.
       if (allSlots.length)
-        console.log(
-          "Didn't find anything...",
-          recipe.id,
-          recipe.reqs,
-          allSlots,
-        );
+        log ||
+          console.log(
+            "Didn't find anything...",
+            recipe.id,
+            recipe.reqs,
+            allSlots,
+          );
       return null;
     })
     .noNulls();
@@ -461,8 +465,8 @@ export function PopulateDpMapByRecipes(save: Save): RecipeSolution[] {
   //     return { recipe, usedInSlots: usedInSlots2 };
   // }
 
-  console.log("recipe results", recipeResults, recipesToTry.length);
-  console.log("DPMap", DPMap);
+  log || console.log("recipe results", recipeResults, recipesToTry.length);
+  log || console.log("DPMap", DPMap);
 
   const bestResults = recipeResults
     .map((data) => ({
@@ -470,11 +474,11 @@ export function PopulateDpMapByRecipes(save: Save): RecipeSolution[] {
       firstSolution: data.solutions[0],
     }))
     .sort((a, b) => a.firstSolution.length - b.firstSolution.length);
-  console.log("best results", bestResults);
+  log || console.log("best results", bestResults);
 
   lastSave = save;
   lastResult = bestResults;
-  console.log("done", Date.now() - start);
+  log || console.log("done", Date.now() - start);
   return bestResults;
 }
 

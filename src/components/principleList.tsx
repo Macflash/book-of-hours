@@ -162,7 +162,7 @@ export function AspectList(map: AspectMap) {
   const aspects = PositiveAspects(map)
     .map(({ aspect }) => aspect)
     .notIn(Principles as Aspect[]);
-  console.log("aspects", aspects);
+  // console.log("aspects", aspects);
   return (
     <span style={{ fontSize: "1rem" }}>
       <PrincipleList {...map} />{" "}

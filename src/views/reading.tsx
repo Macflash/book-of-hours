@@ -1,3 +1,4 @@
+import { FindBooksThatSpawnNumen, spawnsNumen } from "../boh/book";
 import {
   Principle,
   Principles,
@@ -20,9 +21,9 @@ import {
 
 export function ReadingView({ save }: { save: Save }) {
   const desks = save.workstations.filter((w) =>
-    w.slots.some((s) => s.required.readable)
+    w.slots.some((s) => s.required.readable),
   );
-  console.log("desks", desks);
+  // console.log("desks", desks);
 
   const workstationPrincipleMap = ForAllPrinciples((p) => {
     // Filter out books and paper since that is what we need to read bro.
@@ -30,12 +31,11 @@ export function ReadingView({ save }: { save: Save }) {
       p,
       desks,
       GetSlotablesFromSave(save).filter(
-        (s) => s && !s.blank && !s.readable && !s.device
-      )
+        (s) => s && !s.blank && !s.readable && !s.device,
+      ),
     );
   });
-
-  console.log("desks per principle", workstationPrincipleMap);
+  // console.log("desks per principle", workstationPrincipleMap);
 
   const booksToMaster = save.books.filter(
     (b) =>
@@ -44,14 +44,21 @@ export function ReadingView({ save }: { save: Save }) {
       Principles.some(
         (principle) =>
           b[principle] &&
-          Or0(workstationPrincipleMap.get(principle)?.bestSum) >= b[principle]
-      )
+          Or0(workstationPrincipleMap.get(principle)?.bestSum) >= b[principle],
+      ),
   );
+
   console.log(
     "books left to read",
-    save.books.filter((b) => !b.mastered)
+    save.books.filter((b) => !b.mastered),
   );
   console.log("books you can master", booksToMaster);
+
+  const booksYouCanReadThatSpawnNumen = FindBooksThatSpawnNumen(booksToMaster);
+  console.log(
+    "books you can read that spawn numen",
+    booksYouCanReadThatSpawnNumen,
+  );
 
   const skillsYouCouldGet = booksToMaster
     .map((b) => b.mastering.id.replace("x.", "s."))
@@ -60,7 +67,7 @@ export function ReadingView({ save }: { save: Save }) {
       const existingSkill = save.skills.find((skill) => skill.id == s);
       const skill = GetSkillById(s)!;
       const books = booksToMaster.filter(
-        (b) => b.mastering.id.replace("x.", "s.") == s
+        (b) => b.mastering.id.replace("x.", "s.") == s,
       );
       return { existingSkill, skill, books };
     });
@@ -69,9 +76,9 @@ export function ReadingView({ save }: { save: Save }) {
     .filter(({ existingSkill }) => existingSkill)
     .sort((a, b) => Or0(b.existingSkill?.skill) - Or0(a.existingSkill?.skill));
   const skillsYouDont = skillsYouCouldGet.notIn(skillsYouHave);
-  console.log("skillsYouCouldGet", skillsYouCouldGet);
-  console.log("skillsYouHave", skillsYouHave);
-  console.log("skillsYouDont", skillsYouDont);
+  // console.log("skillsYouCouldGet", skillsYouCouldGet);
+  // console.log("skillsYouHave", skillsYouHave);
+  // console.log("skillsYouDont", skillsYouDont);
 
   return (
     <div>
@@ -90,13 +97,16 @@ export function ReadingView({ save }: { save: Save }) {
               <AspectList {...(existingSkill || skill)} />
               <div>
                 {books.map((b) => (
-                  <div key={b.id}>
+                  <div
+                    key={b.id}
+                    style={{ color: spawnsNumen(b) ? "red" : "" }}
+                  >
                     {b.label} <PrincipleList {...b} /> +{b.mastering.level}
                   </div>
                 ))}
               </div>
             </div>
-          )
+          ),
         )}
       </div>
       <div>{!booksToMaster.length ? "Can't read anything right now" : ""}</div>
@@ -109,7 +119,7 @@ export function ReadingView({ save }: { save: Save }) {
               .toArray()
               .filter((s) => s?.[principle]);
             const booksYouCanReadWithThisPrinciple = booksToMaster.filter(
-              (b) => b[principle] && bestSum >= b[principle]
+              (b) => b[principle] && bestSum >= b[principle],
             );
             return (
               <div

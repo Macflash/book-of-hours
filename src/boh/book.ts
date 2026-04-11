@@ -19,8 +19,16 @@ export function GetBookById(id: string, books = Books): Book | undefined {
 
 export function FindBooksThatSpawnId(spawnId: string, books = Books): Book[] {
   return books.filter(
-    (b) => b.mastering.id == spawnId || b.reading.id == spawnId
+    (b) => b.mastering.id == spawnId || b.reading.id == spawnId,
   );
+}
+
+export function spawnsNumen(book: Book): boolean {
+  return book.reading.id.startsWith("numen.");
+}
+
+export function FindBooksThatSpawnNumen(books = Books): Book[] {
+  return books.filter(spawnsNumen);
 }
 
 export const Books = [
