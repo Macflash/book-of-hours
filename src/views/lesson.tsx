@@ -6,6 +6,7 @@ import {
   FilterRecipesBySkills,
   GetRecipesByResult,
   Recipe,
+  Recipes,
 } from "../boh/recipes";
 import { Book, FindBooksThatSpawnId } from "../boh/book";
 import { Item, GetItemsByConsiderSpawnId } from "../boh/items";
@@ -46,6 +47,11 @@ export function LessonView({ save }: { save: Save }) {
 
   // TODO: weather??
   // TODO: TALKING TO ASSISTANTS! This is a good way to get stuff early
+  console.log("skills??", save.skills);
+  console.log("recipes??", Recipes);
+  const recipesBySkills = FilterRecipesBySkills(save.skills); // not working??
+  console.log("Recipes by skills", recipesBySkills);
+
   const recipeMap = new Map<string, Recipe[]>(
     matchingMemories.map((m) => [
       m.id,

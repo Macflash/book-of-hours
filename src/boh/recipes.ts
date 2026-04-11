@@ -80,10 +80,11 @@ export function GetRecipesByResult(
   return recipes.filter((r) => r.result == result);
 }
 
+// OMG
 export function FilterRecipesBySkills(skills: Skill[], recipes = Recipes) {
-  return recipes.filter((recipe) => {
-    skills.some((skill) => skill.id == recipe.skill);
-  });
+  return recipes.filter((recipe) =>
+    skills.some((skill) => skill.id == recipe.skill),
+  );
 }
 
 export function ToRecipeString(recipe: Recipe): string {
