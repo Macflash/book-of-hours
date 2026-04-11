@@ -6,6 +6,7 @@ import {
   ForAllPrinciples,
   Or0,
 } from "../boh/principles";
+import { GetCraftingHintString } from "../boh/recipes_hints";
 import { Save } from "../boh/save";
 import { GetSkillById } from "../boh/skills";
 import {
@@ -99,7 +100,14 @@ export function ReadingView({ save }: { save: Save }) {
                 {books.map((b) => (
                   <div
                     key={b.id}
-                    style={{ color: spawnsNumen(b) ? "red" : "" }}
+                    style={{
+                      color: b.contaminated
+                        ? "darkorange"
+                        : spawnsNumen(b)
+                          ? "red"
+                          : "",
+                    }}
+                    title={GetCraftingHintString(b, save)}
                   >
                     {b.label} <PrincipleList {...b} /> +{b.mastering.level}
                   </div>

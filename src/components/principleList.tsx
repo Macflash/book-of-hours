@@ -66,13 +66,14 @@ export function Principlable({
   save?: Save;
 }) {
   if (!principlable) return null;
+  const aspectable = principlable as Item;
   const tooltip =
-    save && principlable
+    ((aspectable as Book).contaminated ? `Contaminated \n` : "") +
+    (save && principlable
       ? GetCraftingHintString(principlable, save)
-      : undefined;
+      : undefined);
 
   let color = principlable.color;
-  const aspectable = principlable as Item;
   // TODO: this is meant to cover all things that will be DESTROYED/CONSUMED when used.
   if (aspectable.fatigues && aspectable.thing) color = "antiquewhite";
   if (!aspectable.fatigues && aspectable.thing) color = "aquamarine";
