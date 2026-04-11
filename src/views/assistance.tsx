@@ -1,8 +1,12 @@
 import React from "react";
-import { GetAssistants } from "../boh/assistance";
+import { Assistant, GetAssistants } from "../boh/assistance";
 import { PrincipleColor, ForAllPrinciples, Principle } from "../boh/principles";
 import { Save } from "../boh/save";
-import { Principlable, Principlables } from "../components/principleList";
+import {
+  Principlable,
+  Principlables,
+  PrincipleList,
+} from "../components/principleList";
 import {
   BestWorkstation,
   FindBestWorkstationByPrinciple,
@@ -15,6 +19,7 @@ export function AssistanceView({ save }: { save: Save }) {
 
   const allAssistants = GetAssistants();
   const alwaysAssistants = GetAssistants("none", false);
+  const [selected, setSelected] = React.useState<Assistant[]>([]);
 
   console.log("assistants", allAssistants, alwaysAssistants);
 
@@ -22,13 +27,8 @@ export function AssistanceView({ save }: { save: Save }) {
   const allSlotables = GetSlotablesFromSave(save, false);
 
   const assistanceMap = ForAllPrinciples((p) => ({
-    max: FindBestWorkstationByPrinciple(p, allAssistants, allSlotables),
-    mid: FindBestWorkstationByPrinciple(p, alwaysAssistants, allSlotables),
-    min: FindBestWorkstationByPrinciple(
-      p,
-      alwaysAssistants,
-      renewableSlotables
-    ),
+    max: FindBestWorkstationByPrinciple(p, selected, allSlotables),
+    min: FindBestWorkstationByPrinciple(p, selected, renewableSlotables),
   }));
 
   // list rooms that need to be unlocked
@@ -37,28 +37,52 @@ export function AssistanceView({ save }: { save: Save }) {
 
   return (
     <div>
+      {/* Assistant selection */}
+      <div style={{ display: "flex", flexDirection: "row" }}>
+        <AssistantSelect
+          title="Regular"
+          assistants={alwaysAssistants}
+          save={save}
+          selected={selected}
+          setSelected={setSelected}
+        />
+        <AssistantSelect
+          title="Seasonal"
+          assistants={allAssistants.filter(({ season }) => !!season)}
+          save={save}
+          selected={selected}
+          setSelected={setSelected}
+        />
+        <AssistantSelect
+          title="Unusual"
+          assistants={allAssistants.filter(({ unusual }) => !!unusual)}
+          save={save}
+          selected={selected}
+          setSelected={setSelected}
+        />
+      </div>
+
       {/* Assistance you can get */}
       <div>
         {[...assistanceMap.entries()]
           .flatMap(
-            ([principle, { max, mid, min }]) =>
+            ([principle, { min, max }]) =>
               [
-                [principle, max],
-                [principle, mid],
                 [principle, min],
-              ] as [Principle, BestWorkstation][]
+                [principle, max],
+              ] as [Principle, BestWorkstation][],
           )
           .filter(([principle, { bestSum }]) =>
-            roomsToOpen.find((r) => r[principle] && bestSum >= r[principle])
+            roomsToOpen.find((r) => r[principle] && bestSum >= r[principle]),
           )
-          .sort((a, b) => a[1].bestSum - b[1].bestSum)
+          .sort((a, b) => b[1].bestSum - a[1].bestSum)
           .map(([principle, { bestWorkstation, bestSum, bestSlotMap }], i) => {
             const slotables = bestSlotMap
               .values()
               .toArray()
               .filter((s) => s?.[principle]);
             const roomsYouCanOpenWithThisPrinciple = roomsToOpen.filter(
-              (r) => r[principle] && bestSum >= r[principle]
+              (r) => r[principle] && bestSum >= r[principle],
             );
             return (
               <div
@@ -118,6 +142,68 @@ export function AssistanceView({ save }: { save: Save }) {
             );
           })}
       </div>
+    </div>
+  );
+}
+
+function AssistantSelect({
+  assistants,
+  save,
+  title,
+  selected,
+  setSelected,
+}: {
+  assistants: Assistant[];
+  save: Save;
+  title: string;
+  selected: Assistant[];
+  setSelected: (newSelected: Assistant[]) => void;
+}) {
+  const otherSelected = selected.filter((s) => !assistants.includes(s));
+  return (
+    <div>
+      <div style={{ margin: 5 }}>
+        {title}
+        <button
+          style={{ margin: 5 }}
+          onClick={() => {
+            setSelected(otherSelected);
+          }}
+        >
+          X
+        </button>
+      </div>
+      <select
+        size={assistants.length}
+        style={{
+          flex: "none",
+          height: "fit-content",
+          overflow: "hidden",
+          margin: 5,
+        }}
+        multiple
+        value={selected.map((s) => s.id)}
+        onChange={({ target: { selectedOptions } }) => {
+          const mySelected = [...selectedOptions].map(
+            (o) => assistants.find((a) => a.id === o.value)!,
+          );
+          setSelected([...otherSelected, ...mySelected]);
+        }}
+      >
+        {assistants.map((a) => (
+          <option
+            key={a.id}
+            value={a.id}
+            style={{
+              fontSize: 16,
+              padding: "5px 10px",
+            }}
+          >
+            {" "}
+            <Principlable principlable={a} save={save} />
+          </option>
+        ))}
+      </select>
     </div>
   );
 }

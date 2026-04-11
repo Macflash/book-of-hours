@@ -51,7 +51,7 @@ function withSlot(customSlot?: Slot): Slot[] {
 export const Assistants: ReadonlyArray<Readonly<Assistant>> = [
   {
     id: "assistance.fisherman",
-    label: "Fisherman's Assistance",
+    label: "Fisherman",
     fee: 12,
     moon: 2,
     sky: 1,
@@ -60,7 +60,7 @@ export const Assistants: ReadonlyArray<Readonly<Assistant>> = [
   },
   {
     id: "assistance.orchardkeeper",
-    label: "Orchard-Keeper's Assistance",
+    label: "Orchard-Keeper",
     fee: 12,
     nectar: 2,
     heart: 1,
@@ -69,7 +69,7 @@ export const Assistants: ReadonlyArray<Readonly<Assistant>> = [
   },
   {
     id: "assistance.barber",
-    label: "Barber's Assistance",
+    label: "Barber",
     fee: 12,
     moth: 2,
     rose: 1,
@@ -78,7 +78,7 @@ export const Assistants: ReadonlyArray<Readonly<Assistant>> = [
   },
   {
     id: "assistance.miner",
-    label: "Miner's Assistance",
+    label: "Miner",
     fee: 12,
     scale: 2,
     forge: 1,
@@ -88,7 +88,7 @@ export const Assistants: ReadonlyArray<Readonly<Assistant>> = [
   },
   {
     id: "assistance.rector",
-    label: "Rector's Assistance",
+    label: "Rector",
     fee: 12,
     lantern: 2,
     knock: 1,
@@ -96,24 +96,15 @@ export const Assistants: ReadonlyArray<Readonly<Assistant>> = [
   },
   {
     id: "assistance.coffinmaker",
-    label: "Coffinmaker's Assistance",
+    label: "Coffinmaker",
     fee: 12,
     winter: 2,
     sky: 1,
     slots: withSlot({ id: "w", label: "Wood", required: { wood: 1 } }),
   },
   {
-    id: "assistance.fisherman",
-    label: "Fisherman's Assistance",
-    fee: 12,
-    moon: 2,
-    sky: 1,
-    season: "winter",
-    slots: withSlot(),
-  },
-  {
     id: "assistance.midwife",
-    label: "Midwife's Assistance",
+    label: "Midwife",
     fee: 12,
     grail: 2,
     heart: 1,
@@ -121,7 +112,7 @@ export const Assistants: ReadonlyArray<Readonly<Assistant>> = [
   },
   {
     id: "assistance.blacksmith",
-    label: "Blacksmith's Assistance",
+    label: "Blacksmith",
     fee: 12,
     forge: 2,
     edge: 2,
@@ -129,7 +120,7 @@ export const Assistants: ReadonlyArray<Readonly<Assistant>> = [
   },
   {
     id: "assistance.engineer",
-    label: "Consulting Engineer's Assistance",
+    label: "Consulting Engineer",
     forge: 4,
     sky: 4,
     lantern: 4,
@@ -139,7 +130,7 @@ export const Assistants: ReadonlyArray<Readonly<Assistant>> = [
   },
   {
     id: "assistance.fugitive",
-    label: "Fugitive's Assistance",
+    label: "Fugitive",
     scale: 4,
     edge: 4,
     heart: 4,
@@ -149,7 +140,7 @@ export const Assistants: ReadonlyArray<Readonly<Assistant>> = [
   },
   {
     id: "assistance.musician",
-    label: "Travelling Musician's Assistance",
+    label: "Travelling Musician",
     sky: 4,
     rose: 4,
     nectar: 4,
@@ -159,7 +150,7 @@ export const Assistants: ReadonlyArray<Readonly<Assistant>> = [
   },
   {
     id: "assistance.nun",
-    label: "Nun's Assistance",
+    label: "Nun",
     knock: 4,
     moon: 4,
     grail: 4,
@@ -169,7 +160,7 @@ export const Assistants: ReadonlyArray<Readonly<Assistant>> = [
   },
   {
     id: "assistance.painter",
-    label: "Surrealist Painter's Assistance",
+    label: "Surrealist Painter",
     grail: 4,
     moth: 4,
     rose: 4,
@@ -179,7 +170,7 @@ export const Assistants: ReadonlyArray<Readonly<Assistant>> = [
   },
   {
     id: "assistance.poet",
-    label: "Elegiac Poet's Assistance",
+    label: "Elegiac Poet",
     winter: 4,
     moth: 4,
     sky: 4,
@@ -191,7 +182,7 @@ export const Assistants: ReadonlyArray<Readonly<Assistant>> = [
 
 export function GetAssistants(
   season?: Season,
-  includeUnusual = true
+  includeUnusual = true,
 ): Assistant[] {
   return Assistants.filter((a) => {
     if (season && a.season && a.season !== season) return false;
