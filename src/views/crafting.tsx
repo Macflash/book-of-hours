@@ -10,6 +10,8 @@ import {
 } from "../components/principleList";
 import { Section } from "../components/section";
 
+export let whatsCraftable: { result: Item; recipes: RecipeSolution[] }[] = [];
+
 export function CraftingView({ save }: { save: Save }) {
   const recipeResults = PopulateDpMapByRecipes(save);
   const results = recipeResults
@@ -23,17 +25,17 @@ export function CraftingView({ save }: { save: Save }) {
   }));
 
   const tools = recipeAndResults.filter(
-    ({ result }) => result.tool && !result.device
+    ({ result }) => result.tool && !result.device,
   );
 
   const inks = recipeAndResults.filter(({ result }) => result.ink);
 
   const beverages = recipeAndResults.filter(
-    ({ result }) => result.beverage || result.intoxicating
+    ({ result }) => result.beverage || result.intoxicating,
   );
 
   const memories = recipeAndResults.filter(
-    ({ result }) => result.memory && !result.persistent
+    ({ result }) => result.memory && !result.persistent,
   );
 
   const persistent = recipeAndResults.filter(({ result }) => result.persistent);
@@ -138,7 +140,7 @@ export function RecipeList({
     >
       {recipes
         .filter(
-          (r) => r.firstSolution.length == recipes[0].firstSolution.length
+          (r) => r.firstSolution.length == recipes[0].firstSolution.length,
         )
         .map((r) => {
           return (

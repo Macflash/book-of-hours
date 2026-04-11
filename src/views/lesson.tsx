@@ -4,13 +4,13 @@ import { Save } from "../boh/save";
 import { PrincipleList } from "../components/principleList";
 import {
   FilterRecipesBySkills,
-  GetCraftingHintString,
   GetRecipesByResult,
   Recipe,
 } from "../boh/recipes";
 import { Book, FindBooksThatSpawnId } from "../boh/book";
 import { Item, GetItemsByConsiderSpawnId } from "../boh/items";
 import { Memories, Memory, FavMemories } from "../boh/memories";
+import { GetCraftingHintString } from "../boh/recipes_hints";
 
 export function LessonView({ save }: { save: Save }) {
   const [principles, setPrinciples] = React.useState<Set<Principle>>(new Set());
@@ -170,6 +170,7 @@ function MemoryList({
   save?: Save;
 }) {
   if (!memories.length) return null;
+
   return (
     <div style={{ padding: 10 }}>
       {title ? (
@@ -178,8 +179,10 @@ function MemoryList({
         </div>
       ) : null}
       {memories.map((m, i) => {
+        const hints = GetCraftingHintString(m, save);
+
         return (
-          <div key={m.id} title={GetCraftingHintString(m, save)}>
+          <div key={m.id} title={hints}>
             <label>
               <input
                 type="checkbox"
@@ -188,11 +191,13 @@ function MemoryList({
               />
               <span
                 style={{
-                  color: FavMemories.some((f) => f.id == m.id)
-                    ? "gold"
-                    : madeBefore?.has(m.id)
-                      ? "green"
-                      : undefined,
+                  color: !hints
+                    ? "grey"
+                    : FavMemories.some((f) => f.id == m.id)
+                      ? "gold"
+                      : madeBefore?.has(m.id)
+                        ? "green"
+                        : undefined,
                 }}
               >
                 {m.label}

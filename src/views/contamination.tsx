@@ -5,7 +5,7 @@ import {
 } from "../boh/principles";
 import { Save } from "../boh/save";
 import { PrincipleList } from "../components/principleList";
-import { GetCraftingHintString } from "../boh/recipes";
+import { GetCraftingHintString } from "../boh/recipes_hints";
 import { GetSkillByEffectiveAgainstId, Skill } from "../boh/skills";
 import { Contaminations } from "../boh/contaminations";
 import { MatchesRequiredAspects } from "../boh/aspects";
@@ -17,7 +17,7 @@ export function ContaminationView({ save }: { save: Save }) {
     Contaminations.map((c) => [
       c.id,
       GetSkillByEffectiveAgainstId(c.curedBy, save.skills),
-    ])
+    ]),
   );
   console.log("Contaminations", skillMap);
 
@@ -35,7 +35,7 @@ export function ContaminationView({ save }: { save: Save }) {
           const possibleWorkstations = GetAllWorkstations().filter(
             (ws) =>
               ws.hints?.includes(c.curedWith) &&
-              ws.slots.some((slot) => slot.required["readable"])
+              ws.slots.some((slot) => slot.required["readable"]),
           );
           // Also has to accept a book
           console.log("possibleWorkstations", possibleWorkstations);
@@ -57,8 +57,8 @@ export function ContaminationView({ save }: { save: Save }) {
                     ws.slots.some(
                       (slot) =>
                         slot.essential?.["skill"] &&
-                        MatchesRequiredAspects(slot.required, skill)
-                    )
+                        MatchesRequiredAspects(slot.required, skill),
+                    ),
                   );
 
                   return (

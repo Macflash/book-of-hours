@@ -8,13 +8,12 @@ import {
   PositiveAspects,
   SortByAspect,
 } from "./aspects";
-import { Item } from "./items";
+import { GetItemById, Item } from "../boh/items";
 import { GetAvailableMemoriesFromSave } from "./memories";
 import { Principle, Principles, SumPrinciples } from "./principles";
 import { Recipe, Recipes } from "./recipes";
 import { Save } from "./save";
 import { Skill } from "./skills";
-import { Souls } from "./souls";
 import {
   FindMatchingSlots,
   GetSlotablesFromSave,
@@ -32,7 +31,7 @@ for (const recipe of Recipes) {
 }
 
 const allRecipeAspects = new Set<Aspect>(
-  PositiveAspects(allRecipeSum).map(({ aspect }) => aspect)
+  PositiveAspects(allRecipeSum).map(({ aspect }) => aspect),
 );
 console.log("All recipe aspects", allRecipeAspects);
 
@@ -84,11 +83,12 @@ export function PrincipleKeys(a: AspectMap): string[] {
   return principles.map((p) =>
     aspects
       .filter(
-        ({ aspect }) => !Principles.includes(aspect as Principle) || aspect == p
+        ({ aspect }) =>
+          !Principles.includes(aspect as Principle) || aspect == p,
       )
       .sort(sortAspectValueDesc)
       .map(aspectKey)
-      .join()
+      .join(),
   );
 }
 
@@ -106,7 +106,7 @@ export function PrincipleKeysAndBelow(a: AspectMap): string[] {
         [{ aspect: principle, value: pval }, ...aspects]
           .sort(sortAspectValueDesc)
           .map(aspectKey)
-          .join()
+          .join(),
       );
     }
   }
@@ -164,7 +164,7 @@ export function AddToMap(slotables: Slotable[]) {
   // Remove some of the other apects to make them more general?
   AddKeysToMap(
     PrincipleKeysAndBelow(WithoutAspect(aspectsum, "memory")),
-    slotables
+    slotables,
   );
 
   //   // This explodes in size.
@@ -200,7 +200,7 @@ export function PopulateDPMapFromSave(save: Save, depth = 2) {
     const skillSlot = slots.find((s) => s.id == "s")!;
     const memorySlot = slots.find((s) => s.id == "m")!;
     const otherSlots = slots.filter(
-      (s) => s != soulSlot && s != skillSlot && s != memorySlot
+      (s) => s != soulSlot && s != skillSlot && s != memorySlot,
     );
     // 31 perms, but actually soul and skill ALWAYS must be set.
     // Only 7 perms with soul and skill always set!
@@ -210,14 +210,14 @@ export function PopulateDPMapFromSave(save: Save, depth = 2) {
 
         if (depth < 3) continue;
         for (const memory of memories.filter((m) =>
-          MatchesSlot(memorySlot, m)
+          MatchesSlot(memorySlot, m),
         )) {
           AddToMap([workstationAsSlotable, soul, skill, memory]);
 
           if (depth < 4) continue;
           for (const otherSlot of otherSlots) {
             const matchingSlotables = slotables.filter((slotable) =>
-              MatchesSlot(otherSlot, slotable)
+              MatchesSlot(otherSlot, slotable),
             );
             for (const slotable1 of matchingSlotables) {
               if (
@@ -235,7 +235,7 @@ export function PopulateDPMapFromSave(save: Save, depth = 2) {
                 if (otherSlot == lastSlot) continue;
                 if (otherSlot == otherSlots[1]) continue;
                 const matchingSlotables2 = slotables.filter((slotable) =>
-                  MatchesSlot(lastSlot, slotable)
+                  MatchesSlot(lastSlot, slotable),
                 );
                 for (const slotable2 of matchingSlotables2) {
                   if (
@@ -295,7 +295,7 @@ export function PopulateDpMapByRecipes(save: Save): RecipeSolution[] {
   const wallart = UniqueByAspects(save.items.filter((i) => i.wallart));
   // Let's ignore these for now!
   const others = save.items.filter(
-    (i) => !i.tool && !i.comfort && !i.wallart && !i.fixed
+    (i) => !i.tool && !i.comfort && !i.wallart && !i.fixed,
   ) as Slotable[];
   console.log("tools", tools, uniqueTools);
   console.log("comforts", comforts);
@@ -315,13 +315,13 @@ export function PopulateDpMapByRecipes(save: Save): RecipeSolution[] {
 
   // OK! for each recipe, we want to only care about the aspects it needs.
   const recipesToTry = Recipes.filter((recipe) =>
-    save.skills.find((s) => s.id == recipe.skill)
+    save.skills.find((s) => s.id == recipe.skill),
   ).map((recipe) => {
     const skill = save.skills.find((s) => s.id == recipe.skill)!;
     const principle = Principles.find((p) => recipe.reqs[p])!;
     const otherReqs = PositiveAspects(recipe.reqs).filter(
       ({ aspect }) =>
-        !aspect.startsWith("s.") && aspect != "ability" && aspect != principle
+        !aspect.startsWith("s.") && aspect != "ability" && aspect != principle,
     );
     if (otherReqs.length > 1) throw `2 reqs! ${otherReqs.join()}`;
     return {
@@ -361,7 +361,7 @@ export function PopulateDpMapByRecipes(save: Save): RecipeSolution[] {
       console.log(recipe.id);
       if (otherReq) console.log("othereq", otherReq);
       const workstations = save.workstations.filter((ws) =>
-        FindMatchingSlots(ws, skill)
+        FindMatchingSlots(ws, skill),
       );
       if (!workstations.length) return null;
       console.log("workstations", workstations);
@@ -374,7 +374,7 @@ export function PopulateDpMapByRecipes(save: Save): RecipeSolution[] {
           if (!MatchesSlot(slots.skill, skill)) return null;
 
           const bestSoul = orderedSouls.find((soul) =>
-            MatchesSlot(slots.soul, soul)
+            MatchesSlot(slots.soul, soul),
           );
           if (!bestSoul) return null;
 
@@ -410,7 +410,7 @@ export function PopulateDpMapByRecipes(save: Save): RecipeSolution[] {
       const withMemory = workstationsWithSoulAndSkill.map(
         ({ usedSoFar, memorySlot, otherSlots }) => {
           const barelyMeetsReqs = orderedMemories.findIndex(
-            (m) => MatchesSlot(memorySlot, m) && meetsReqs([...usedSoFar, m])
+            (m) => MatchesSlot(memorySlot, m) && meetsReqs([...usedSoFar, m]),
           );
           if (barelyMeetsReqs > 1) {
             const goodEnough = orderedMemories[barelyMeetsReqs - 1];
@@ -424,7 +424,7 @@ export function PopulateDpMapByRecipes(save: Save): RecipeSolution[] {
           }
 
           const bestMemory = orderedMemories.find((m) =>
-            MatchesSlot(memorySlot, m)
+            MatchesSlot(memorySlot, m),
           );
           if (bestMemory) {
             usedSoFar.push(bestMemory);
@@ -438,7 +438,7 @@ export function PopulateDpMapByRecipes(save: Save): RecipeSolution[] {
             meetsReqs: sumMeetsReqs(sumSoFar),
             otherSlots,
           };
-        }
+        },
       );
 
       const solutions2 = withMemory
@@ -474,7 +474,7 @@ export function PopulateDpMapByRecipes(save: Save): RecipeSolution[] {
             .filter((i) => i.id !== recipe.result)
             .filter(
               (i) =>
-                (otherReqFufilled || i[otherReq]) && MatchesSlot(slotToUse, i)
+                (otherReqFufilled || i[otherReq]) && MatchesSlot(slotToUse, i),
             )
             .sort(SortByAspect(principle));
           if (!specialItems.length) return null;
@@ -494,7 +494,7 @@ export function PopulateDpMapByRecipes(save: Save): RecipeSolution[] {
 
       const withSlot1 = withMemory
         .map(({ usedSoFar, otherSlots }) =>
-          doSlot(usedSoFar, otherSlots[0], otherSlots[1])
+          doSlot(usedSoFar, otherSlots[0], otherSlots[1]),
         )
         .noNulls();
 
@@ -505,7 +505,7 @@ export function PopulateDpMapByRecipes(save: Save): RecipeSolution[] {
 
       const withSlot2 = withMemory
         .map(({ usedSoFar, otherSlots }) =>
-          doSlot(usedSoFar, otherSlots[1], otherSlots[0])
+          doSlot(usedSoFar, otherSlots[1], otherSlots[0]),
         )
         .noNulls();
       const solutions4 = withSlot2
@@ -527,7 +527,7 @@ export function PopulateDpMapByRecipes(save: Save): RecipeSolution[] {
           "Didn't find anything...",
           recipe.id,
           recipe.reqs,
-          allSlots
+          allSlots,
         );
       return null;
     })
@@ -571,4 +571,56 @@ function UniqueByAspects<T extends AspectMap>(items: T[]): T[] {
       if (!itemAspectMap.has(key)) itemAspectMap.set(key, item);
   }
   return [...itemAspectMap.values()].unique();
+}
+
+export interface RecipeResult {
+  result: Item;
+  recipes: RecipeSolution[];
+}
+
+export function GetRecipeResults(save: Save): RecipeResult[] {
+  const recipeResults = PopulateDpMapByRecipes(save);
+  const results = recipeResults
+    .map((r) => GetItemById(r.recipe.result)!)
+    .unique();
+
+  return results.map((result) => ({
+    result,
+    recipes: recipeResults
+      .filter((r) => r.recipe.result == result.id)
+      .sort((a, b) => a.firstSolution.length - b.firstSolution.length),
+  }));
+}
+
+export function GetRecipesByCategory(save: Save) {
+  const results = GetRecipeResults(save);
+  const tools = results.filter(({ result }) => result.tool && !result.device);
+
+  const inks = results.filter(({ result }) => result.ink);
+
+  const beverages = results.filter(
+    ({ result }) => result.beverage || result.intoxicating,
+  );
+
+  const memories = results.filter(
+    ({ result }) => result.memory && !result.persistent,
+  );
+
+  const persistent = results.filter(({ result }) => result.persistent);
+
+  const items = results
+    .notIn(memories)
+    .notIn(persistent)
+    .notIn(beverages)
+    .notIn(inks)
+    .notIn(tools);
+
+  return {
+    tools,
+    inks,
+    beverages,
+    memories,
+    persistent,
+    items,
+  };
 }

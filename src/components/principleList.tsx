@@ -10,7 +10,7 @@ import {
   PrincipleMap,
   Principles,
 } from "../boh/principles";
-import { GetCraftingHintString } from "../boh/recipes";
+import { GetCraftingHintString } from "../boh/recipes_hints";
 import { Save } from "../boh/save";
 
 export interface IPrinciplable extends PrincipleMap {

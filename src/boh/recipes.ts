@@ -75,7 +75,7 @@ export function GetRecipesBySkill(skill: string, recipes = Recipes): Recipe[] {
 
 export function GetRecipesByResult(
   result: string,
-  recipes = Recipes
+  recipes = Recipes,
 ): Recipe[] {
   return recipes.filter((r) => r.result == result);
 }
@@ -88,64 +88,10 @@ export function FilterRecipesBySkills(skills: Skill[], recipes = Recipes) {
 
 export function ToRecipeString(recipe: Recipe): string {
   return `${GetSkillById(recipe.skill).label}: ${Principles.filter(
-    (p) => recipe.reqs[p]
+    (p) => recipe.reqs[p],
   )
     .map((p) => `${p} ${recipe.reqs[p]}`)
     .join(", ")}`;
-}
-
-function labelAndLocation({
-  label,
-  location,
-}: {
-  label: string;
-  location?: string;
-}): string {
-  const locationString = ParseLocationString(location);
-  if (locationString) label += ` (${locationString})`;
-  return label;
-}
-
-export function GetCraftingHintString(
-  thingOrId: string | { id?: string; location?: string },
-  save?: Save
-): string {
-  // YUCK!
-  const id = (thingOrId as { id: string })?.id || (thingOrId as string);
-  const location = ParseLocationString(
-    (thingOrId as { location?: string }).location ||
-      save?.items.find((item) => item.id == id)?.location
-  );
-
-  const recipeString = GetRecipesByResult(
-    id,
-    save ? FilterRecipesBySkills(save.skills) : undefined
-  )
-    .map((r) => ToRecipeString(r))
-    .join("\n");
-
-  // Remove duplicates from many items!
-  const considerString = [
-    ...new Set(
-      GetItemsByConsiderSpawnId(id, save?.items).map((item) =>
-        labelAndLocation(item)
-      )
-    ),
-  ].join("\n");
-
-  const readingString = FindBooksThatSpawnId(
-    id,
-    save?.books.filter((b) => b.mastered)
-  )
-    .map((book) => labelAndLocation(book))
-    .join("\n");
-
-  let result = "";
-  if (location) result += `Located in ${location}\n`;
-  if (recipeString) result += `Craft:\n${recipeString}\n`;
-  if (considerString) result += `Consider:\n${considerString}\n`;
-  if (readingString) result += `Read:\n${readingString}\n`;
-  return result;
 }
 
 // This doesn't..
@@ -197,13 +143,13 @@ export function CalculateRecipeCost(recipe: Recipe): RecipeCost {
 // idk this might not be the best way.
 export function IsCraftable(id: string) {
   return GetRecipesByResult(id).some(
-    (r) => CalculateRecipeCost(r).duration < Number.MAX_SAFE_INTEGER
+    (r) => CalculateRecipeCost(r).duration < Number.MAX_SAFE_INTEGER,
   );
 }
 
 export function Cost(id: string) {
   return Math.min(
-    ...GetRecipesByResult(id).map((r) => CalculateRecipeCost(r).duration)
+    ...GetRecipesByResult(id).map((r) => CalculateRecipeCost(r).duration),
   );
 }
 
@@ -214,7 +160,7 @@ type WorkstationMap = Map<Workstation, SlotMap[]>;
 // Then sort them by cost and what you have available?
 export function GetWaysToMakeRecipe(
   recipe: Recipe,
-  save: Save
+  save: Save,
 ): WorkstationMap {
   // DERP!
   const skill = save.skills.find((s) => s.id == recipe.skill);
@@ -228,10 +174,10 @@ export function GetWaysToMakeRecipe(
     // console.log("workstation", workstation);
     const remainingAspects = SubtractAspects(
       recipe.reqs,
-      workstation.aspects || {}
+      workstation.aspects || {},
     );
     const skillSlot = workstation.slots.find((slot) =>
-      MatchesSlot(slot, skill)
+      MatchesSlot(slot, skill),
     );
     if (!skillSlot) continue;
     // console.log("workstation has slot", skillSlot);
@@ -239,7 +185,7 @@ export function GetWaysToMakeRecipe(
     const slotmaps = GetWaysToFillSlots(
       remainingAspects,
       workstation.slots.filter((s) => s !== skillSlot),
-      GetSlotablesFromSave(save).filter((s) => s.id !== recipe.result)
+      GetSlotablesFromSave(save).filter((s) => s.id !== recipe.result),
     ).map((sub) => sub.set(skillSlot, skill));
 
     if (slotmaps.length) workstationMap.set(workstation, slotmaps);
@@ -251,7 +197,7 @@ export function GetWaysToMakeRecipe(
 function GetWaysToFillSlots(
   requiredAspects: AspectMap,
   slots: Slot[],
-  slotables: Slotable[]
+  slotables: Slotable[],
 ): SlotMap[] {
   if (NoPositiveAspects(requiredAspects)) {
     // console.log("Success!");
@@ -261,7 +207,7 @@ function GetWaysToFillSlots(
   const matchingSlotables = slotables.filter(
     (slotable) =>
       MatchesRequiredAspects(requiredAspects, slotable) &&
-      slots.some((slot) => MatchesSlot(slot, slotable))
+      slots.some((slot) => MatchesSlot(slot, slotable)),
   );
   // console.log("matching", matchingSlotables.length);
   if (!matchingSlotables.length) return [];
@@ -287,7 +233,7 @@ function GetWaysToFillSlots(
         const subresults = GetWaysToFillSlots(
           SubtractAspects(requiredAspects, slotable),
           slots.filter((s) => s !== slot),
-          slotables.filter((s) => s != slotable)
+          slotables.filter((s) => s != slotable),
         );
 
         // Just merge them!
