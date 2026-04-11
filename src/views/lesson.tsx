@@ -186,6 +186,26 @@ function MemoryList({
       ) : null}
       {memories.map((m, i) => {
         const hints = GetCraftingHintString(m, save);
+        const canRead = hints.indexOf("Read:") >= 0;
+        const canCraft = hints.indexOf("Craft:") >= 0;
+        const canConsider = hints.indexOf("Consider:") >= 0;
+        const canConsiderConsume = hints.indexOf("Consider (consume):") >= 0;
+
+        let color = "";
+        let prefix = "";
+        if (canConsider) {
+          color = "lightgreen";
+          prefix = "(consider) ";
+        } else if (canRead) {
+          color = "lightblue";
+          prefix = "(read) ";
+        } else if (canCraft) {
+          // color = "white";
+          prefix = "(craft) ";
+        } else if (canConsiderConsume) {
+          color = "brown";
+          prefix = "(consume) ";
+        } else color = "grey";
 
         return (
           <div key={m.id} title={hints}>
@@ -193,19 +213,20 @@ function MemoryList({
               <input
                 type="checkbox"
                 checked={selectedMemories?.has(m.id)}
-                onClick={() => toggle?.(m.id)}
+                onChange={() => toggle?.(m.id)}
               />
               <span
                 style={{
-                  color: !hints
-                    ? "grey"
-                    : FavMemories.some((f) => f.id == m.id)
+                  color:
+                    color ||
+                    (FavMemories.some((f) => f.id == m.id)
                       ? "gold"
                       : madeBefore?.has(m.id)
                         ? "green"
-                        : undefined,
+                        : undefined),
                 }}
               >
+                {prefix}
                 {m.label}
               </span>
             </label>{" "}

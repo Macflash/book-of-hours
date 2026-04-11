@@ -53,8 +53,8 @@ export function GetAllWorkstations() {
     type: ws.id.includes("library.bed")
       ? "bed"
       : ws.id.includes("library.desk")
-      ? "desk"
-      : "other",
+        ? "desk"
+        : "other",
   })) as Workstation[];
 
   return workstations;
@@ -64,13 +64,13 @@ export const Workstations = GetAllWorkstations();
 
 export function GetSlotablesFromSave(
   save: Save,
-  renewableOnly = false
+  renewableOnly = false,
 ): Slotable[] {
   const items = [
     ...save.souls,
     ...save.skills,
     ...save.items.filter(
-      (item) => !renewableOnly || !item.fatigues //|| IsCraftable(item.id)
+      (item) => !renewableOnly || !item.fatigues, //|| IsCraftable(item.id)
     ),
     // Maybe some other CRAFTABLES?
     // ...save.books, // Not really useful for INPUTS???
@@ -90,7 +90,7 @@ export function GetAllSlotables(): Slotable[] {
 
 export function MatchesSlot(
   { required, essential, forbidden }: Slot,
-  slotable: AspectMap
+  slotable: AspectMap,
 ): boolean {
   if (forbidden && MatchesRequiredAspects(forbidden, slotable)) return false;
   if (essential && !MatchesRequiredAspects(essential, slotable)) return false;
@@ -107,10 +107,11 @@ export interface BestWorkstation {
 // This will use DUPLICATES of things that are unique.
 // E.G. Can only use a memory ONCE.
 // Might only have a single +Phost, but it will use it twice!
+// Also this might give you an option that is WAY better than you need.
 export function FindBestWorkstationByPrinciple(
   principle: Principle,
   workstations = GetAllWorkstations(),
-  slotables = GetAllSlotables()
+  slotables = GetAllSlotables(),
 ): BestWorkstation {
   //   const workstationMap = new Map<string, Map<string, Slotable>>();
   let bestWorkstation: Workstation | null = null;
@@ -130,7 +131,7 @@ export function FindBestWorkstationByPrinciple(
     const slotmap = FillSlotsByPrinciple(
       principle,
       workstation.slots,
-      slotables
+      slotables,
     );
 
     const sum = SumWorkstationSlots(principle, [
@@ -156,7 +157,7 @@ export function FindBestWorkstationByPrinciple(
 export function FillSlotsByPrinciple(
   principle: Principle,
   slots: Slot[],
-  slotables: Slotable[]
+  slotables: Slotable[],
 ) {
   let bestSum = 0;
   let bestSlotmap = new Map<Slot, Slotable>();
@@ -170,7 +171,7 @@ export function FillSlotsByPrinciple(
     const slotmap = FillSlotsByPrincipleOnlyUseOnce(
       principle,
       shuffled,
-      slotables
+      slotables,
     );
 
     const sum = SumWorkstationSlots(principle, slotmap.values().toArray());
@@ -188,7 +189,7 @@ export function FillSlotsByPrinciple(
 export function FillSlotsByPrincipleOnlyUseOnce(
   principle: Principle,
   slots: Slot[],
-  slotables: Slotable[]
+  slotables: Slotable[],
 ) {
   const slotmap = new Map<Slot, Slotable>();
   // Could simply try this but with every order of the slots?
@@ -197,7 +198,7 @@ export function FillSlotsByPrincipleOnlyUseOnce(
     const matching = slotables.filter(
       // Filter out things already assigned in a slot, this uses object reference
       // So if you pass in a slotable twice, it can be used twice.
-      (s) => ![...slotmap.values()].includes(s) && MatchesSlot(slot, s)
+      (s) => ![...slotmap.values()].includes(s) && MatchesSlot(slot, s),
     );
     // This should... recurse for the other slots?
     const best = FindBestByPrinciple(principle, matching);
@@ -209,7 +210,7 @@ export function FillSlotsByPrincipleOnlyUseOnce(
 
 export function FindMatchingSlots(
   workstation: Workstation,
-  slotable: Slotable
+  slotable: Slotable,
 ): Slot[] {
   return workstation.slots.filter((slot) => MatchesSlot(slot, slotable));
 }
@@ -225,7 +226,7 @@ export function SumSlotAspects(slotables: Slotable[]): AspectMap {
 
 export function SumWorkstationSlots(
   principle: Principle,
-  slotables: Slotable[]
+  slotables: Slotable[],
 ): number {
   let sum = 0;
   for (const slotable of slotables) sum += Or0(slotable?.[principle]);

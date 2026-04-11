@@ -21,24 +21,10 @@ export function AssistanceView({ save }: { save: Save }) {
   const alwaysAssistants = GetAssistants("none", false);
   const [selected, setSelected] = React.useState<Assistant[]>([]);
 
-  console.log("assistants", allAssistants, alwaysAssistants);
-
-  const renewableSlotables = GetSlotablesFromSave(save, true);
-  const allSlotables = GetSlotablesFromSave(save, false);
-
-  const assistanceMap = ForAllPrinciples((p) => ({
-    max: FindBestWorkstationByPrinciple(p, selected, allSlotables),
-    min: FindBestWorkstationByPrinciple(p, selected, renewableSlotables),
-  }));
-
-  // list rooms that need to be unlocked
-  const roomsToOpen = save.rooms.filter((r) => r.shrouded && !r.sealed);
-  console.log("rooms to open", roomsToOpen);
-
   return (
-    <div>
+    <div style={{ display: "flex", flexDirection: "row" }}>
       {/* Assistant selection */}
-      <div style={{ display: "flex", flexDirection: "row" }}>
+      <div style={{ display: "flex", flexDirection: "column" }}>
         <AssistantSelect
           title="Regular"
           assistants={alwaysAssistants}
@@ -61,90 +47,13 @@ export function AssistanceView({ save }: { save: Save }) {
           setSelected={setSelected}
         />
       </div>
-
-      {/* Assistance you can get */}
-      <div>
-        {[...assistanceMap.entries()]
-          .flatMap(
-            ([principle, { min, max }]) =>
-              [
-                [principle, min],
-                [principle, max],
-              ] as [Principle, BestWorkstation][],
-          )
-          .filter(([principle, { bestSum }]) =>
-            roomsToOpen.find((r) => r[principle] && bestSum >= r[principle]),
-          )
-          .sort((a, b) => b[1].bestSum - a[1].bestSum)
-          .map(([principle, { bestWorkstation, bestSum, bestSlotMap }], i) => {
-            const slotables = bestSlotMap
-              .values()
-              .toArray()
-              .filter((s) => s?.[principle]);
-            const roomsYouCanOpenWithThisPrinciple = roomsToOpen.filter(
-              (r) => r[principle] && bestSum >= r[principle],
-            );
-            return (
-              <div
-                key={i}
-                style={{
-                  flex: 1,
-                  padding: 5,
-                  border: `2px solid ${PrincipleColor(principle)}`,
-                  margin: 5,
-                }}
-              >
-                <span>
-                  <span
-                    style={{
-                      color: PrincipleColor(principle),
-                    }}
-                  >
-                    {principle}: {bestSum}{" "}
-                  </span>
-                  <span
-                    style={{
-                      fontSize: "1rem",
-                    }}
-                  >
-                    <Principlable
-                      principlable={bestWorkstation!}
-                      save={save}
-                      principle={principle}
-                    />
-                    <div>
-                      <Principlables
-                        principlables={slotables}
-                        principle={principle}
-                        save={save}
-                      />
-                    </div>
-                    {/*  List what rooms you can open with this principle */}
-                    {roomsYouCanOpenWithThisPrinciple.length ? (
-                      <div
-                        style={{
-                          border: "2px solid grey",
-                          margin: 3,
-                          padding: 3,
-                        }}
-                      >
-                        <div>You can open:</div>
-                        <Principlables
-                          principlables={roomsYouCanOpenWithThisPrinciple}
-                          principle={principle}
-                          save={save}
-                        />
-                      </div>
-                    ) : null}
-                  </span>
-                </span>
-              </div>
-            );
-          })}
-      </div>
+      <LegacyAssistanceView save={save} selected={selected} />
     </div>
   );
 }
+
+// we want to be able to say WHICH kind of things to use in which slots.
+// Memories: CONSIDER (not consumed) --> READ --> CRAFT --> CONSIDER (consumed)
 
 function AssistantSelect({
   assistants,
@@ -199,11 +108,112 @@ function AssistantSelect({
               padding: "5px 10px",
             }}
           >
-            {" "}
-            <Principlable principlable={a} save={save} />
+            {a.label}
           </option>
         ))}
       </select>
+    </div>
+  );
+}
+
+function LegacyAssistanceView({
+  save,
+  selected,
+}: {
+  save: Save;
+  selected: Assistant[];
+}) {
+  const renewableSlotables = GetSlotablesFromSave(save, true);
+  const allSlotables = GetSlotablesFromSave(save, false);
+
+  const assistanceMap = ForAllPrinciples((p) => ({
+    max: FindBestWorkstationByPrinciple(p, selected, allSlotables),
+    min: FindBestWorkstationByPrinciple(p, selected, renewableSlotables),
+  }));
+
+  // list rooms that need to be unlocked
+  const roomsToOpen = save.rooms.filter((r) => r.shrouded && !r.sealed);
+
+  return (
+    <div>
+      {/* Assistance you can get */}
+      {[...assistanceMap.entries()]
+        .flatMap(
+          ([principle, { min, max }]) =>
+            [
+              [principle, min],
+              [principle, max],
+            ] as [Principle, BestWorkstation][],
+        )
+        .filter(([principle, { bestSum }]) =>
+          roomsToOpen.find((r) => r[principle] && bestSum >= r[principle]),
+        )
+        .sort((a, b) => a[1].bestSum - b[1].bestSum)
+        .map(([principle, { bestWorkstation, bestSum, bestSlotMap }], i) => {
+          const slotables = bestSlotMap
+            .values()
+            .toArray()
+            .filter((s) => s?.[principle]);
+          const roomsYouCanOpenWithThisPrinciple = roomsToOpen.filter(
+            (r) => r[principle] && bestSum >= r[principle],
+          );
+          return (
+            <div
+              key={i}
+              style={{
+                flex: 1,
+                padding: 5,
+                border: `2px solid ${PrincipleColor(principle)}`,
+                margin: 5,
+              }}
+            >
+              <span>
+                <span
+                  style={{
+                    color: PrincipleColor(principle),
+                  }}
+                >
+                  {principle}: {bestSum}{" "}
+                </span>
+                <span
+                  style={{
+                    fontSize: "1rem",
+                  }}
+                >
+                  <Principlable
+                    principlable={bestWorkstation!}
+                    save={save}
+                    principle={principle}
+                  />
+                  <div>
+                    <Principlables
+                      principlables={slotables}
+                      principle={principle}
+                      save={save}
+                    />
+                  </div>
+                  {/*  List what rooms you can open with this principle */}
+                  {roomsYouCanOpenWithThisPrinciple.length ? (
+                    <div
+                      style={{
+                        border: "2px solid grey",
+                        margin: 3,
+                        padding: 3,
+                      }}
+                    >
+                      <div>You can open:</div>
+                      <Principlables
+                        principlables={roomsYouCanOpenWithThisPrinciple}
+                        principle={principle}
+                        save={save}
+                      />
+                    </div>
+                  ) : null}
+                </span>
+              </span>
+            </div>
+          );
+        })}
     </div>
   );
 }

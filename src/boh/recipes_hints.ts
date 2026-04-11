@@ -1,34 +1,8 @@
-import { RecipeData } from "../data/recipe_data";
-import {
-  AddAspects,
-  AspectMap,
-  GetAspectsWithPrefix,
-  MatchesRequiredAspects,
-  NoPositiveAspects,
-  PositiveAspects,
-  SortByAspect,
-  SubtractAspect,
-  SubtractAspects,
-  SubtractAspectsInplace,
-} from "./aspects";
 import { FindBooksThatSpawnId } from "./book";
 import { GetRecipeResults, RecipeResult } from "./dp_recipes";
-import { GetItemsByConsiderSpawnId, GetItemById } from "./items";
-import { Principles } from "./principles";
-import {
-  FilterRecipesBySkills,
-  GetRecipesByResult,
-  ToRecipeString,
-} from "./recipes";
+import { GetItemsByConsiderSpawnId } from "./items";
+import { ToRecipeString } from "./recipes";
 import { ParseLocationString, Save } from "./save";
-import { GetSkillById, Skill } from "./skills";
-import {
-  GetSlotablesFromSave,
-  MatchesSlot,
-  Slot,
-  Slotable,
-  Workstation,
-} from "./workstation";
 
 let lastSave: Save | null = null;
 let lastRecipeResults: RecipeResult[] = [];
@@ -56,11 +30,20 @@ export function GetCraftingHintString(
     .join("\n");
 
   // Remove duplicates from many items!
+
   const considerString = [
     ...new Set(
-      GetItemsByConsiderSpawnId(id, save?.items).map((item) =>
-        labelAndLocation(item),
-      ),
+      GetItemsByConsiderSpawnId(id, save?.items)
+        .filter((item) => !item.fatigues)
+        .map((item) => labelAndLocation(item)),
+    ),
+  ].join("\n");
+
+  const considerConsumeString = [
+    ...new Set(
+      GetItemsByConsiderSpawnId(id, save?.items)
+        .filter((item) => item.fatigues)
+        .map((item) => "(consume) " + labelAndLocation(item)),
     ),
   ].join("\n");
 
@@ -73,9 +56,12 @@ export function GetCraftingHintString(
 
   let result = "";
   if (location) result += `Located in ${location}\n`;
+  if (considerString) result += `Consider:\n${considerString}\n`;
   if (readingString) result += `Read:\n${readingString}\n`;
   if (recipeString) result += `Craft:\n${recipeString}\n`;
-  if (considerString) result += `Consider:\n${considerString}\n`; // Would be nice to KNOW if this destroys it or not!!
+  // Only show consumables if you can't get it by using something that persists!
+  if (!considerString && considerConsumeString)
+    result += `Consider (consume):\n${considerConsumeString}\n`;
   return result;
 }
 
