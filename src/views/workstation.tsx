@@ -15,14 +15,52 @@ import { Principle, PrincipleColor, Principles } from "../boh/principles";
 import { AspectMap } from "../boh/aspects";
 import { AspectList, PrincipleList } from "../components/principleList";
 
-export function WorkstationView({ save }: { save: Save }) {
+export function WorkstationList({ save }: { save: Save }) {
+  const [tabs, setTabs] = React.useState<string[]>([]);
+  const [expanded, setExpanded] = React.useState<string | null>(null);
+
+  return (
+    <div
+      style={{
+        position: "fixed",
+        bottom: 0,
+        background: "black",
+        width: "100%",
+      }}
+    >
+      {/* Tabs */}
+      <div>
+        {tabs.map((tab, i) => (
+          <button key={i}>{tab}</button>
+        ))}
+
+        <button
+          onClick={() => {
+            setTabs([...tabs, "New" + tabs.length]);
+          }}
+        >
+          +
+        </button>
+      </div>
+      {/* Current station */}
+    </div>
+  );
+}
+
+export function WorkstationView({
+  save,
+  initialWorkstation = Consider as Workstation,
+}: {
+  save: Save;
+  initialWorkstation?: Workstation;
+}) {
   const allWorkstations = [
     Consider as Workstation,
     ...(GetAssistants() as Workstation[]),
     ...save.workstations,
   ];
 
-  const [workstation, setWorkstation] = React.useState(Consider as Workstation);
+  const [workstation, setWorkstation] = React.useState(initialWorkstation);
   const [slotmap, setSlotmap] = React.useState(new Map<Slot, Slotable>());
   const slotables = GetSlotablesFromSave(save);
 

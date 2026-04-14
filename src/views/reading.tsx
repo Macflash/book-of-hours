@@ -1,6 +1,5 @@
 import { FindBooksThatSpawnNumen, spawnsNumen } from "../boh/book";
 import {
-  Principle,
   Principles,
   PrincipleColor,
   ForAllPrinciples,

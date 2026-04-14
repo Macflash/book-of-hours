@@ -37,7 +37,7 @@ export function EvolveView({ save }: { save: Save }) {
   const skillsWithSoulCopies = evolveSkills
     .map(({ skill, attuned, wisdom }) => {
       const matchingSoul = soulsWithCopies.find(
-        (element) => element == attuned
+        (element) => element == attuned,
       );
       if (!matchingSoul) return null;
       return { skill, wisdom, soul: GetSoulByElement(matchingSoul as Element) };
@@ -48,7 +48,7 @@ export function EvolveView({ save }: { save: Save }) {
 
   // Filter by workstations that can slot 2 souls of the same type, and the skill!
   const evolveWorkstations = save.workstations.filter(
-    (ws) => ws.aspects && GetAspectsWithPrefix(ws.aspects, "e.")
+    (ws) => ws.aspects && GetAspectsWithPrefix(ws.aspects, "e."),
   );
   console.log("evolveWs", evolveWorkstations);
 
@@ -57,7 +57,7 @@ export function EvolveView({ save }: { save: Save }) {
       const matchingWorkstations = evolveWorkstations
         .filter(
           // Filter for matching wisdom evolve via.
-          (ws) => ws.aspects?.[("e." + wisdom) as Aspect]
+          (ws) => ws.aspects?.[("e." + wisdom) as Aspect],
         )
         .map((ws) => {
           // Filter for skill slot
@@ -67,7 +67,7 @@ export function EvolveView({ save }: { save: Save }) {
         })
         .filter(
           ({ skillSlots, soulSlots }) =>
-            skillSlots.length >= 1 && soulSlots.length >= 2
+            skillSlots.length >= 1 && soulSlots.length >= 2,
         );
 
       // Need 1 skill slot, and 2 soul slots!
@@ -86,7 +86,7 @@ export function EvolveView({ save }: { save: Save }) {
 
   const availableMemories = GetAvailableMemoriesFromSave(save);
   const evolveViaMemories = Items.filter(
-    (i) => GetAspectsWithPrefix(i, "e.").length
+    (i) => GetAspectsWithPrefix(i, "e.").length,
   );
   console.log("evolveViaMemories", evolveViaMemories);
   const evolveViaCombos = skillsWithSoulCopies
@@ -97,7 +97,7 @@ export function EvolveView({ save }: { save: Save }) {
           const soulSlots = FindMatchingSlots(ws, soul);
           // This additionally needs a slot for the evolve via memory.
           const evolveViaSlots = evolveViaMemories.filter(
-            (e) => e[("e." + wisdom) as Aspect] && FindMatchingSlots(ws, e)
+            (e) => e[("e." + wisdom) as Aspect] && FindMatchingSlots(ws, e),
           );
 
           return { ws, skillSlots, soulSlots, evolveViaSlots };
@@ -106,7 +106,7 @@ export function EvolveView({ save }: { save: Save }) {
           ({ skillSlots, soulSlots, evolveViaSlots }) =>
             skillSlots.length >= 1 &&
             soulSlots.length >= 2 &&
-            evolveViaSlots.length >= 1
+            evolveViaSlots.length >= 1,
         );
 
       // Need 1 skill slot, and 2 soul slots!
@@ -144,7 +144,7 @@ export function EvolveView({ save }: { save: Save }) {
                   {pluses(level)}
                   {element} ({count})
                 </div>
-              ) : null
+              ) : null,
             );
           })
           .ifEmpty("N/A")}
