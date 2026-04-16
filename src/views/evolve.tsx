@@ -2,6 +2,7 @@ import { Aspect, GetAspectsWithPrefix } from "../boh/aspects";
 import { Items } from "../boh/items";
 import { GetAvailableMemoriesFromSave } from "../boh/memories";
 import { Or0 } from "../boh/principles";
+import { GetCraftingHintString } from "../boh/recipes_hints";
 import { Save } from "../boh/save";
 import { Element, GetElementFromId, GetSoulByElement } from "../boh/souls";
 import { FindMatchingSlots } from "../boh/workstation";
@@ -82,9 +83,6 @@ export function EvolveView({ save }: { save: Save }) {
     .filter(({ matchingWorkstations }) => matchingWorkstations.length);
   console.log("combos", combos);
 
-  // TODO: Could also use EVOLVE VIA memories.
-
-  const availableMemories = GetAvailableMemoriesFromSave(save);
   const evolveViaMemories = Items.filter(
     (i) => GetAspectsWithPrefix(i, "e.").length,
   );
@@ -193,7 +191,10 @@ export function EvolveView({ save }: { save: Save }) {
                 <div>
                   <Principlable principlable={ws} save={save} /> using{" "}
                   <Principlables
-                    principlables={[...evolveViaSlots.values()]}
+                    principlables={[...evolveViaSlots.values()].filter(
+                      (evolveViaSlot) =>
+                        GetCraftingHintString(evolveViaSlot, save),
+                    )}
                     save={save}
                   />
                 </div>

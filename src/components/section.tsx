@@ -29,9 +29,17 @@ export function Section({
   return (
     <div style={{ border, margin, padding }}>
       {title ? (
-        <div onClick={onClick} role={collapse ? "button" : undefined}>
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "space-between",
+            cursor: collapse ? "pointer" : undefined,
+          }}
+          onClick={onClick}
+          role={collapse ? "button" : undefined}
+        >
           <div>{title}</div>
-          {collapse ? <div>{}</div> : null}
+          {collapse ? <div>{collapsed ? "<" : ">"}</div> : null}
         </div>
       ) : null}
       {collapsed ? null : children}

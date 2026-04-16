@@ -1,4 +1,4 @@
-import { FindBooksThatSpawnNumen, spawnsNumen } from "../boh/book";
+import { Book, FindBooksThatSpawnNumen, spawnsNumen } from "../boh/book";
 import {
   Principles,
   PrincipleColor,
@@ -7,7 +7,7 @@ import {
 } from "../boh/principles";
 import { GetCraftingHintString } from "../boh/recipes_hints";
 import { Save } from "../boh/save";
-import { GetSkillById } from "../boh/skills";
+import { GetSkillById, Skill } from "../boh/skills";
 import {
   FindBestWorkstationByPrinciple,
   GetSlotablesFromSave,
@@ -18,13 +18,12 @@ import {
   Principlables,
   PrincipleList,
 } from "../components/principleList";
+import { Section } from "../components/section";
 
 export function ReadingView({ save }: { save: Save }) {
   const desks = save.workstations.filter((w) =>
     w.slots.some((s) => s.required.readable),
   );
-  // console.log("desks", desks);
-
   const workstationPrincipleMap = ForAllPrinciples((p) => {
     // Filter out books and paper since that is what we need to read bro.
     return FindBestWorkstationByPrinciple(
@@ -35,7 +34,6 @@ export function ReadingView({ save }: { save: Save }) {
       ),
     );
   });
-  // console.log("desks per principle", workstationPrincipleMap);
 
   const booksToMaster = save.books.filter(
     (b) =>
@@ -46,18 +44,6 @@ export function ReadingView({ save }: { save: Save }) {
           b[principle] &&
           Or0(workstationPrincipleMap.get(principle)?.bestSum) >= b[principle],
       ),
-  );
-
-  console.log(
-    "books left to read",
-    save.books.filter((b) => !b.mastered),
-  );
-  console.log("books you can master", booksToMaster);
-
-  const booksYouCanReadThatSpawnNumen = FindBooksThatSpawnNumen(booksToMaster);
-  console.log(
-    "books you can read that spawn numen",
-    booksYouCanReadThatSpawnNumen,
   );
 
   const skillsYouCouldGet = booksToMaster
@@ -75,47 +61,31 @@ export function ReadingView({ save }: { save: Save }) {
   const skillsYouHave = skillsYouCouldGet
     .filter(({ existingSkill }) => existingSkill)
     .sort((a, b) => Or0(b.existingSkill?.skill) - Or0(a.existingSkill?.skill));
+  const uncommitedSkills = skillsYouHave.filter(
+    ({ existingSkill }) => !existingSkill?.["wisdom.committed"],
+  );
   const skillsYouDont = skillsYouCouldGet.notIn(skillsYouHave);
   // console.log("skillsYouCouldGet", skillsYouCouldGet);
-  // console.log("skillsYouHave", skillsYouHave);
-  // console.log("skillsYouDont", skillsYouDont);
+  console.log("skillsYouHave", skillsYouHave);
+  console.log("uncommitedSkills", uncommitedSkills);
+  console.log("skillsYouDont", skillsYouDont);
 
   return (
     <div>
-      <div style={{ border: "1px solid grey", padding: 3, margin: 3 }}>
-        Skills you get from reading:{" "}
-        {[...skillsYouHave, ...skillsYouDont].map(
-          ({ skill, existingSkill, books }) => (
-            <div
-              key={skill.id}
-              style={{ border: "1px solid grey", padding: 3, margin: 3 }}
-            >
-              {skill?.label}
-              {existingSkill?.skill
-                ? ` (${existingSkill.skill})`
-                : " (new)"}{" "}
-              <AspectList {...(existingSkill || skill)} />
-              <div>
-                {books.map((b) => (
-                  <div
-                    key={b.id}
-                    style={{
-                      color: b.contaminated
-                        ? "darkorange"
-                        : spawnsNumen(b)
-                          ? "red"
-                          : "",
-                    }}
-                    title={GetCraftingHintString(b, save)}
-                  >
-                    {b.label} <PrincipleList {...b} /> +{b.mastering.level}
-                  </div>
-                ))}
-              </div>
-            </div>
-          ),
-        )}
-      </div>
+      <SkillSection
+        title="Commited skills"
+        skillList={[...skillsYouHave].notIn(uncommitedSkills)}
+        save={save}
+      />
+
+      <SkillSection
+        title="Uncommited skills"
+        skillList={uncommitedSkills}
+        save={save}
+      />
+
+      <SkillSection title="New skills" skillList={skillsYouDont} save={save} />
+
       <div>{!booksToMaster.length ? "Can't read anything right now" : ""}</div>
       <div>
         {[...workstationPrincipleMap.entries()]
@@ -182,5 +152,68 @@ export function ReadingView({ save }: { save: Save }) {
           })}
       </div>
     </div>
+  );
+}
+
+function SkillSection({
+  skillList,
+  title,
+  save,
+}: {
+  skillList: {
+    existingSkill: Skill | undefined;
+    skill: Skill;
+    books: Book[];
+  }[];
+  title: string;
+  save: Save;
+}) {
+  return (
+    <Section title={`${title} (${skillList.length})`} startCollapsed>
+      {[...skillList].map(({ skill, existingSkill, books }) => (
+        <SkillStatus
+          key={skill.id}
+          skill={skill}
+          existingSkill={existingSkill}
+          books={books}
+          save={save}
+        />
+      ))}
+    </Section>
+  );
+}
+
+function SkillStatus({
+  skill,
+  existingSkill,
+  books,
+  save,
+}: {
+  existingSkill: Skill | undefined;
+  skill: Skill;
+  books: Book[];
+  save: Save;
+}) {
+  return (
+    <Section title={skill.label}>
+      <AspectList {...(existingSkill || skill)} />
+      <div>
+        {books.map((b) => (
+          <div
+            key={b.id}
+            style={{
+              color: b.contaminated
+                ? "darkorange"
+                : spawnsNumen(b)
+                  ? "red"
+                  : "",
+            }}
+            title={GetCraftingHintString(b, save)}
+          >
+            {b.label} <PrincipleList {...b} /> +{b.mastering.level}
+          </div>
+        ))}
+      </div>
+    </Section>
   );
 }
