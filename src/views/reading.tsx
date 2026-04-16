@@ -22,7 +22,7 @@ import { Section } from "../components/section";
 import React from "react";
 
 export function ReadingView({ save }: { save: Save }) {
-  const [schools, setSchools] = React.useState<string[]>([]);
+  const [school, setSchool] = React.useState<string>("all");
 
   const desks = save.workstations.filter((w) =>
     w.slots.some((s) => s.required.readable),
@@ -58,13 +58,11 @@ export function ReadingView({ save }: { save: Save }) {
       const books = booksToMaster.filter(
         (b) => b.mastering.id.replace("x.", "s.") == s,
       );
-      return { existingSkill, skill, books };
+      const currentLevel = Or0(existingSkill?.skill);
+      const levelsYouCanGet = books.sum((b) => b.mastering.level);
+      return { existingSkill, skill, books, currentLevel, levelsYouCanGet };
     })
-    .filter(
-      ({ skill }) =>
-        schools.includes("all") ||
-        schools.some((school) => (skill as any)["w." + school]),
-    );
+    .filter(({ skill }) => school == "all" || (skill as any)["w." + school]);
 
   const skillsYouHave = skillsYouCouldGet
     .filter(({ existingSkill }) => existingSkill)
@@ -81,11 +79,10 @@ export function ReadingView({ save }: { save: Save }) {
   return (
     <div>
       <select
-        multiple
-        value={schools}
-        onChange={({ target: { selectedOptions } }) => {
-          const newValues = [...selectedOptions].mapProp("value");
-          setSchools(newValues.indexOf("all") >= 0 ? ["all"] : newValues);
+        style={{ color: "white", background: "#282c34" }}
+        value={school}
+        onChange={({ target: { value } }) => {
+          setSchool(value);
         }}
       >
         <option value="all">All schools</option>
@@ -194,21 +191,27 @@ function SkillSection({
     existingSkill: Skill | undefined;
     skill: Skill;
     books: Book[];
+    currentLevel: number;
+    levelsYouCanGet: number;
   }[];
   title: string;
   save: Save;
 }) {
   return (
     <Section title={`${title} (${skillList.length})`} startCollapsed>
-      {[...skillList].map(({ skill, existingSkill, books }) => (
-        <SkillStatus
-          key={skill.id}
-          skill={skill}
-          existingSkill={existingSkill}
-          books={books}
-          save={save}
-        />
-      ))}
+      {[...skillList]
+        .sortDesc(
+          ({ currentLevel, levelsYouCanGet }) => currentLevel + levelsYouCanGet,
+        )
+        .map(({ skill, existingSkill, books }) => (
+          <SkillStatus
+            key={skill.id}
+            skill={skill}
+            existingSkill={existingSkill}
+            books={books}
+            save={save}
+          />
+        ))}
     </Section>
   );
 }
@@ -230,10 +233,10 @@ function SkillStatus({
   if (currentLevel) title += ` (${currentLevel})`;
 
   const levelsYouCanGet = books.sum((b) => b.mastering.level);
-  if (levelsYouCanGet) title += ` +${levelsYouCanGet}`;
+  if (levelsYouCanGet) title += ` + ${levelsYouCanGet}`;
 
   if (currentLevel && levelsYouCanGet) {
-    title += ` -> ${currentLevel + levelsYouCanGet}`;
+    title += ` = ${currentLevel + levelsYouCanGet}*`;
   }
 
   return (
