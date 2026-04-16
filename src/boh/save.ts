@@ -170,6 +170,12 @@ export function ParseSave(saveData: SaveJson) {
       // console.log("skill location", location);
       const index = save.skills.findIndex((s) => s.id == skill.id);
       const existing = save.skills[index];
+
+      // We don't really need to use this for anything right now...
+      // if (location && location.indexOf("wisdomtreenodes") >= 0) {
+      //   console.log("committed skill", skill, location);
+      // }
+
       if (!existing) {
         // console.log("original skill", location);
         save.skills.push(skill);
@@ -231,7 +237,7 @@ function ParseTree(payload: Payload): TreeNode | null {
 
 function ParseWorkstation(
   { VerbId }: Payload,
-  location?: string
+  location?: string,
 ): Workstation | null {
   if (!VerbId) return null;
   // "VerbId": "library.desk.reading.consider",
@@ -257,7 +263,7 @@ function ParseSkill({ EntityId, Mutations }: Payload): Readonly<Skill> | null {
 
 function ParseBook(
   { EntityId, Mutations }: Payload,
-  location?: string
+  location?: string,
 ): Readonly<Book> | null {
   if (!EntityId) return null;
   if (!EntityId.startsWith("t.")) return null;
@@ -289,7 +295,7 @@ function Duplicate<T>(t: T, quantity = 1) {
 
 function ParseItem(
   { EntityId, Quantity }: Payload,
-  location?: string
+  location?: string,
 ): Array<Readonly<Item>> {
   if (!EntityId) return [];
 

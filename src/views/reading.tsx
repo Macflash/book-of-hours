@@ -19,8 +19,11 @@ import {
   PrincipleList,
 } from "../components/principleList";
 import { Section } from "../components/section";
+import React from "react";
 
 export function ReadingView({ save }: { save: Save }) {
+  const [schools, setSchools] = React.useState<string[]>([]);
+
   const desks = save.workstations.filter((w) =>
     w.slots.some((s) => s.required.readable),
   );
@@ -56,7 +59,12 @@ export function ReadingView({ save }: { save: Save }) {
         (b) => b.mastering.id.replace("x.", "s.") == s,
       );
       return { existingSkill, skill, books };
-    });
+    })
+    .filter(
+      ({ skill }) =>
+        schools.includes("all") ||
+        schools.some((school) => (skill as any)["w." + school]),
+    );
 
   const skillsYouHave = skillsYouCouldGet
     .filter(({ existingSkill }) => existingSkill)
@@ -72,6 +80,26 @@ export function ReadingView({ save }: { save: Save }) {
 
   return (
     <div>
+      <select
+        multiple
+        value={schools}
+        onChange={({ target: { selectedOptions } }) => {
+          const newValues = [...selectedOptions].mapProp("value");
+          setSchools(newValues.indexOf("all") >= 0 ? ["all"] : newValues);
+        }}
+      >
+        <option value="all">All schools</option>
+        <option value="illumination">Illumination</option>
+        <option value="ithastry">Ithastry</option>
+        <option value="preservation">Preservation</option>
+        <option value="horomachistry">Horomachistry</option>
+        <option value="hushery">Hushery</option>
+        <option value="bosk">Bosk</option>
+        <option value="nyctodromy">Nyctodromy</option>
+        <option value="birdsong">Birdsong</option>
+        <option value="skolekosophy">Skolekosophy</option>
+      </select>
+
       <SkillSection
         title="Commited skills"
         skillList={[...skillsYouHave].notIn(uncommitedSkills)}
@@ -87,6 +115,8 @@ export function ReadingView({ save }: { save: Save }) {
       <SkillSection title="New skills" skillList={skillsYouDont} save={save} />
 
       <div>{!booksToMaster.length ? "Can't read anything right now" : ""}</div>
+
+      {/* Section of HOW to read them. */}
       <div>
         {[...workstationPrincipleMap.entries()]
           .sort((a, b) => b[1].bestSum - a[1].bestSum)

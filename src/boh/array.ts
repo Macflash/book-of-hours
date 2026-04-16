@@ -11,6 +11,7 @@ declare global {
     sortAsc(cb: (t: T) => number): Array<T>;
     sortDesc(cb: (t: T) => number): Array<T>;
     sum(cb: (t: T) => number): number;
+    mapProp<K extends keyof T>(key: K): Array<T[K]>;
   }
 }
 
@@ -85,5 +86,14 @@ if (!Array.prototype.sortDesc) {
 if (!Array.prototype.sum) {
   Array.prototype.sum = function <T>(this: T[], cb: (t: T) => number): number {
     return this.reduce((sum, t) => sum + cb(t), 0);
+  };
+}
+
+if (!Array.prototype.mapProp) {
+  Array.prototype.mapProp = function <T, K extends keyof T>(
+    this: T[],
+    key: K,
+  ): Array<T[K]> {
+    return this.map((t) => t[key]);
   };
 }
