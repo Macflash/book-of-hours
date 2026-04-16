@@ -10,6 +10,7 @@ declare global {
     ifEmpty<J>(ifEmpty: J): Array<T> | J;
     sortAsc(cb: (t: T) => number): Array<T>;
     sortDesc(cb: (t: T) => number): Array<T>;
+    sum(cb: (t: T) => number): number;
   }
 }
 
@@ -78,5 +79,11 @@ if (!Array.prototype.sortDesc) {
   ): T[] {
     cb ||= defaultcb;
     return this.sort((a, b) => cb(b) - cb(a));
+  };
+}
+
+if (!Array.prototype.sum) {
+  Array.prototype.sum = function <T>(this: T[], cb: (t: T) => number): number {
+    return this.reduce((sum, t) => sum + cb(t), 0);
   };
 }

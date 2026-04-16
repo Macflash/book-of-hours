@@ -39,7 +39,7 @@ export function Section({
           role={collapse ? "button" : undefined}
         >
           <div>{title}</div>
-          {collapse ? <div>{collapsed ? "<" : ">"}</div> : null}
+          {collapse ? <div>{collapsed ? "+" : "-"}</div> : null}
         </div>
       ) : null}
       {collapsed ? null : children}

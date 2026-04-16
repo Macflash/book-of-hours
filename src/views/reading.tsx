@@ -194,8 +194,20 @@ function SkillStatus({
   books: Book[];
   save: Save;
 }) {
+  let title = skill.label;
+
+  const currentLevel = Or0(existingSkill?.skill);
+  if (currentLevel) title += ` (${currentLevel})`;
+
+  const levelsYouCanGet = books.sum((b) => b.mastering.level);
+  if (levelsYouCanGet) title += ` +${levelsYouCanGet}`;
+
+  if (currentLevel && levelsYouCanGet) {
+    title += ` -> ${currentLevel + levelsYouCanGet}`;
+  }
+
   return (
-    <Section title={skill.label}>
+    <Section title={title}>
       <AspectList {...(existingSkill || skill)} />
       <div>
         {books.map((b) => (
