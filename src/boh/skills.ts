@@ -2,12 +2,28 @@ import { SkillData } from "../data/skill_data";
 import { AspectMap } from "./aspects";
 import { Or0, PrincipleColor, Principles } from "./principles";
 
-export interface Skill extends AspectMap {
+export interface SchoolMap {
+  // Whether it is committed or not
+  "wisdom.committed"?: number;
+
+  // Schools
+  "w.illumination"?: number;
+  "w.ithastry"?: number;
+  "w.preservation"?: number;
+  "w.horomachistry"?: number;
+  "w.hushery"?: number;
+  "w.bosk"?: number;
+  "w.nyctodromy"?: number;
+  "w.birdsong"?: number;
+  "w.skolekosophy"?: number;
+}
+
+export interface Skill extends AspectMap, SchoolMap {
   id: string;
   label: string;
   color?: string;
 
-  "wisdom.committed"?: number;
+  // What's this?
   "a.xhausted"?: number;
 }
 
@@ -54,7 +70,7 @@ export function EvolveSkill(skill: Skill, level = 1): Skill {
 
 export function GetSkillByEffectiveAgainstId(
   curedById: string,
-  skills = Skills
+  skills = Skills,
 ): Skill[] {
   return skills.filter((s) => (s as any)[curedById]);
 }

@@ -1,13 +1,15 @@
+import { Aspect, AspectMap } from "../boh/aspects";
 import { Book, FindBooksThatSpawnNumen, spawnsNumen } from "../boh/book";
 import {
   Principles,
   PrincipleColor,
   ForAllPrinciples,
   Or0,
+  Principle,
 } from "../boh/principles";
 import { GetCraftingHintString } from "../boh/recipes_hints";
 import { Save } from "../boh/save";
-import { GetSkillById, Skill } from "../boh/skills";
+import { GetSkillById, SchoolMap, Skill } from "../boh/skills";
 import {
   FindBestWorkstationByPrinciple,
   GetSlotablesFromSave,
@@ -22,7 +24,8 @@ import { Section } from "../components/section";
 import React from "react";
 
 export function ReadingView({ save }: { save: Save }) {
-  const [school, setSchool] = React.useState<string>("all");
+  const [school, setSchool] = React.useState<string>("");
+  const [aspect, setAspect] = React.useState<Aspect | "">("");
 
   const desks = save.workstations.filter((w) =>
     w.slots.some((s) => s.required.readable),
@@ -62,7 +65,8 @@ export function ReadingView({ save }: { save: Save }) {
       const levelsYouCanGet = books.sum((b) => b.mastering.level);
       return { existingSkill, skill, books, currentLevel, levelsYouCanGet };
     })
-    .filter(({ skill }) => school == "all" || (skill as any)["w." + school]);
+    .filter(({ skill }) => !school || (skill as any)["w." + school])
+    .filter(({ skill }) => !aspect || skill[aspect]);
 
   const skillsYouHave = skillsYouCouldGet
     .filter(({ existingSkill }) => existingSkill)
@@ -70,11 +74,6 @@ export function ReadingView({ save }: { save: Save }) {
   const uncommitedSkills = skillsYouHave.filter(
     ({ existingSkill }) => !existingSkill?.["wisdom.committed"],
   );
-  const skillsYouDont = skillsYouCouldGet.notIn(skillsYouHave);
-  // console.log("skillsYouCouldGet", skillsYouCouldGet);
-  console.log("skillsYouHave", skillsYouHave);
-  console.log("uncommitedSkills", uncommitedSkills);
-  console.log("skillsYouDont", skillsYouDont);
 
   return (
     <div>
@@ -85,7 +84,7 @@ export function ReadingView({ save }: { save: Save }) {
           setSchool(value);
         }}
       >
-        <option value="all">All schools</option>
+        <option value="">All schools</option>
         <option value="illumination">Illumination</option>
         <option value="ithastry">Ithastry</option>
         <option value="preservation">Preservation</option>
@@ -96,6 +95,34 @@ export function ReadingView({ save }: { save: Save }) {
         <option value="birdsong">Birdsong</option>
         <option value="skolekosophy">Skolekosophy</option>
       </select>
+
+      <select
+        style={{
+          color: PrincipleColor(aspect as Principle) || "white",
+          background: "#282c34",
+        }}
+        value={aspect}
+        onChange={({ target: { value } }) => {
+          setAspect(value as Aspect);
+        }}
+      >
+        <option value="" style={{ color: "white" }}>
+          All aspects
+        </option>
+        <optgroup label="Principles" style={{ color: "white" }}>
+          {Principles.map((p) => (
+            <option key={p} value={p} style={{ color: PrincipleColor(p) }}>
+              {p}
+            </option>
+          ))}
+        </optgroup>
+      </select>
+
+      <SkillSection
+        title="All skills"
+        skillList={[...skillsYouCouldGet]}
+        save={save}
+      />
 
       <SkillSection
         title="Commited skills"
@@ -109,7 +136,11 @@ export function ReadingView({ save }: { save: Save }) {
         save={save}
       />
 
-      <SkillSection title="New skills" skillList={skillsYouDont} save={save} />
+      <SkillSection
+        title="New skills"
+        skillList={skillsYouCouldGet.notIn(skillsYouHave)}
+        save={save}
+      />
 
       <div>{!booksToMaster.length ? "Can't read anything right now" : ""}</div>
 
