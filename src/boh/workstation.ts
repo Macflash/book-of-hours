@@ -118,15 +118,6 @@ export function FindBestWorkstationByPrinciple(
   let bestSum = 0;
   let bestSlotMap = new Map<Slot, Slotable>();
   for (const workstation of workstations) {
-    // const requiredSlotablesAndSlots = requiredSlotables.map((required) => ({
-    //   required,
-    //   slots: FindMatchingSlots(workstation, required),
-    // }));
-
-    // We want to generate all COMBINATIONS of the matching slots.
-
-    // console.log(`Checking workstation ${workstation.label}`);
-
     // Map from slot id -> item in the slot.
     const slotmap = FillSlotsByPrinciple(
       principle,

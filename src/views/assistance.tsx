@@ -1,6 +1,11 @@
 import React from "react";
 import { Assistant, GetAssistants } from "../boh/assistance";
-import { PrincipleColor, ForAllPrinciples, Principle } from "../boh/principles";
+import {
+  PrincipleColor,
+  ForAllPrinciples,
+  Principle,
+  Principles,
+} from "../boh/principles";
 import { Save } from "../boh/save";
 import {
   Principlable,
@@ -26,7 +31,9 @@ export function AssistanceView({ save }: { save: Save }) {
   );
   const [selectedAssistant, assistantSelect] = useAssistantSelect(assistants);
 
-  const roomsToOpen = save.rooms.filter((r) => r.shrouded && !r.sealed);
+  const roomsToOpen = save.rooms
+    .filter((r) => r.shrouded && !r.sealed)
+    .filter((r) => !selectedPrinciple || r[selectedPrinciple]);
   const [selectedRoom, roomSelect] = useRoomSelect(roomsToOpen);
 
   return (
@@ -38,49 +45,66 @@ export function AssistanceView({ save }: { save: Save }) {
       </div>
       {/* Assistant selection */}
 
+      <Section title={`Rooms to open (${roomsToOpen.length})`} collapse>
+        <Principlables principlables={roomsToOpen} allPrinciples />
+      </Section>
+
+      <ShinyNewAssistanceView
+        save={save}
+        principles={selectedPrinciple ? [selectedPrinciple] : [...Principles]}
+        assistants={selectedAssistant ? [selectedAssistant] : assistants}
+        rooms={selectedRoom ? [selectedRoom] : roomsToOpen}
+      />
+
       <LegacyAssistanceView
         save={save}
-        selected={selectedAssistant ? [selectedAssistant] : assistants}
+        principles={selectedPrinciple ? [selectedPrinciple] : [...Principles]}
+        assistants={selectedAssistant ? [selectedAssistant] : assistants}
         rooms={selectedRoom ? [selectedRoom] : roomsToOpen}
       />
     </div>
   );
 }
 
-// we want to be able to say WHICH kind of things to use in which slots.
-// Memories: CONSIDER (not consumed) --> READ --> CRAFT --> CONSIDER (consumed)
-
-function LegacyAssistanceView({
+function ShinyNewAssistanceView({
   save,
-  selected,
+  principles,
+  assistants,
   rooms,
 }: {
   save: Save;
-  selected: Assistant[];
+  principles: Principle[];
+  assistants: Assistant[];
   rooms: Room[];
 }) {
-  const renewableSlotables = GetSlotablesFromSave(save, true);
+  const principlesToShow = principles.map((principle) => {});
+
+  return <div></div>;
+}
+
+function LegacyAssistanceView({
+  save,
+  principles,
+  assistants,
+  rooms,
+}: {
+  save: Save;
+  principles: Principle[];
+  assistants: Assistant[];
+  rooms: Room[];
+}) {
+  // const renewableSlotables = GetSlotablesFromSave(save, true);
   const allSlotables = GetSlotablesFromSave(save, false);
 
-  const assistanceMap = ForAllPrinciples((p) => ({
-    max: FindBestWorkstationByPrinciple(p, selected, allSlotables),
-    min: FindBestWorkstationByPrinciple(p, selected, renewableSlotables),
-  }));
+  const assistanceMap = ForAllPrinciples(
+    (p) => FindBestWorkstationByPrinciple(p, assistants, allSlotables),
+    principles,
+  );
 
   return (
     <div>
-      <Section title={`Rooms to open (${rooms.length})`} collapse>
-        <Principlables principlables={rooms} allPrinciples />
-      </Section>
       {/* Assistance you can get */}
       {[...assistanceMap.entries()]
-        .flatMap(
-          ([principle, { min, max }]) =>
-            [
-              [principle, min],
-              [principle, max],
-            ] as [Principle, BestWorkstation][],
-        )
         .filter(([principle, { bestSum }]) =>
           rooms.find((r) => r[principle] && bestSum >= r[principle]),
         )

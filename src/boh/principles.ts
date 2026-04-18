@@ -109,11 +109,16 @@ export function MapPrinciples(principleMap: PrincipleMap) {
   return [...map.entries()];
 }
 
+export function GetPrinciples(principleMap: PrincipleMap): Principle[] {
+  return Principles.filter((p) => principleMap[p]);
+}
+
 export function ForAllPrinciples<TResult>(
   cb: (p: Principle) => TResult,
+  principles = Principles,
 ): Map<Principle, NoInfer<TResult>> {
   const resultMap = new Map<Principle, TResult>();
-  for (const p of Principles) {
+  for (const p of principles) {
     resultMap.set(p, cb(p));
   }
   return resultMap;
