@@ -22,7 +22,7 @@ export interface Skill extends AspectMap, SchoolMap {
   label: string;
   color?: string;
 
-  // What's this?
+  // Whether it has been used to evolve souls already.
   "a.xhausted"?: number;
 }
 
