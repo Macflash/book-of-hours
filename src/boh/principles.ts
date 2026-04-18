@@ -48,6 +48,7 @@ export function PrincipleColor(p: Principle): string {
 
 export function MixedPrincipleColor(principleMap: PrincipleMap): string {
   const principles = GetPrinciples(principleMap);
+  if (principles.length == 0) return "";
   if (principles.length == 1) return PrincipleColor(principles[0]);
 
   // sum failed??
