@@ -73,7 +73,6 @@ export function Principlable({
     (save && principlable ? GetCraftingHintString(principlable, save) : "");
 
   let color = principlable.color || MixedPrincipleColor(principlable);
-  console.log(color);
   // TODO: this is meant to cover all things that will be DESTROYED/CONSUMED when used.
   if (aspectable.fatigues && aspectable.thing) color = "antiquewhite";
   if (!aspectable.fatigues && aspectable.thing) color = "aquamarine";
@@ -176,8 +175,7 @@ export function AspectList(map: AspectMap) {
             a != "ability" &&
             a != (map as Item).id,
         )
-        .sort((a, b) => Or0(map[b]) - Or0(map[a]))
-        .map((p, i, arr) => p)
+        .sortDesc((x) => Or0(map[x]))
         .join(", ")}
     </span>
   );

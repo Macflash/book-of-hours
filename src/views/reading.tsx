@@ -239,8 +239,7 @@ function SkillStatus({
   books: Book[];
   save: Save;
 }) {
-  let title = skill.label;
-
+  let title = "";
   const currentLevel = Or0(existingSkill?.skill);
   if (currentLevel) title += ` (${currentLevel})`;
 
@@ -252,7 +251,14 @@ function SkillStatus({
   }
 
   return (
-    <Section title={title}>
+    <Section
+      title={
+        <div>
+          <Principlable principlable={skill} />
+          {title}
+        </div>
+      }
+    >
       <AspectList {...(existingSkill || skill)} />
       <div>
         {books.map((b) => (

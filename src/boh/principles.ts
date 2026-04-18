@@ -60,14 +60,10 @@ export function MixedPrincipleColor(principleMap: PrincipleMap): string {
   const rest = { ...principleMap };
   delete rest[first];
 
-  const val = `color-mix(in srgb,
+  return `color-mix(in srgb,
    ${PrincipleColor(first)} ${Math.floor((100 * Or0(principleMap[first])) / total)}%,
    ${MixedPrincipleColor(rest)}
    )`;
-  if (principles.length > 2)
-    console.log("COLOR", val, (principleMap as any).label);
-
-  return val;
 }
 
 export function SumPrinciples(
