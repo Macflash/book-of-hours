@@ -332,23 +332,16 @@ function ParseRoom({
   // TODO: all start with "wt.", e.g. "wt.hor.4", horoma slot 4 is open.
   if (Id.indexOf("wt.") == 0) return null;
 
-  const roomData = GetRoomById(Id);
-  const room: Room = {
-    ...roomData,
-    id: Id,
-    sealed: IsSealed,
-    shrouded: IsShrouded,
-    hasPreviouslyUnshrouded: HasPreviouslyUnshrouded,
-  };
-
   // Filter out totally hidden rooms as you can't use them or their stuff.
-  if (room.sealed) return null;
+  if (IsSealed) return null;
 
-  for (const principle of Principles) {
-    const required = roomData.preslots[0].required as PrincipleMap;
-    if (required[principle]) {
-      room[principle] = required[principle];
-    }
-  }
+  const room = GetRoomById(Id);
+  room.sealed = false;
+  room.shrouded = IsShrouded;
+  room.hasPreviouslyUnshrouded = HasPreviouslyUnshrouded;
+
+  // Use the preface label instead if this is not unlocked yet.
+  if (IsShrouded) room.label = room.preface;
+
   return room;
 }
