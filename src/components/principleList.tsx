@@ -2,8 +2,8 @@ import { Aspect, AspectMap, PositiveAspects } from "../boh/aspects";
 import { Book } from "../boh/book";
 import { Item } from "../boh/items";
 import {
-  AddOr0,
   MinusOr0,
+  MixedPrincipleColor,
   Or0,
   Principle,
   PrincipleColor,
@@ -70,19 +70,19 @@ export function Principlable({
   const aspectable = principlable as Item;
   const tooltip =
     ((aspectable as Book).contaminated ? `Contaminated \n` : "") +
-    (save && principlable
-      ? GetCraftingHintString(principlable, save)
-      : undefined);
+    (save && principlable ? GetCraftingHintString(principlable, save) : "");
 
-  let color = principlable.color;
+  let color = principlable.color || MixedPrincipleColor(principlable);
+  console.log(color);
   // TODO: this is meant to cover all things that will be DESTROYED/CONSUMED when used.
   if (aspectable.fatigues && aspectable.thing) color = "antiquewhite";
   if (!aspectable.fatigues && aspectable.thing) color = "aquamarine";
   if (aspectable.memory) color = "lightblue";
   if (aspectable.persistent) color = "aquamarine";
   if (aspectable.numen) color = "chartreuse";
-  if ((aspectable as Book).reading?.id?.startsWith("numen."))
+  if ((aspectable as Book).reading?.id?.startsWith("numen.")) {
     color = "chartreuse";
+  }
   if ((aspectable as Book).contaminated) color = "darkorange";
   const alreadyHave = save?.items.filter((i) => i.id == principlable.id).length;
 

@@ -5,6 +5,7 @@ import {
   ForAllPrinciples,
   Principle,
   Principles,
+  GetMinimumsByPrinciple,
 } from "../boh/principles";
 import { Save } from "../boh/save";
 import {
@@ -14,7 +15,6 @@ import {
   usePrincipleSelect,
 } from "../components/principleList";
 import {
-  BestWorkstation,
   FindBestWorkstationByPrinciple,
   GetSlotablesFromSave,
 } from "../boh/workstation";
@@ -77,9 +77,11 @@ function ShinyNewAssistanceView({
   assistants: Assistant[];
   rooms: Room[];
 }) {
-  const principlesToShow = principles.map((principle) => {});
-
-  return <div></div>;
+  return (
+    <div>
+      <PrincipleList {...GetMinimumsByPrinciple(rooms, principles)} />
+    </div>
+  );
 }
 
 function LegacyAssistanceView({
@@ -98,18 +100,25 @@ function LegacyAssistanceView({
 
   const assistanceMap = ForAllPrinciples(
     (p) => FindBestWorkstationByPrinciple(p, assistants, allSlotables),
-    principles,
+    principles.filter((p) => rooms.some((r) => r[p])),
   );
 
   return (
     <div>
       {/* Assistance you can get */}
       {[...assistanceMap.entries()]
-        .filter(([principle, { bestSum }]) =>
-          rooms.find((r) => r[principle] && bestSum >= r[principle]),
-        )
-        .sort((a, b) => a[1].bestSum - b[1].bestSum)
-        .map(([principle, { bestWorkstation, bestSum, bestSlotMap }], i) => {
+        .map(([principle, best]) => {
+          const roomsYouCanOpenWithThisPrinciple = rooms.filter(
+            (r) => r[principle] && best.bestSum >= r[principle],
+          );
+
+          return { principle, ...best, roomsYouCanOpenWithThisPrinciple };
+        })
+        // .filter(([principle, { bestSum }]) =>
+        //   rooms.find((r) => r[principle] && bestSum >= r[principle]),
+        // )
+        .sortDesc(({ bestSum }) => bestSum)
+        .map(({ principle, bestWorkstation, bestSum, bestSlotMap }, i) => {
           const slotables = bestSlotMap
             .values()
             .toArray()

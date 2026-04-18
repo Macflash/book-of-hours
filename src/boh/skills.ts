@@ -1,6 +1,6 @@
 import { SkillData } from "../data/skill_data";
 import { AspectMap } from "./aspects";
-import { Or0, PrincipleColor, Principles } from "./principles";
+import { MixedPrincipleColor, Or0, Principles } from "./principles";
 
 export interface SchoolMap {
   // Whether it is committed or not
@@ -30,10 +30,6 @@ export interface Skill extends AspectMap, SchoolMap {
 function GenerateSkills(): Skill[] {
   const skills: Skill[] = [];
   for (const data of SkillData) {
-    const principles = Principles.map((p) => ({ p, val: data.aspects[p] || 0 }))
-      .filter(({ val }) => val > 0)
-      .sort((a, b) => b.val - a.val)
-      .map(({ p }) => PrincipleColor(p));
     skills.push({
       ...data,
       ...data.aspects,
@@ -41,7 +37,7 @@ function GenerateSkills(): Skill[] {
       label: data.Label,
       [data.id]: 1,
       // kind of cool, but also kind of crazy.
-      color: `color-mix(in srgb, ${principles[0]}, ${principles[1]})`,
+      // color: MixedPrincipleColor(data.aspects || {}),
     });
   }
 

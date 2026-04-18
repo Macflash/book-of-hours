@@ -32,15 +32,42 @@ export const PrincipleColors: ReadonlyMap<Principle, string> = new Map<
   ["winter", "#BDEFFF"],
 ]);
 
-export function PrincipleColor(p: Principle): string {
-  return PrincipleColors.get(p) || "";
-}
-
 export const Principles: ReadonlyArray<Principle> = [...PrincipleColors.keys()];
 
 export type PrincipleMap = Partial<{
   [key in Principle]: number;
 }>;
+
+export function GetPrinciples(principleMap: PrincipleMap): Principle[] {
+  return Principles.filter((p) => principleMap[p]);
+}
+
+export function PrincipleColor(p: Principle): string {
+  return PrincipleColors.get(p) || "";
+}
+
+export function MixedPrincipleColor(principleMap: PrincipleMap): string {
+  const principles = GetPrinciples(principleMap);
+  if (principles.length == 1) return PrincipleColor(principles[0]);
+
+  // sum failed??
+  const total = principles.sum((p) => Or0(principleMap[p]));
+  // let total = 0;
+  // for (const p of principles) total += Or0(principleMap[p]);
+
+  const first = principles[0];
+  const rest = { ...principleMap };
+  delete rest[first];
+
+  const val = `color-mix(in srgb,
+   ${PrincipleColor(first)} ${Math.floor((100 * Or0(principleMap[first])) / total)}%,
+   ${MixedPrincipleColor(rest)}
+   )`;
+  if (principles.length > 2)
+    console.log("COLOR", val, (principleMap as any).label);
+
+  return val;
+}
 
 export function SumPrinciples(
   principle: Principle,
@@ -109,10 +136,6 @@ export function MapPrinciples(principleMap: PrincipleMap) {
   return [...map.entries()];
 }
 
-export function GetPrinciples(principleMap: PrincipleMap): Principle[] {
-  return Principles.filter((p) => principleMap[p]);
-}
-
 export function ForAllPrinciples<TResult>(
   cb: (p: Principle) => TResult,
   principles = Principles,
@@ -128,4 +151,22 @@ export function ToPrincipleString(map: PrincipleMap): string {
   return Principles.filter((p) => map[p])
     .map((p) => `${p}: ${Or0(map[p])}`)
     .join(", ");
+}
+
+export function GetMinimumsByPrinciple(
+  things: PrincipleMap[],
+  principles = Principles,
+): PrincipleMap {
+  const minimumsByPrinciple: PrincipleMap = {};
+  for (const principle of principles) {
+    for (const thing of things) {
+      if (thing[principle]) {
+        minimumsByPrinciple[principle] = Math.max(
+          minimumsByPrinciple[principle] ?? 0,
+          thing[principle] ?? 0,
+        );
+      }
+    }
+  }
+  return minimumsByPrinciple;
 }
