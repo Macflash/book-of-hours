@@ -9,9 +9,11 @@ import { LessonView } from "./views/lesson";
 import { ContaminationView } from "./views/contamination";
 import { SaveView } from "./views/save";
 import { EvolveView } from "./views/evolve";
-import { WorkstationList, WorkstationView } from "./views/workstation";
+import { WorkstationView } from "./views/workstation";
 import { Action } from "./components/actionList";
-import { Items } from "./boh/items";
+import { BookData } from "./data/book_data";
+
+console.log("BOOKS", BookData);
 
 type View =
   | "load"
