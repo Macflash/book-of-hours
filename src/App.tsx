@@ -11,9 +11,6 @@ import { SaveView } from "./views/save";
 import { EvolveView } from "./views/evolve";
 import { WorkstationView } from "./views/workstation";
 import { Action } from "./components/actionList";
-import { BookData } from "./data/book_data";
-
-console.log("BOOKS", BookData);
 
 type View =
   | "load"
@@ -29,8 +26,6 @@ type View =
 function App() {
   const [view, setView] = React.useState<View>("load");
   const [save, setSave] = React.useState<Save>(EmptySave());
-
-  const [actions, setActions] = React.useState<Action[]>([]);
 
   let body = <div>Unknown view: {view}</div>;
 
