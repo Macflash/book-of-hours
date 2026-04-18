@@ -51,7 +51,7 @@ export function GetSkillByEffectiveAgainstId(
   return skills.filter((s) => (s as any)[curedById]);
 }
 
-export const Skills = [
+export const Skills: Skill[] = [
   {
     id: "s.preliminalmeter",
     knock: 2,
@@ -818,4 +818,4 @@ export const Skills = [
     label: "Henavek",
     "s.henavek": 1,
   },
-];
+] as any as Skill[];

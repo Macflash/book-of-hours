@@ -1,7 +1,7 @@
 import React from "react";
 import { Save } from "../boh/save";
-import { Consider } from "../data/workstation_data";
 import {
+  Consider,
   GetSlotablesFromSave,
   MatchesSlot,
   Slot,
@@ -13,11 +13,10 @@ import {
 import { GetAssistants } from "../boh/assistance";
 import { Principle, PrincipleColor, Principles } from "../boh/principles";
 import { AspectMap } from "../boh/aspects";
-import { AspectList, PrincipleList } from "../components/principleList";
+import { PrincipleList } from "../components/principleList";
 
 export function WorkstationList({ save }: { save: Save }) {
   const [tabs, setTabs] = React.useState<string[]>([]);
-  const [expanded, setExpanded] = React.useState<string | null>(null);
 
   return (
     <div
@@ -49,7 +48,7 @@ export function WorkstationList({ save }: { save: Save }) {
 
 export function WorkstationView({
   save,
-  initialWorkstation = Consider as Workstation,
+  initialWorkstation = Consider,
 }: {
   save: Save;
   initialWorkstation?: Workstation;

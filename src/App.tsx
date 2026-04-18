@@ -10,9 +10,6 @@ import { ContaminationView } from "./views/contamination";
 import { SaveView } from "./views/save";
 import { EvolveView } from "./views/evolve";
 import { WorkstationView } from "./views/workstation";
-import { Recipes } from "./boh/recipes";
-
-console.log("Recipes", Recipes);
 
 type View =
   | "load"

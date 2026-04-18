@@ -37,6 +37,8 @@ export type Aspect =
   | "readable"
   | "blank"
   | "skill.chandlery"
+  | "skill.language"
+  | "considerable"
   // More stuff
   | "thing"
   | "remains"
@@ -45,7 +47,14 @@ export type Aspect =
   | "persistent"
   | "mark"
   | "numen"
-  | "omen";
+  | "omen"
+  | "covenant"
+  | "restorative"
+  | "stone"
+  | "malady"
+  | "wooden"
+  | "ductile"
+  | "light";
 
 export type AspectMap = Partial<{
   [key in Aspect]: number;

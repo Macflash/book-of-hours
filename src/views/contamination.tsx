@@ -9,7 +9,6 @@ import { GetCraftingHintString } from "../boh/recipes_hints";
 import { GetSkillByEffectiveAgainstId, Skill } from "../boh/skills";
 import { Contaminations } from "../boh/contaminations";
 import { MatchesRequiredAspects } from "../boh/aspects";
-import { GetAllWorkstations } from "../boh/workstation";
 import { FavMemories } from "../boh/memories";
 
 export function ContaminationView({ save }: { save: Save }) {
@@ -32,7 +31,7 @@ export function ContaminationView({ save }: { save: Save }) {
           const value = SumPrinciples(c.curedWith, soul, memory);
 
           // OK so the hard part is finding a workstation that we can do this crap at?
-          const possibleWorkstations = GetAllWorkstations().filter(
+          const possibleWorkstations = save.workstations.filter(
             (ws) =>
               ws.hints?.includes(c.curedWith) &&
               ws.slots.some((slot) => slot.required["readable"]),
