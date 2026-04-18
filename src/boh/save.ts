@@ -334,8 +334,8 @@ function ParseRoom({
 
   const roomData = GetRoomById(Id);
   const room: Room = {
+    ...roomData,
     id: Id,
-    label: roomData.label,
     sealed: IsSealed,
     shrouded: IsShrouded,
     hasPreviouslyUnshrouded: HasPreviouslyUnshrouded,

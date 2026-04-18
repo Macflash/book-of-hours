@@ -5368,8 +5368,6 @@ export const Recipes: Recipe[] = [
   },
   {
     id: "chandlery.aglaophotis",
-    startdescription: "For protection, perhaps.",
-    desc: "The air clears, and my thoughts likewise.",
     reqs: {
       ability: 1,
       "skill.chandlery": 1,
@@ -5382,8 +5380,6 @@ export const Recipes: Recipe[] = [
   },
   {
     id: "chandlery.fragrant.chalice",
-    startdescription: "For delight, no doubt.",
-    desc: "The scent is rich as roses.",
     reqs: {
       ability: 1,
       "skill.chandlery": 1,
@@ -5396,8 +5392,6 @@ export const Recipes: Recipe[] = [
   },
   {
     id: "chandlery.historywax",
-    startdescription: "To see how everything changes.",
-    desc: "The flame will flicker, and the Histories ripple.",
     reqs: {
       ability: 1,
       "skill.chandlery": 1,
@@ -5410,8 +5404,6 @@ export const Recipes: Recipe[] = [
   },
   {
     id: "chandlery.honeyscar",
-    startdescription: "To bring sweet warmth.",
-    desc: "A roaring orange flame, a coppery sweetness.",
     reqs: {
       ability: 1,
       "skill.chandlery": 1,
@@ -5424,8 +5416,6 @@ export const Recipes: Recipe[] = [
   },
   {
     id: "chandlery.mothorchid",
-    startdescription: "To bring dreams.",
-    desc: "A scent like evening.",
     reqs: {
       ability: 1,
       "skill.chandlery": 1,
@@ -5438,8 +5428,6 @@ export const Recipes: Recipe[] = [
   },
   {
     id: "chandlery.pyrus",
-    startdescription: "A potent light, in the right place.",
-    desc: "Forge and Nectar: so many consider them opposites. Is there another truth in the Malachite's shadows?",
     reqs: {
       ability: 1,
       "skill.chandlery": 1,
@@ -5452,8 +5440,6 @@ export const Recipes: Recipe[] = [
   },
   {
     id: "chandlery.beeswax",
-    startdescription: "[Or add a suitable second ingredient.]",
-    desc: "Simple and bright.",
     reqs: {
       ability: 1,
       "skill.chandlery": 1,
@@ -5463,4 +5449,4 @@ export const Recipes: Recipe[] = [
     skill: "s.undefined",
     result: "candle.beeswax",
   },
-] as Recipe[];
+] as any as Recipe[]; // Bad!
