@@ -1,22 +1,41 @@
-import { AspectMap, GetAspectsWithPrefix, SortByAspect } from "../boh/aspects";
+import { GetAspectsWithPrefix } from "../boh/aspects";
 import {
-  BestPrinciple,
   FindBestByPrinciple,
-  MinusOr0,
   Or0,
   Principles,
   PrincipleSum,
   SumPrinciples,
 } from "../boh/principles";
+import { Rooms } from "../boh/rooms";
 import { Save } from "../boh/save";
-import { IPrinciplable, Principlable } from "../components/principleList";
+import { Principlable } from "../components/principleList";
 import { Section } from "../components/section";
 
 export function SaveView({ save }: { save: Save }) {
-  console.log("Save", save);
+  // Does this still work?
+  const commitableSkills = save.tree
+    .filter((n) => !n.unlocked)
+    .map((node) => ({
+      node,
+      skills: save.skills.filter(
+        (s) =>
+          Or0(s.skill) >= node.skillLevel &&
+          !s["wisdom.committed"] &&
+          GetAspectsWithPrefix(s, "w." + node.type).length,
+      ),
+    }))
+    .filter((x) => x.skills.length);
+
+  const openRooms = save.rooms.filter((r) => !r.shrouded && !r.sealed).length;
+  const roomPercent = Math.floor((100 * openRooms) / Rooms.length);
+
   return (
     <div>
-      Your save:
+      Loaded!
+      <div style={{ fontSize: 16 }}>
+        Use the other views above to help with reading, unlocking rooms,
+        crafting, etc.
+      </div>
       <Section collapse title={`Best by principle`}>
         {Principles.map((principle) => ({
           principle,
@@ -40,7 +59,62 @@ export function SaveView({ save }: { save: Save }) {
             </div>
           ))}
       </Section>
-      <Section collapse title={`Souls: ${save.souls.length}`}>
+      <Section
+        collapse
+        startCollapsed={!commitableSkills.length}
+        title={`Skill tree (${commitableSkills.length} to commit)`}
+      >
+        <div>
+          Skills uncommitted:{" "}
+          {save.skills.filter((s) => !s["wisdom.committed"]).length}
+        </div>
+        <div>
+          Skills Committed:{" "}
+          {save.skills.filter((s) => s["wisdom.committed"]).length}
+        </div>
+        <div>
+          Filled tree slots: {save.tree.filter((n) => n.unlocked).length}
+        </div>
+        <div>
+          Open tree slots: {save.tree.filter((n) => !n.unlocked).length}
+        </div>
+        <div>
+          Fillable tree slots:{" "}
+          {commitableSkills
+            .map(({ node, skills }) => (
+              <div key={node.id}>
+                {node.id}:{" "}
+                {skills
+                  .sort((a, b) => Or0(a.skill) - Or0(b.skill))
+                  .map((s) => `${s.label} (${s.skill})`)
+                  .join(", ")}
+              </div>
+            ))
+            .ifEmpty("No commitable skills")}
+        </div>
+      </Section>
+      <Section startCollapsed title={`House (${roomPercent}% unlocked)`}>
+        <div>
+          Rooms unlocked:{" "}
+          {save.rooms.filter((r) => !r.shrouded && !r.sealed).length} (
+          {Math.floor(
+            (100 * save.rooms.filter((r) => !r.shrouded && !r.sealed).length) /
+              Rooms.length,
+          )}
+          %)
+        </div>
+        <div>
+          Rooms available to be opened:{" "}
+          {save.rooms.filter((r) => r.shrouded).length}
+        </div>
+        <div>Workstations: {save.workstations.length}</div>
+        <div>Items in your house: {save.items.length}</div>
+        <div>Books in your house: {save.books.length}</div>
+        <div>
+          Books Mastered: {save.books.filter(({ mastered }) => mastered).length}
+        </div>
+      </Section>
+      <Section startCollapsed title={`Souls (${save.souls.length})`}>
         {save.souls.sortDesc(PrincipleSum).map((soul, i) => (
           <span key={i}>
             <Principlable principlable={soul} allPrinciples />
@@ -48,7 +122,7 @@ export function SaveView({ save }: { save: Save }) {
           </span>
         ))}
       </Section>
-      <Section startCollapsed title={`Skills: ${save.skills.length}`}>
+      <Section startCollapsed title={`Skills (${save.skills.length} learned)`}>
         {save.skills.sortDesc(PrincipleSum).map((s, i) => (
           <span key={i}>
             <Principlable principlable={s} allPrinciples />
@@ -56,55 +130,6 @@ export function SaveView({ save }: { save: Save }) {
           </span>
         ))}
       </Section>
-      <div>
-        Rooms unlocked:{" "}
-        {save.rooms.filter((r) => !r.shrouded && !r.sealed).length}
-      </div>
-      <div>
-        Rooms available to be opened:{" "}
-        {save.rooms.filter((r) => r.shrouded).length}
-      </div>
-      <div>Workstations: {save.workstations.length}</div>
-      <div>Items: {save.items.length}</div>
-      <div>Books: {save.books.length}</div>
-      <div>
-        Mastered: {save.books.filter(({ mastered }) => mastered).length}
-      </div>
-      <div>
-        Skills uncommitted:{" "}
-        {save.skills.filter((s) => !s["wisdom.committed"]).length}
-      </div>
-      <div>
-        Skills Committed:{" "}
-        {save.skills.filter((s) => s["wisdom.committed"]).length}
-      </div>
-      <div>Filled tree slots: {save.tree.filter((n) => n.unlocked).length}</div>
-      <div>Open tree slots: {save.tree.filter((n) => !n.unlocked).length}</div>
-      <div>
-        Fillable tree slots:{" "}
-        {save.tree
-          .filter((n) => !n.unlocked)
-          .map((node) => ({
-            node,
-            skills: save.skills.filter(
-              (s) =>
-                Or0(s.skill) >= node.skillLevel &&
-                !s["wisdom.committed"] &&
-                GetAspectsWithPrefix(s, "w." + node.type).length
-            ),
-          }))
-          .filter((x) => x.skills.length)
-          .map(({ node, skills }) => (
-            <div key={node.id}>
-              {node.id}:{" "}
-              {skills
-                .sort((a, b) => Or0(a.skill) - Or0(b.skill))
-                .map((s) => `${s.label} (${s.skill})`)
-                .join(", ")}
-            </div>
-          ))
-          .ifEmpty("No commitable skills")}
-      </div>
     </div>
   );
 }

@@ -1,7 +1,7 @@
 import React from "react";
 import "./App.css";
 import { EmptySave, Save } from "./boh/save";
-import { LoadFile, LoadView, readFile } from "./views/load";
+import { LoadFile, LoadView } from "./views/load";
 import { AssistanceView } from "./views/assistance";
 import { CraftingView } from "./views/crafting";
 import { ReadingView } from "./views/reading";
@@ -10,6 +10,18 @@ import { ContaminationView } from "./views/contamination";
 import { SaveView } from "./views/save";
 import { EvolveView } from "./views/evolve";
 import { WorkstationView } from "./views/workstation";
+import { PrincipleColor, Principles } from "./boh/principles";
+
+const seed = Math.floor(Math.random() * Principles.length);
+const title = "Book of Hours helper".split(" ").map((c, i) => (
+  <span
+    style={{
+      color: PrincipleColor(Principles[(i + seed) % Principles.length]),
+    }}
+  >
+    {c}{" "}
+  </span>
+));
 
 type View =
   | "load"
@@ -29,15 +41,7 @@ function App() {
   let body = <div>Unknown view: {view}</div>;
 
   if (view == "load") {
-    body = (
-      <LoadView
-        setSave={(newSave: Save) => {
-          console.log("Loaded", newSave);
-          setSave(newSave);
-          setView("save");
-        }}
-      />
-    );
+    body = <LoadView />;
   }
 
   if (view == "save") {
@@ -75,15 +79,26 @@ function App() {
 
   return (
     <div className="App">
-      {view !== "load" ? (
-        <div
-          style={{
-            textAlign: "left",
-            position: "sticky",
-            top: 0,
-            backgroundColor: "#282c34",
-          }}
-        >
+      <div
+        style={{
+          display: "flex",
+          alignItems: "center",
+          gap: 10,
+          textAlign: "left",
+          position: "sticky",
+          top: 0,
+          backgroundColor: "#282c34",
+        }}
+      >
+        <h1 style={{ fontSize: 16 }}>
+          <a
+            href="https://github.com/Macflash/book-of-hours"
+            style={{ color: "grey" }}
+          >
+            {title}
+          </a>
+        </h1>
+        {view !== "load" ? (
           <select
             value={view}
             onChange={(ev) => void setView(ev.target.value as View)}
@@ -98,12 +113,16 @@ function App() {
             <option value="workstation">Workstation</option>
             <option value="contamination">Contamination</option>
           </select>
-          <LoadFile setSave={setSave} />
-          {/* Not ready yet... */}
-          {/* <WorkstationList save={save} /> */}
-        </div>
-      ) : null}
-      <header className="App-header">{body}</header>
+        ) : null}
+        <LoadFile
+          setSave={(newSave) => {
+            if (view == "load") setView("save");
+            setSave(newSave);
+          }}
+        />
+      </div>
+
+      <div className="App-header">{body}</div>
     </div>
   );
 }

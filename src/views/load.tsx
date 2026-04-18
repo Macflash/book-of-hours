@@ -34,16 +34,21 @@ export function LoadFile({ setSave }: { setSave: (newSave: Save) => void }) {
   );
 }
 
-export function LoadView({ setSave }: { setSave: (newSave: Save) => void }) {
+export function LoadView() {
   return (
     <div>
-      <input
-        style={{ width: 400 }}
-        type="text"
-        readOnly
-        value="%AppData%\..\LocalLow\Weather Factory\Book of Hours\AUTOSAVE.json"
-      />
-      <LoadFile setSave={setSave} />
+      <p style={{}}>
+        Welcome!
+        <br />
+        To get started select a save file.
+        <br /> For Steam + Windows saves are usually located here:
+        <pre style={{ fontSize: 14 }}>
+          %AppData%\..\LocalLow\Weather Factory\Book of Hours\AUTOSAVE.json
+        </pre>
+        Note: You can use any save you have, not just AUTOSAVE.
+        <br />
+        Your other saves should be in the same folder.
+      </p>
     </div>
   );
 }
