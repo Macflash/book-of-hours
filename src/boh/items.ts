@@ -1,4 +1,4 @@
-import { ItemData } from "../data/item_data";
+import { ITEMS } from "../data/item_data";
 import { PrototypeData } from "../data/prototype_data";
 import {
   AddAspectsInplace,
@@ -17,69 +17,61 @@ export interface Item extends AspectMap {
   fatigues?: string;
 }
 
-function GenerateItems() {
-  return ItemData.map((data) => {
-    let item: Item = {
-      id: data.ID || data.id!,
-      label: data.Label || data.label!,
-      ...data,
-    };
-    item[item.id as Aspect] = 1; // Bootstrap the id as if it was an aspect.
-    if (data.aspects) {
-      item = { ...item, ...data.aspects };
-      delete (item as any).aspects;
-    }
-    if (data.inherits) {
-      const proto = GetPrototype(data.inherits);
-      // if (proto.fatigues) console.log("proto fatigues!", proto);
-      AddAspectsInplace(item, proto); // AH!! only does numbers.
-      // if (proto.fatigues && !item.fatigues) throw "FUCK";
-    }
+// These were only needed for getting and processing the data.
+// function GenerateItems() {
+//   return ItemData.map((data) => {
+//     let item: Item = {
+//       id: data.ID || data.id!,
+//       label: data.Label || data.label!,
+//       ...data,
+//     };
+//     item[item.id as Aspect] = 1; // Bootstrap the id as if it was an aspect.
+//     if (data.aspects) {
+//       item = { ...item, ...data.aspects };
+//       delete (item as any).aspects;
+//     }
+//     if (data.inherits) {
+//       const proto = GetPrototype(data.inherits);
+//       // if (proto.fatigues) console.log("proto fatigues!", proto);
+//       AddAspectsInplace(item, proto); // AH!! only does numbers.
+//       // if (proto.fatigues && !item.fatigues) throw "FUCK";
+//     }
 
-    // This item gets destroyed or replaced when used.
-    const fatigues = data.xtriggers?.fatiguing;
-    if (fatigues) {
-      // console.log("fatigues", fatigues);
-      item.fatigues = fatigues;
-    }
+//     // This item gets destroyed or replaced when used.
+//     const fatigues = data.xtriggers?.fatiguing;
+//     if (fatigues) {
+//       // console.log("fatigues", fatigues);
+//       item.fatigues = fatigues;
+//     }
 
-    const spawns = data.xtriggers?.scrutiny?.[0];
-    if (spawns) item.consider_spawn_id = spawns.id;
+//     const spawns = data.xtriggers?.scrutiny?.[0];
+//     if (spawns) item.consider_spawn_id = spawns.id;
 
-    return item;
-  });
-}
+//     return item;
+//   });
+// }
 
-function GetPrototype(id: string) {
-  const data = PrototypeData.find((p) => p.id == id);
-  if (!data) throw new Error(`Couldn't find prototype ${id}`);
+// function GetPrototype(id: string) {
+//   const data = PrototypeData.find((p) => p.id == id);
+//   if (!data) throw new Error(`Couldn't find prototype ${id}`);
 
-  let proto: Item = { id: data.id, label: data.id, ...data.aspects };
-  if (data.inherits) {
-    const nested = GetPrototype(data.inherits);
-    AddAspectsInplace(proto, nested);
-  }
+//   let proto: Item = { id: data.id, label: data.id, ...data.aspects };
+//   if (data.inherits) {
+//     const nested = GetPrototype(data.inherits);
+//     AddAspectsInplace(proto, nested);
+//   }
 
-  // This item gets destroyed or replaced when used.
-  const fatigues = data.xtriggers?.fatiguing;
-  if (fatigues) {
-    // console.log("proto fatigues", fatigues);
-    proto.fatigues = fatigues;
-  }
+//   // This item gets destroyed or replaced when used.
+//   const fatigues = data.xtriggers?.fatiguing;
+//   if (fatigues) {
+//     // console.log("proto fatigues", fatigues);
+//     proto.fatigues = fatigues;
+//   }
 
-  return proto;
-}
+//   return proto;
+// }
 
-export const Items = GenerateItems();
-// console.log("Items", Items);
-// console.log(
-//   "items that fatigue",
-//   Items.filter((i) => i.fatigues)
-// );
-// console.log(
-//   "items that don't fatigue",
-//   Items.filter((i) => !i.fatigues)
-// );
+export const Items = ITEMS as Item[];
 
 export function GetItemById(id: string, items = Items) {
   return items.find((item) => item.id == id);
@@ -97,7 +89,7 @@ export function GetItemsByAspects(aspects: AspectMap, items = Items) {
 export function GetMatchingItems(
   required: AspectMap,
   essential?: AspectMap,
-  items = Items
+  items = Items,
 ) {
   const matchRequiredAspects = GetItemsByAspects(required, items);
   if (essential) return GetItemsByAspects(essential, matchRequiredAspects);

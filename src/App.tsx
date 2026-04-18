@@ -11,6 +11,7 @@ import { SaveView } from "./views/save";
 import { EvolveView } from "./views/evolve";
 import { WorkstationList, WorkstationView } from "./views/workstation";
 import { Action } from "./components/actionList";
+import { Items } from "./boh/items";
 
 type View =
   | "load"

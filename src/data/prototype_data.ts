@@ -3,8 +3,6 @@ export const PrototypeData = [
     id: "_",
     noartneeded: true,
     label: "Prima Materia",
-    desc: "FNOR_, as the saying goes, is not as it was.",
-    comments: "The THING root class for THINGS",
     ManifestationType: "Thing",
     aspects: { considerable: 1, thing: 1 },
     slots: [
@@ -566,8 +564,6 @@ export const PrototypeData = [
       },
     ],
     xtriggers: { fatiguing: "dust", "fatiguing.ingredients": "dust" },
-    comments:
-      "We need to specify the slot explicitly because the custom Manifestation stops us inheriting from the fundamental _",
   },
 
   {
@@ -585,8 +581,6 @@ export const PrototypeData = [
         forbidden: { fatigued: -1 },
       },
     ],
-    comments:
-      "We need to specify the slot explicitly because the custom Manifestation stops us inheriting from the fundamental _",
   },
 
   {
@@ -738,8 +732,6 @@ export const PrototypeData = [
       "fatiguing.memory": "echo",
       "forgetting.persistent": "fleeting",
     },
-    comments:
-      "Forgetting and forgetting.persistent are intended for xpans - so persistent memories are immune to basic forgetting. Fatiguing and fatiguing.memory work on both, though, so people can burn them in crafting and exaltation recipes.",
   },
 
   {
@@ -813,7 +805,6 @@ export const PrototypeData = [
     id: "_spintria",
     noartneeded: true,
     aspects: { ductile: 1, rank: 50 },
-    comments: "base 50 + imms outcome gives us auto-ranked by tally",
     imms: [{ reqs: { tally: 1 }, effects: { rank: "tally" } }],
     xtriggers: { "fatiguing.spintria": "fleeting" },
   },

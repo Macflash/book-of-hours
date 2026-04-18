@@ -38,7 +38,6 @@ export function LessonView({ save }: { save: Save }) {
     }
     return false;
   });
-  console.log("Matching", matchingMemories);
 
   // We should filter memories by what is actually CRAFTABLE.
   // consider: I have access to the item
@@ -47,18 +46,15 @@ export function LessonView({ save }: { save: Save }) {
 
   // TODO: weather??
   // TODO: TALKING TO ASSISTANTS! This is a good way to get stuff early
-  console.log("skills??", save.skills);
-  console.log("recipes??", Recipes);
   const recipesBySkills = FilterRecipesBySkills(save.skills); // not working??
-  console.log("Recipes by skills", recipesBySkills);
 
   const recipeMap = new Map<string, Recipe[]>(
     matchingMemories.map((m) => [
       m.id,
-      GetRecipesByResult(m.id, FilterRecipesBySkills(save.skills)),
+      GetRecipesByResult(m.id, recipesBySkills),
     ]),
   );
-  console.log("Matching recipes", recipeMap);
+  // console.log("Matching recipes", recipeMap);
 
   const considerMap = new Map<string, Item[]>(
     matchingMemories.map((m) => [
@@ -66,7 +62,7 @@ export function LessonView({ save }: { save: Save }) {
       GetItemsByConsiderSpawnId(m.id, save.items),
     ]),
   );
-  console.log("Things to consider", considerMap);
+  // console.log("Things to consider", considerMap);
 
   const bookMap = new Map<string, Book[]>(
     matchingMemories.map((m) => [m.id, FindBooksThatSpawnId(m.id, save.books)]),
@@ -220,13 +216,7 @@ function MemoryList({
               />
               <span
                 style={{
-                  color:
-                    color ||
-                    (FavMemories.some((f) => f.id == m.id)
-                      ? "gold"
-                      : madeBefore?.has(m.id)
-                        ? "green"
-                        : undefined),
+                  color: color || (madeBefore?.has(m.id) ? "green" : undefined),
                 }}
               >
                 {prefix}
