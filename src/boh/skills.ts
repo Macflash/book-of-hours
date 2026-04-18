@@ -26,6 +26,10 @@ export interface Skill extends AspectMap, SchoolMap {
   "a.xhausted"?: number;
 }
 
+export function commited(skill: Skill) {
+  return skill["wisdom.committed"];
+}
+
 export function GetSkillById(id: string, level = 1): Skill {
   const skill = Skills.find((s) => s.id === id);
   if (!skill) throw new Error(`Couldn't find skill with id: ${id}`);

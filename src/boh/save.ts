@@ -225,7 +225,7 @@ function ParseTree(payload: Payload): TreeNode | null {
       unlocked: !IsSealed && !IsShrouded,
       skillLevel,
     };
-    console.log("tree!", treeNode, Dominions);
+    // console.log("tree!", treeNode, Dominions);
     // dominions has 2 entries.
     // first is for unlocking, e.g. has required, essential, forbidden,
 

@@ -1,15 +1,15 @@
-import { Aspect, AspectMap } from "../boh/aspects";
-import { Book, FindBooksThatSpawnNumen, spawnsNumen } from "../boh/book";
+import { GetAspectsWithPrefix } from "../boh/aspects";
+import { Book, spawnsNumen } from "../boh/book";
 import {
   Principles,
   PrincipleColor,
   ForAllPrinciples,
   Or0,
-  Principle,
 } from "../boh/principles";
 import { GetCraftingHintString } from "../boh/recipes_hints";
 import { Save } from "../boh/save";
-import { GetSkillById, SchoolMap, Skill } from "../boh/skills";
+import { GetSkillById, Skill } from "../boh/skills";
+import { TreeNode } from "../boh/tree";
 import {
   FindBestWorkstationByPrinciple,
   GetSlotablesFromSave,
@@ -76,6 +76,24 @@ export function ReadingView({ save }: { save: Save }) {
     ({ existingSkill }) => !existingSkill?.["wisdom.committed"],
   );
 
+  const openTreeNodes = save.tree.filter(({ unlocked }) => !unlocked);
+
+  const newOrUncommitedSkills = skillsYouCouldGet
+    .filter(({ existingSkill }) => !existingSkill?.["wisdom.committed"])
+    .map((val) => {
+      return {
+        ...val,
+        schools: openTreeNodes.filter(
+          (node) =>
+            Or0(val.levelsYouCanGet) >= node.skillLevel &&
+            GetAspectsWithPrefix(val.skill, "w." + node.type).length,
+        ),
+      };
+    })
+    .filter(({ schools }) => schools.length);
+
+  // console.log("skillsYouCouldCommit", commitCount, skillsYouCouldCommit);
+
   return (
     <div>
       <select
@@ -98,6 +116,12 @@ export function ReadingView({ save }: { save: Save }) {
       </select>
 
       {principleSelect}
+
+      <SkillSection
+        title="Skills you could commit"
+        skillList={newOrUncommitedSkills}
+        save={save}
+      />
 
       <SkillSection
         title="All skills"
@@ -205,6 +229,7 @@ function SkillSection({
     books: Book[];
     currentLevel: number;
     levelsYouCanGet: number;
+    schools?: TreeNode[];
   }[];
   title: string;
   save: Save;
@@ -215,13 +240,14 @@ function SkillSection({
         .sortDesc(
           ({ currentLevel, levelsYouCanGet }) => currentLevel + levelsYouCanGet,
         )
-        .map(({ skill, existingSkill, books }) => (
+        .map(({ skill, existingSkill, books, schools }) => (
           <SkillStatus
             key={skill.id}
             skill={skill}
             existingSkill={existingSkill}
             books={books}
             save={save}
+            schools={schools}
           />
         ))}
     </Section>
@@ -233,11 +259,13 @@ function SkillStatus({
   existingSkill,
   books,
   save,
+  schools,
 }: {
   existingSkill: Skill | undefined;
   skill: Skill;
   books: Book[];
   save: Save;
+  schools?: TreeNode[];
 }) {
   let title = "";
   const currentLevel = Or0(existingSkill?.skill);
@@ -259,6 +287,7 @@ function SkillStatus({
         </div>
       }
     >
+      {schools?.map((s) => s.type + ":" + s.skillLevel).join()}
       <AspectList {...(existingSkill || skill)} />
       <div>
         {books.map((b) => (

@@ -48,7 +48,7 @@ export function SaveView({ save }: { save: Save }) {
           }))
           .sort((a, b) => b.sum - a.sum)
           .map(({ principle, soul, skill, sum }) => (
-            <div>
+            <div key={principle}>
               {principle} ({sum}):{" "}
               {skill ? (
                 <Principlable principle={principle} principlable={skill} />
