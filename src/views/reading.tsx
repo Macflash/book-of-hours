@@ -19,13 +19,14 @@ import {
   Principlable,
   Principlables,
   PrincipleList,
+  usePrincipleSelect,
 } from "../components/principleList";
 import { Section } from "../components/section";
 import React from "react";
 
 export function ReadingView({ save }: { save: Save }) {
   const [school, setSchool] = React.useState<string>("");
-  const [aspect, setAspect] = React.useState<Aspect | "">("");
+  const [selectedPrinciple, principleSelect] = usePrincipleSelect();
 
   const desks = save.workstations.filter((w) =>
     w.slots.some((s) => s.required.readable),
@@ -66,7 +67,7 @@ export function ReadingView({ save }: { save: Save }) {
       return { existingSkill, skill, books, currentLevel, levelsYouCanGet };
     })
     .filter(({ skill }) => !school || (skill as any)["w." + school])
-    .filter(({ skill }) => !aspect || skill[aspect]);
+    .filter(({ skill }) => !selectedPrinciple || skill[selectedPrinciple]);
 
   const skillsYouHave = skillsYouCouldGet
     .filter(({ existingSkill }) => existingSkill)
@@ -96,27 +97,7 @@ export function ReadingView({ save }: { save: Save }) {
         <option value="skolekosophy">Skolekosophy</option>
       </select>
 
-      <select
-        style={{
-          color: PrincipleColor(aspect as Principle) || "white",
-          background: "#282c34",
-        }}
-        value={aspect}
-        onChange={({ target: { value } }) => {
-          setAspect(value as Aspect);
-        }}
-      >
-        <option value="" style={{ color: "white" }}>
-          All aspects
-        </option>
-        <optgroup label="Principles" style={{ color: "white" }}>
-          {Principles.map((p) => (
-            <option key={p} value={p} style={{ color: PrincipleColor(p) }}>
-              {p}
-            </option>
-          ))}
-        </optgroup>
-      </select>
+      {principleSelect}
 
       <SkillSection
         title="All skills"

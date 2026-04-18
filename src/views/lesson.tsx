@@ -88,7 +88,10 @@ export function LessonView({ save }: { save: Save }) {
   return (
     <div>
       <div>
-        Lessons: {[...principles].join(", ")}
+        Lessons:{" "}
+        {[...principles].map((p) => (
+          <span style={{ color: PrincipleColor(p) }}>{p}</span>
+        ))}
         {selectedMemories.size ? ` (${selectedMemories.size} selected)` : null}
       </div>
       {/* Search */}

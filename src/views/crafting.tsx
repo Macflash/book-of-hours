@@ -7,21 +7,25 @@ import {
   AspectList,
   Principlable,
   Principlables,
+  usePrincipleSelect,
 } from "../components/principleList";
 import { Section } from "../components/section";
 
 export let whatsCraftable: { result: Item; recipes: RecipeSolution[] }[] = [];
 
 export function CraftingView({ save }: { save: Save }) {
+  const [selectedPrinciple, principleSelect] = usePrincipleSelect();
+
   const recipeResults = PopulateDpMapByRecipes(save);
   const results = recipeResults
     .map((r) => GetItemById(r.recipe.result)!)
+    .filter((result) => !selectedPrinciple || result[selectedPrinciple])
     .unique();
   const recipeAndResults = results.map((result) => ({
     result,
     recipes: recipeResults
       .filter((r) => r.recipe.result == result.id)
-      .sort((a, b) => a.firstSolution.length - b.firstSolution.length),
+      .sortDesc(({ firstSolution }) => firstSolution.length),
   }));
 
   const tools = recipeAndResults.filter(
@@ -49,6 +53,8 @@ export function CraftingView({ save }: { save: Save }) {
 
   return (
     <div>
+      {principleSelect}
+
       <div>Crafting ({results.length})</div>
       <Section title={`Tools (${tools.length})`} startCollapsed>
         {tools.map(({ result, recipes }) => (

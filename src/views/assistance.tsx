@@ -6,30 +6,43 @@ import {
   Principlable,
   Principlables,
   PrincipleList,
+  usePrincipleSelect,
 } from "../components/principleList";
 import {
   BestWorkstation,
   FindBestWorkstationByPrinciple,
   GetSlotablesFromSave,
 } from "../boh/workstation";
+import { Section } from "../components/section";
+import { Room } from "../boh/rooms";
 
 export function AssistanceView({ save }: { save: Save }) {
   // TODO: So this finds the MAX you can do, but we actually want...
   // the MINIMUM that is good enough?
 
-  const [selected, setSelected] = React.useState<Assistant[]>([]);
+  const [selectedPrinciple, principleSelect] = usePrincipleSelect();
+  const assistants = GetAssistants().filter(
+    (assistant) => !selectedPrinciple || assistant[selectedPrinciple],
+  );
+  const [selectedAssistant, assistantSelect] = useAssistantSelect(assistants);
+
+  const roomsToOpen = save.rooms.filter((r) => r.shrouded && !r.sealed);
+  const [selectedRoom, roomSelect] = useRoomSelect(roomsToOpen);
 
   return (
-    <div style={{ display: "flex", flexDirection: "row" }}>
-      {/* Assistant selection */}
-      <div style={{ display: "flex", flexDirection: "column" }}>
-        <AssistantSelect
-          assistants={GetAssistants()}
-          selected={selected}
-          setSelected={setSelected}
-        />
+    <div>
+      <div>
+        {principleSelect}
+        {assistantSelect}
+        {roomSelect}
       </div>
-      <LegacyAssistanceView save={save} selected={selected} />
+      {/* Assistant selection */}
+
+      <LegacyAssistanceView
+        save={save}
+        selected={selectedAssistant ? [selectedAssistant] : assistants}
+        rooms={selectedRoom ? [selectedRoom] : roomsToOpen}
+      />
     </div>
   );
 }
@@ -37,90 +50,14 @@ export function AssistanceView({ save }: { save: Save }) {
 // we want to be able to say WHICH kind of things to use in which slots.
 // Memories: CONSIDER (not consumed) --> READ --> CRAFT --> CONSIDER (consumed)
 
-function AssistantSelect({
-  assistants,
-  selected,
-  setSelected,
-}: {
-  assistants: Assistant[];
-  selected: Assistant[];
-  setSelected: (newSelected: Assistant[]) => void;
-}) {
-  return (
-    <select
-      size={assistants.length + 4}
-      style={{
-        flex: "none",
-        height: "fit-content",
-        overflow: "hidden",
-        margin: 5,
-      }}
-      multiple
-      value={selected.map((s) => s.id)}
-      onChange={({ target: { selectedOptions } }) => {
-        setSelected(
-          [...selectedOptions].map(
-            (o) => assistants.find((a) => a.id === o.value)!,
-          ),
-        );
-      }}
-    >
-      <AssistantGroup
-        label="Regular"
-        assistants={assistants.filter((a) => !a.unusual && !a.season)}
-      />
-      <AssistantGroup
-        label="Seasonal"
-        assistants={assistants.filter(({ season }) => !!season)}
-      />
-      <AssistantGroup
-        label="Unusual"
-        assistants={assistants.filter(({ unusual }) => !!unusual)}
-      />
-    </select>
-  );
-}
-
-function AssistantGroup({
-  assistants,
-  label,
-}: {
-  assistants: Assistant[];
-  label: string;
-}) {
-  return (
-    <optgroup
-      label={label}
-      style={{
-        fontSize: 18,
-        fontWeight: "bold",
-        margin: "10px 5px",
-        borderBottom: "1px solid grey",
-      }}
-    >
-      {assistants.map((a) => (
-        <option
-          key={a.id}
-          value={a.id}
-          style={{
-            fontSize: 16,
-            padding: "5px 10px",
-          }}
-        >
-          {a.season ? `${a.season}: ` : ""}
-          {a.label}
-        </option>
-      ))}
-    </optgroup>
-  );
-}
-
 function LegacyAssistanceView({
   save,
   selected,
+  rooms,
 }: {
   save: Save;
   selected: Assistant[];
+  rooms: Room[];
 }) {
   const renewableSlotables = GetSlotablesFromSave(save, true);
   const allSlotables = GetSlotablesFromSave(save, false);
@@ -130,11 +67,11 @@ function LegacyAssistanceView({
     min: FindBestWorkstationByPrinciple(p, selected, renewableSlotables),
   }));
 
-  // list rooms that need to be unlocked
-  const roomsToOpen = save.rooms.filter((r) => r.shrouded && !r.sealed);
-
   return (
     <div>
+      <Section title={`Rooms to open (${rooms.length})`} collapse>
+        <Principlables principlables={rooms} allPrinciples />
+      </Section>
       {/* Assistance you can get */}
       {[...assistanceMap.entries()]
         .flatMap(
@@ -145,7 +82,7 @@ function LegacyAssistanceView({
             ] as [Principle, BestWorkstation][],
         )
         .filter(([principle, { bestSum }]) =>
-          roomsToOpen.find((r) => r[principle] && bestSum >= r[principle]),
+          rooms.find((r) => r[principle] && bestSum >= r[principle]),
         )
         .sort((a, b) => a[1].bestSum - b[1].bestSum)
         .map(([principle, { bestWorkstation, bestSum, bestSlotMap }], i) => {
@@ -153,7 +90,7 @@ function LegacyAssistanceView({
             .values()
             .toArray()
             .filter((s) => s?.[principle]);
-          const roomsYouCanOpenWithThisPrinciple = roomsToOpen.filter(
+          const roomsYouCanOpenWithThisPrinciple = rooms.filter(
             (r) => r[principle] && bestSum >= r[principle],
           );
           return (
@@ -215,4 +152,131 @@ function LegacyAssistanceView({
         })}
     </div>
   );
+}
+
+function AssistantSelect({
+  assistants,
+  selected,
+  setSelected,
+}: {
+  assistants: Assistant[];
+  selected: string;
+  setSelected: (newSelected: string) => void;
+}) {
+  return (
+    <select
+      style={{
+        color: "white",
+        background: "#282c34",
+      }}
+      value={selected}
+      onChange={({ target: { value } }) => {
+        setSelected(value);
+      }}
+    >
+      <option value="">All assistants ({assistants.length})</option>
+      <AssistantGroup
+        label="Regular"
+        assistants={assistants.filter((a) => !a.unusual && !a.season)}
+      />
+      <AssistantGroup
+        label="Seasonal"
+        assistants={assistants.filter(({ season }) => !!season)}
+      />
+      <AssistantGroup
+        label="Unusual"
+        assistants={assistants.filter(({ unusual }) => !!unusual)}
+      />
+    </select>
+  );
+}
+
+function AssistantGroup({
+  assistants,
+  label,
+}: {
+  assistants: Assistant[];
+  label: string;
+}) {
+  return (
+    <optgroup
+      label={label}
+      style={{
+        fontSize: 18,
+        fontWeight: "bold",
+        margin: "10px 5px",
+        borderBottom: "1px solid grey",
+      }}
+    >
+      {assistants.map((a) => (
+        <option
+          key={a.id}
+          value={a.id}
+          style={{
+            fontSize: 16,
+            padding: "5px 10px",
+          }}
+        >
+          {a.season ? `${a.season}: ` : ""}
+          {a.label}
+        </option>
+      ))}
+    </optgroup>
+  );
+}
+
+function useAssistantSelect(
+  assistants: Assistant[],
+): [Assistant | undefined, JSX.Element] {
+  const [selected, setSelected] = React.useState<string | "">("");
+
+  const assistantSelect = (
+    <AssistantSelect
+      assistants={assistants}
+      selected={selected}
+      setSelected={setSelected}
+    />
+  );
+
+  return [assistants.find(({ id }) => id === selected), assistantSelect];
+}
+
+function RoomSelect({
+  rooms,
+  selected,
+  setSelected,
+}: {
+  rooms: Room[];
+  selected: string;
+  setSelected: (newSelected: string) => void;
+}) {
+  return (
+    <select
+      style={{
+        color: "white",
+        background: "#282c34",
+      }}
+      value={selected}
+      onChange={({ target: { value } }) => {
+        setSelected(value);
+      }}
+    >
+      <option value="">All rooms ({rooms.length})</option>
+      {rooms.map((r) => (
+        <option key={r.id} value={r.id}>
+          {r.label}
+        </option>
+      ))}
+    </select>
+  );
+}
+
+function useRoomSelect(rooms: Room[]): [Room | undefined, JSX.Element] {
+  const [selected, setSelected] = React.useState<string | "">("");
+
+  const roomSelect = (
+    <RoomSelect rooms={rooms} selected={selected} setSelected={setSelected} />
+  );
+
+  return [rooms.find(({ id }) => id === selected), roomSelect];
 }

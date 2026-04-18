@@ -12,6 +12,7 @@ import {
 } from "../boh/principles";
 import { GetCraftingHintString } from "../boh/recipes_hints";
 import { Save } from "../boh/save";
+import React from "react";
 
 export interface IPrinciplable extends PrincipleMap {
   id?: string;
@@ -180,4 +181,44 @@ export function AspectList(map: AspectMap) {
         .join(", ")}
     </span>
   );
+}
+
+export function PrincipleSelect({
+  principle,
+  setPrinciple,
+}: {
+  principle?: Principle;
+  setPrinciple: (p?: Principle) => void;
+}) {
+  return (
+    <select
+      style={{
+        color: PrincipleColor(principle as Principle) || "white",
+        background: "#282c34",
+      }}
+      value={principle}
+      onChange={({ target: { value } }) => {
+        setPrinciple(value as Principle);
+      }}
+    >
+      <option value="" style={{ color: "white" }}>
+        All principles
+      </option>
+      <optgroup label="Principles" style={{ color: "white" }}>
+        {Principles.map((p) => (
+          <option key={p} value={p} style={{ color: PrincipleColor(p) }}>
+            {p}
+          </option>
+        ))}
+      </optgroup>
+    </select>
+  );
+}
+
+export function usePrincipleSelect(): [Principle | undefined, JSX.Element] {
+  const [principle, setPrinciple] = React.useState<Principle>();
+  const principleSelect = (
+    <PrincipleSelect principle={principle} setPrinciple={setPrinciple} />
+  );
+  return [principle, principleSelect];
 }
