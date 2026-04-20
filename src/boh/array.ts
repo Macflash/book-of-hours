@@ -12,6 +12,7 @@ declare global {
     sortDesc(cb: (t: T) => number): Array<T>;
     sum(cb: (t: T) => number): number;
     mapProp<K extends keyof T>(key: K): Array<T[K]>;
+    findBy<K extends keyof T>(k: K, t: T[K]): T | undefined;
   }
 }
 
@@ -54,6 +55,7 @@ if (!Array.prototype.uniqueBy) {
     });
   };
 }
+
 if (!Array.prototype.notIn) {
   Array.prototype.notIn = function <T>(this: T[], other: T[]): T[] {
     return this.filter((t) => !other.includes(t));
@@ -95,5 +97,15 @@ if (!Array.prototype.mapProp) {
     key: K,
   ): Array<T[K]> {
     return this.map((t) => t[key]);
+  };
+}
+
+if (!Array.prototype.findBy) {
+  Array.prototype.findBy = function <T, K extends keyof T>(
+    this: T[],
+    key: K,
+    value: T[K],
+  ): T | undefined {
+    return this.find((t) => t[key] == value);
   };
 }

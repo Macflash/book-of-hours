@@ -8,6 +8,7 @@ import {
 } from "../boh/principles";
 import { Rooms } from "../boh/rooms";
 import { Save } from "../boh/save";
+import { commited } from "../boh/skills";
 import { Principlable } from "../components/principleList";
 import { Section } from "../components/section";
 
@@ -36,7 +37,7 @@ export function SaveView({ save }: { save: Save }) {
         Use the other views above to help with reading, unlocking rooms,
         crafting, etc.
       </div>
-      <Section collapse title={`Best by principle`}>
+      <Section startCollapsed title={`Best by principle`}>
         {Principles.map((principle) => ({
           principle,
           soul: FindBestByPrinciple(principle, save.souls),
@@ -62,16 +63,13 @@ export function SaveView({ save }: { save: Save }) {
       <Section
         collapse
         startCollapsed={!commitableSkills.length}
-        title={`Skill tree (${commitableSkills.length} to commit)`}
+        title={`Skill tree (${save.skills.filter(commited).length} commited, ${commitableSkills.length} to commit)`}
       >
         <div>
           Skills uncommitted:{" "}
           {save.skills.filter((s) => !s["wisdom.committed"]).length}
         </div>
-        <div>
-          Skills Committed:{" "}
-          {save.skills.filter((s) => s["wisdom.committed"]).length}
-        </div>
+        <div>Skills Committed: {save.skills.filter(commited).length}</div>
         <div>
           Filled tree slots: {save.tree.filter((n) => n.unlocked).length}
         </div>

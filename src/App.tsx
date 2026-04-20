@@ -84,6 +84,7 @@ function App() {
           display: "flex",
           alignItems: "center",
           gap: 10,
+          padding: "0 5px",
           textAlign: "left",
           position: "sticky",
           top: 0,

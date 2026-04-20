@@ -31,7 +31,7 @@ export function commited(skill: Skill) {
 }
 
 export function GetSkillById(id: string, level = 1): Skill {
-  const skill = Skills.find((s) => s.id === id);
+  const skill = { ...Skills.find((s) => s.id === id) } as Skill;
   if (!skill) throw new Error(`Couldn't find skill with id: ${id}`);
   return EvolveSkill(skill, level);
 }

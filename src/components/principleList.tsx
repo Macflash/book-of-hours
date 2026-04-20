@@ -220,3 +220,22 @@ export function usePrincipleSelect(): [Principle | undefined, JSX.Element] {
   );
   return [principle, principleSelect];
 }
+
+export interface SelectProps<T> {
+  selected: string;
+  setSelected: (selected: string) => void;
+  values: T[];
+}
+
+// IDK if this will work. Feels a bit TS-fu.
+export function useSelect<T extends { id: string }>(
+  select: (props: SelectProps<T>) => JSX.Element,
+  values: T[],
+): [T | undefined, JSX.Element] {
+  const [selected, setSelected] = React.useState<string>("");
+
+  return [
+    values.find(({ id }) => id == selected),
+    select({ selected, setSelected, values }),
+  ];
+}
