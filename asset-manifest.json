@@ -1,15 +1,15 @@
 {
   "files": {
     "main.css": "/book-of-hours/static/css/main.d6510b4c.css",
-    "main.js": "/book-of-hours/static/js/main.751a6b87.js",
+    "main.js": "/book-of-hours/static/js/main.08c89ebf.js",
     "static/js/453.3dddc5e4.chunk.js": "/book-of-hours/static/js/453.3dddc5e4.chunk.js",
     "index.html": "/book-of-hours/index.html",
     "main.d6510b4c.css.map": "/book-of-hours/static/css/main.d6510b4c.css.map",
-    "main.751a6b87.js.map": "/book-of-hours/static/js/main.751a6b87.js.map",
+    "main.08c89ebf.js.map": "/book-of-hours/static/js/main.08c89ebf.js.map",
     "453.3dddc5e4.chunk.js.map": "/book-of-hours/static/js/453.3dddc5e4.chunk.js.map"
   },
   "entrypoints": [
     "static/css/main.d6510b4c.css",
-    "static/js/main.751a6b87.js"
+    "static/js/main.08c89ebf.js"
   ]
 }
