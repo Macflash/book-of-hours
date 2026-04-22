@@ -38,6 +38,7 @@ export function GetSkillById(id: string, level = 1): Skill {
 
 export function EvolveSkill(skill: Skill, level = 1): Skill {
   skill = { ...skill };
+  if (level == 0) skill.skill = 0;
   if (level <= 1) return skill;
   for (const principle of Principles) {
     if (skill[principle]) skill[principle] += 1;

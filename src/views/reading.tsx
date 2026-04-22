@@ -49,52 +49,22 @@ export function ReadingView({ save }: { save: Save }) {
   const [selectedPrinciple, principleSelect] = usePrincipleSelect();
   const [status, statusSelect] = useStatusSelect();
 
-  const booksToRead = save.books.filter(
-    (b) =>
-      !b.mastered &&
-      (!b.language || save.skills.some((s) => s.id == b.language)),
-  );
+  // This is a more accurate version of the
+  const booksYouCanRead = save.books
+    .filter(
+      (b) =>
+        !b.mastered &&
+        (!b.language || save.skills.some((s) => s.id == b.language)),
+    )
+    .filter((b) =>
+      Principles.some(
+        (principle) =>
+          b[principle] &&
+          b[principle] <= Or0(workstationPrincipleMap?.get(principle)?.bestSum),
+      ),
+    );
 
-  const booksYouCanRead = booksToRead.filter((b) =>
-    Principles.some(
-      (principle) =>
-        b[principle] &&
-        b[principle] <= Or0(workstationPrincipleMap?.get(principle)?.bestSum),
-    ),
-  );
-
-  const skillsYouCanRead = booksYouCanRead
-    .mapProp("mastering")
-    .mapProp("id")
-    .unique()
-    .map((id) => {
-      const existing = save.skills.findBy("id", id);
-      if (existing) return existing;
-      const newSkill = GetSkillById(id)!;
-      newSkill.skill = 0;
-      return newSkill;
-    });
-
-  const [selectedSkill, skillSelect] = useSkillSelect(skillsYouCanRead);
-
-  const skillsYouCouldGet = skillsYouCanRead
-    .filter((skill) => !selectedSkill || selectedSkill.id == skill.id)
-    .filter((skill) => !selectedPrinciple || skill[selectedPrinciple])
-    .filter((skill) => !selectedSchool || (skill as any)["w." + selectedSchool])
-    .map((skill) => {
-      const books = booksYouCanRead.filter((b) => b.mastering.id == skill.id);
-      const levelsYouCanGet = books.sum((b) => b.mastering.level);
-      return { skill, books, levelsYouCanGet };
-    });
-
-  // const skillsYouHave = skillsYouCouldGet
-  //   .filter(({ skill }) => skill.skill > 0)
-  //   .sortDesc(({ skill }) => skill);
-  // const uncommitedSkills = skillsYouHave.filter(
-  //   ({ existingSkill }) => !existingSkill?.["wisdom.committed"],
-  // );
-
-  // const openTreeNodes = save.tree.filter(({ unlocked }) => !unlocked);
+  const openTreeNodes = save.tree.filter(({ unlocked }) => !unlocked);
 
   // const newOrUncommitedSkills = skillsYouCouldGet
   //   .filter(({ existingSkill }) => !existingSkill?.["wisdom.committed"])
@@ -109,6 +79,47 @@ export function ReadingView({ save }: { save: Save }) {
   //     };
   //   })
   //   .filter(({ schools }) => schools.length);
+
+  // const skillsYouCanRead = booksYouCanRead
+  //   .mapProp("mastering")
+  //   .mapProp("id")
+  //   .unique()
+  //   .map((id) => {
+  //     const existing = save.skills.findBy("id", id);
+  //     if (existing) return existing;
+  //     const newSkill = GetSkillById(id)!;
+  //     newSkill.skill = 0;
+  //     return newSkill;
+  //   });
+
+  // Filter by the status of the skill
+  const skillsYouHave = save.skills;
+  const skillsFromBooks = booksYouCanRead
+    .mapProp("mastering")
+    .mapProp("id")
+    .unique()
+    .notIn(skillsYouHave.mapProp("id"))
+    .map((id) => GetSkillById(id, 0));
+  let skillsToUse: Skill[] = [];
+  switch (status) {
+    case "all":
+      skillsToUse = [...skillsYouHave, ...skillsFromBooks];
+      break;
+    case "known":
+      skillsToUse = skillsYouHave;
+      break;
+    case "new":
+      skillsToUse = skillsFromBooks;
+      break;
+  }
+
+  // filter by school and principle!
+  skillsToUse = skillsToUse
+    .filter((skill) => !selectedPrinciple || skill[selectedPrinciple])
+    .filter((skill) => !selectedSchool || (skill as any)["w." + selectedSchool])
+    .sortDesc((skill) => skill.skill || 0);
+
+  const [selectedSkill, skillSelect] = useSkillSelect(skillsToUse);
 
   return (
     <div>
@@ -394,22 +405,11 @@ function SkillSelect({
         All skills
       </option>
 
-      <optgroup label="Current skills">
-        {values
-          .filter((skill) => skill.skill)
-          .sortDesc((s) => s.skill || 0)
-          .map((skill) => (
-            <SkillOption key={skill.id} skill={skill} />
-          ))}
-      </optgroup>
-
-      <optgroup label="New skills">
-        {values
-          .filter((skill) => !skill.skill)
-          .map((skill) => (
-            <SkillOption key={skill.id} skill={skill} />
-          ))}
-      </optgroup>
+      {values
+        .sortDesc((s) => s.skill || 0)
+        .map((skill) => (
+          <SkillOption key={skill.id} skill={skill} />
+        ))}
     </select>
   );
 }
@@ -449,7 +449,7 @@ export function useStatusSelect(): [Status, JSX.Element] {
       <option value="all">All skill types</option>
       <option value="cancommit">Skills you can commit</option>
       <option value="known">Skills you know</option>
-      <option value="new">Skills you can learn</option>
+      <option value="new">New skills you can learn</option>
     </select>
   );
 
