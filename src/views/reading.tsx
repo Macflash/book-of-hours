@@ -54,7 +54,7 @@ export function ReadingView({ save }: { save: Save }) {
   );
 
   const skillsYouCouldGet = booksToMaster
-    .map((b) => b.mastering.id.replace("x.", "s."))
+    .map(({ mastering: { id } }) => id)
     .unique()
     .map((s) => {
       const existingSkill = save.skills.find((skill) => skill.id == s);

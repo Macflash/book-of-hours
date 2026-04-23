@@ -128,6 +128,17 @@ export function SaveView({ save }: { save: Save }) {
           </span>
         ))}
       </Section>
+      <Section startCollapsed title={`Items (${save.items.length} in house)`}>
+        {save.items
+          .uniqueBy("id")
+          .sortDesc(PrincipleSum)
+          .map((s, i) => (
+            <span key={i}>
+              <Principlable principlable={s} allPrinciples />
+              {", "}
+            </span>
+          ))}
+      </Section>
     </div>
   );
 }
