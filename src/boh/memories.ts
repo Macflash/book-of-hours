@@ -9,7 +9,7 @@ console.log("Memories", Memories);
 // Get a list of all the memories you either have or can get based on your save data.
 export function GetAvailableMemoriesFromSave(
   save: Save,
-  renewableOnly = false
+  renewableOnly = false,
 ) {
   const memories = new Set<string>();
 
@@ -35,6 +35,10 @@ export function GetAvailableMemoriesFromSave(
     .noNulls();
 }
 
+export function IsNumen(memory: Memory): boolean {
+  return Object.keys(memory).some((key) => key.startsWith("numen."));
+}
+
 /** @deprecated Use save data instead */
 export const FavMemories: Memory[] = [
   "mem.fear",
@@ -55,8 +59,3 @@ export const FavMemories: Memory[] = [
   "numen.bala",
   "numen.oldl",
 ].map((id) => GetItemById(id)! as Memory);
-
-/** @deprecated */
-export function IsFavMemory(id: string) {
-  return FavMemories.some((m) => m.id == id);
-}

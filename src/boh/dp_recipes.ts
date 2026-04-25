@@ -9,7 +9,7 @@ import {
   SortByAspect,
 } from "./aspects";
 import { GetItemById, Item } from "../boh/items";
-import { GetAvailableMemoriesFromSave } from "./memories";
+import { GetAvailableMemoriesFromSave, IsNumen, Memory } from "./memories";
 import { Principle, Principles, SumPrinciples } from "./principles";
 import { Recipe, Recipes } from "./recipes";
 import { Save } from "./save";
@@ -261,7 +261,7 @@ export function PopulateDpMapByRecipes(
   log && console.log("scholar", scholar);
   log && console.log("keeper", keeper);
 
-  const recipeResults = [...prentice, ...scholar, ...keeper]
+  const recipeResults = recipesToTry
     .map((recipeData) => {
       const { recipe, skill, principle, otherReq, principleAmount } =
         recipeData;
@@ -314,11 +314,12 @@ export function PopulateDpMapByRecipes(
         })
         .noNulls();
 
-      const solutions1 = workstationsWithSoulAndSkill
+      // SKILL + SOUL Solutions
+      const SS = workstationsWithSoulAndSkill
         .filter(({ meetsReqs }) => meetsReqs)
         .map(({ usedSoFar }) => usedSoFar)
         .noNulls();
-      if (solutions1.length) return { ...recipeData, solutions: solutions1 };
+      if (SS.length) return { ...recipeData, solutions: SS };
 
       // Restrict to memories and items that match the principle OR another aspect.
       const orderedMemories = memories
@@ -359,11 +360,12 @@ export function PopulateDpMapByRecipes(
         },
       );
 
-      const solutions2 = withMemory
+      // SKILL + SOUL + MEMORY
+      const SSM = withMemory
         .filter(({ meetsReqs }) => meetsReqs)
         .map(({ usedSoFar }) => usedSoFar)
         .noNulls();
-      if (solutions2.length) return { ...recipeData, solutions: solutions2 };
+      if (SSM.length) return { ...recipeData, solutions: SSM };
 
       const orderedItems = items
         .filter((i) => i[principle] || i[otherReq])
@@ -374,7 +376,14 @@ export function PopulateDpMapByRecipes(
       function doSlot(usedSoFar: Slotable[], slotToUse: Slot, lastSlot?: Slot) {
         const otherReqFufilled =
           !otherReq || SumSlotAspects(usedSoFar)[otherReq];
+
+        // Only use up to 1!! numen.
+        const hasUsedNumen = usedSoFar.some((slotable) =>
+          IsNumen(slotable as Memory),
+        );
+
         const fitsInslot = allSlotables
+          .filter((s) => !IsNumen(s as Memory) || !hasUsedNumen)
           .filter((s) => MatchesSlot(slotToUse, s) && s.id != recipe.result)
           .notIn(usedSoFar);
 

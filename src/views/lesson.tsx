@@ -10,7 +10,7 @@ import {
 } from "../boh/recipes";
 import { Book, FindBooksThatSpawnId } from "../boh/book";
 import { Item, GetItemsByConsiderSpawnId } from "../boh/items";
-import { Memories, Memory, FavMemories } from "../boh/memories";
+import { Memories, Memory } from "../boh/memories";
 import { GetCraftingHintString } from "../boh/recipes_hints";
 
 export function LessonView({ save }: { save: Save }) {
