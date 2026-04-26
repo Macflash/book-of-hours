@@ -11,6 +11,7 @@ import { SaveView } from "./views/save";
 import { EvolveView } from "./views/evolve";
 import { WorkstationView } from "./views/workstation";
 import { PrincipleColor, Principles } from "./boh/principles";
+import { ItemView } from "./views/items";
 
 const seed = Math.floor(Math.random() * Principles.length);
 const title = "Book of Hours helper".split(" ").map((c, i) => (
@@ -32,7 +33,8 @@ type View =
   | "lesson"
   | "workstation"
   | "evolve"
-  | "contamination";
+  | "contamination"
+  | "items";
 
 function App() {
   const [view, setView] = React.useState<View>("load");
@@ -77,6 +79,10 @@ function App() {
     body = <WorkstationView save={save} />;
   }
 
+  if (view == "items") {
+    body = <ItemView save={save} />;
+  }
+
   return (
     <div className="App">
       <div
@@ -113,6 +119,7 @@ function App() {
             <option value="lesson">Lessons</option>
             <option value="workstation">Workstation</option>
             <option value="contamination">Contamination</option>
+            <option value="items">Items</option>
           </select>
         ) : null}
         <LoadFile

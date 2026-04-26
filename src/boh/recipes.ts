@@ -59,11 +59,19 @@ export function FilterRecipesBySkills(skills: Skill[], recipes = Recipes) {
 }
 
 export function ToRecipeString(recipe: Recipe): string {
+  const principle = Principles.filter((p) => recipe.reqs[p])[0];
+  const amt = recipe.reqs[principle];
+
+  const otherThang = Object.keys(recipe.reqs).filter(
+    (key) => key != principle && !key.startsWith("s.") && key !== "ability",
+  )[0];
+
+  // 10 + 15 recipes all require another aspect so we should SHOW those here!
   return `${GetSkillById(recipe.skill).label}: ${Principles.filter(
     (p) => recipe.reqs[p],
-  )
-    .map((p) => `${p} ${recipe.reqs[p]}`)
-    .join(", ")}`;
+  ).map(
+    (p) => `${p} ${recipe.reqs[p]}`,
+  )} ${otherThang ? `(${otherThang})` : ""}`;
 }
 
 // This doesn't..
