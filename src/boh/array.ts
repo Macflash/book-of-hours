@@ -6,7 +6,7 @@ declare global {
     all(callback: (x: T) => boolean): boolean;
     unique(): Array<T>;
     uniqueBy(key: keyof T): Array<T>;
-    notIn(other: T[]): Array<T>;
+    notIn(other: readonly T[]): Array<T>;
     ifEmpty<J>(ifEmpty: J): Array<T> | J;
     sortAsc(cb: (t: T) => number): Array<T>;
     sortDesc(cb: (t: T) => number): Array<T>;
